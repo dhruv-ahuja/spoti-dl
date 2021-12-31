@@ -2,21 +2,23 @@ from dataclasses import dataclass
 from youtube_dl import YoutubeDL
 from spotify import Song
 
-# options = {
-#     "format": "bestaudio/best",
-#     "postprocessors": [
-#         {
-#             "key": "FFmpegExtractAudio",
-#             "preferredcodec": "mp3",
-#             # "preferredquality": "320",
-#         }
-#     ],
-#     "outtmpl": "%(title)s.%(ext)s",
-#     "quiet": False,
-#     "noplaylist": True,
-# }
+# todo: convert this to be modular, add ability to customize options
+options = {
+    "format": "bestaudio/best",
+    "postprocessors": [
+        {
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+            "preferredquality": "320",
+        }
+    ],
+    "outtmpl": "%(title)s.%(ext)s",
+    "quiet": True,
+    "noplaylist": True,
+    "newline": True,
+}
 
-yt = YoutubeDL()
+yt = YoutubeDL(options)
 
 
 @dataclass
@@ -44,7 +46,7 @@ def download_song(song: Song):
     # print(yt_song)
     try:
         print(yt_song.video_url)
-        dl = yt.download([yt_song.video_url], codec="mp3", bitrate="320", quiet=False)
+        dl = yt.download([yt_song.video_url])
     except Exception as e:
         print(e)
 
