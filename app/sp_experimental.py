@@ -13,11 +13,12 @@ keys = []
 # the SpotifyOAuth class automatically reads
 # "SPOTIPY..." prefixed env variables for us
 sp = Spotify(auth_manager=SpotifyOAuth())
+# x = sp.album_tracks()
+
 
 album_details = sp.new_releases(country="IN", limit=2)
 album_details = album_details["albums"]["items"]
-# x = sp.album_tracks()
-
+print(type(album_details))
 # defining the structure for our albums to be parsed
 # Album = namedtuple("Album", ["name", "artist", "album_art"])
 @dataclass
