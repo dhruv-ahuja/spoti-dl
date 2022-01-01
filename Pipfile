@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 youtube-dl = "*"
 spotipy = "*"
-click = "*"
+yt-dlp = "*"
 
 [dev-packages]
 
