@@ -1,6 +1,9 @@
 import argparse
+from os import chdir
 
-import utils
+from utils import directory_maker, default_save_dir
+from spotify import get_song_data
+from youtube import download_song
 
 
 def cli_args():
@@ -14,7 +17,7 @@ def cli_args():
     parser.add_argument(
         "-d",
         "--dir",
-        # default="./yASD-dl",
+        default=default_save_dir,
         help="Save directory(is created if doesn't exist)",
     )
 
@@ -31,18 +34,13 @@ def controller():
     """
     args = cli_args()
 
-    if not args.dir:
-        print("You have not defined a save directory.")
-        print("Make a directory in the current folder?")
-        user_choice = utils.choice(
-            "Enter 'y' or 'n'(if 'n' then define directory in the next prompt): "
-        )
+    if args.dir:
+        directory_maker(args.dir)
+        chdir(args.dir)
 
-        if not user_choice:
-            save_dir = input("Save directory(is created if doesn't exist): ")
-            # now, check whether the directory exists already or not
-            # if not, create the directory
-            utils.directory_maker(save_dir)
+    else:
+        directory_maker(default_save_dir)
+        chdir(default_save_dir)
 
-        else:
-            utils.directory_maker(utils.default_save_dir)
+    song_data = get_song_data(args.link)
+    download_song(song_data)

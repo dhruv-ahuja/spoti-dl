@@ -1,4 +1,8 @@
 .vscode/
+#testing folder making capabilities
+app/yASD-dl/
+./yASD-dl/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

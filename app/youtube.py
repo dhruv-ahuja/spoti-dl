@@ -30,7 +30,7 @@ class YoutubeSong:
     video_url: str
 
 
-def download_song(song: Song) -> bool:
+def download_song(song: Song):
     """
     Download the song using the given details. Returns False in case of errors.
     """
@@ -55,7 +55,7 @@ def download_song(song: Song) -> bool:
         print(e)
 
     else:
-        return True
+        print(f"Successfully downloaded {song.name}")
 
 
 if __name__ == "__main__":

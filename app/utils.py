@@ -1,7 +1,7 @@
 import os
 
 
-default_save_dir = "./yASD-dl"
+default_save_dir = os.getcwd() + "/yASD-dl"
 
 
 def choice(msg: str) -> bool:
@@ -35,21 +35,21 @@ def check_file(path: str) -> bool:
     return os.path.isfile(path)
 
 
-def directory_maker(path: str) -> bool:
+def directory_maker(path: str):
     """
     Checks for the existence of a directory given the path
     and makes one if it doesn't exist.
     """
     if not check_dir(path):
-        # we don't need an else statement for the make_dir function
-        # since we already have implemented error handling
-        if not make_dir(path):
-            return False
+        # if there's an error making the directory,
+        # the app will return False automatically
+        if make_dir(path):
+            print("Successfully created save directory.")
 
     else:
-        # print("Directory already exists!")
-        # if dir already exists, we use it as it is
-        return True
+        print("Directory exists, using it as save space.")
 
-    print("Successfully created save directory!")
-    return True
+
+if __name__ == "__main__":
+    mk = directory_maker("./app/yASD-dl")
+    print(mk)
