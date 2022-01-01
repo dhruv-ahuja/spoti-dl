@@ -1,5 +1,18 @@
-from youtube_dl import *
+# current plan is:
+# add some basic arguments to the cli to enable some flexibility
+# construct a basic controller for the cli
+# add some more features
+
+# main should not contain complex app logic
+# just be used to run the main functions themselves mostly
 
 
-def get_url():
-    song_url = input("enter song URL: ")
+from cli import controller
+
+
+def main():
+    c = controller()
+
+
+if __name__ == "__main__":
+    main()
