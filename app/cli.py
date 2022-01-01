@@ -4,6 +4,9 @@ import utils
 
 
 def cli_args():
+    """
+    Contains and parses all command line arguments for the application.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("link", help="Spotify song link to download")
 

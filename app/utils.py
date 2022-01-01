@@ -18,10 +18,10 @@ def choice(msg: str) -> bool:
 
 def make_dir(path: str) -> bool:
     try:
-        os.makedirs(path)
+        os.makedirs(path, exist_ok=True)
 
     except OSError as e:
-        print("Error when trying to make directory: ", e)
+        print("Error when attempting to make directory: ", e)
 
     else:
         return True
@@ -36,12 +36,20 @@ def check_file(path: str) -> bool:
 
 
 def directory_maker(path: str) -> bool:
+    """
+    Checks for the existence of a directory given the path
+    and makes one if it doesn't exist.
+    """
     if not check_dir(path):
         # we don't need an else statement for the make_dir function
         # since we already have implemented error handling
         if not make_dir(path):
-            print("Directory already exists!")
             return False
 
-        print("Successfully created save directory!")
+    else:
+        # print("Directory already exists!")
+        # if dir already exists, we use it as it is
         return True
+
+    print("Successfully created save directory!")
+    return True
