@@ -21,6 +21,8 @@ options = {
 yt = YoutubeDL(options)
 
 
+# creating a YoutubeSong dataclass just for insurance, if there's no need for it
+# later, will remove it
 @dataclass
 class YoutubeSong:
     id: int
@@ -28,27 +30,32 @@ class YoutubeSong:
     video_url: str
 
 
-def download_song(song: Song):
+def download_song(song: Song) -> bool:
     """
-    Download the song using the given details.
+    Download the song using the given details. Returns False in case of errors.
     """
-    # using Song dataclasses' __repr__ function to construct the song name
-    song_title = str(song)
 
-    yt_info = yt.extract_info(f"ytsearch:{song_title}", download=False)["entries"][0]
-    # stripping link of https
-    link = "".join(yt_info["webpage_url"])
-    yt_song = YoutubeSong(
-        id=yt_info["id"],
-        title=yt_info["title"],
-        video_url=yt_info["webpage_url"],
-    )
-    # print(yt_song)
     try:
-        print(yt_song.video_url)
-        dl = yt.download([yt_song.video_url])
+        # using Song dataclasses' __repr__ function to construct the song name
+        # adding "audio" to avoid music videos 😅
+        song_title = str(song) + "audio"
+
+        yt_info = yt.extract_info(f"ytsearch:{song_title}", download=False)
+        yt_info = yt_info["entries"][0]
+
+        yt_song = YoutubeSong(
+            id=yt_info["id"],
+            title=yt_info["title"],
+            video_url=yt_info["webpage_url"],
+        )
+
+        yt.download([yt_song.video_url])
+
     except Exception as e:
         print(e)
+
+    else:
+        return True
 
 
 if __name__ == "__main__":
