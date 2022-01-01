@@ -1,4 +1,7 @@
 import os
+from re import search
+
+from exceptions import IncorrectSpotifyLinkError
 
 
 default_save_dir = os.getcwd() + "/yASD-dl"
@@ -53,3 +56,16 @@ def directory_maker(path: str):
 if __name__ == "__main__":
     mk = directory_maker("./app/yASD-dl")
     print(mk)
+
+
+def spotify_link_checker(link: str, patterns_list: list):
+    """
+    Handles all checks needed to vet user-entered Spotify links.
+    """
+    if not link:
+        raise IncorrectSpotifyLinkError("Empty link!")
+
+    # patterns_list contains a list of regex patterns for Spotify URLs
+    for pattern in patterns_list:
+        if not search(pattern=pattern, string=link):
+            raise IncorrectSpotifyLinkError("Not a valid Spotify link!")
