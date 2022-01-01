@@ -43,6 +43,7 @@ def fetch_source(song: Song) -> YoutubeSong:
     """
     Fetch apt source for the song from Youtube using the given details.
     """
+
     try:
         # using Song dataclasses' __repr__ function to construct the song name
         # adding "audio" to avoid 'official music videos' and similar types 😅
@@ -68,8 +69,7 @@ def fetch_source(song: Song) -> YoutubeSong:
 
 def download_song(song: YoutubeSong, parameters: list[str]) -> bool:
     print("Starting download...")
-    # print("artist: ", yt_info["artist"], yt_info["track"])
-    # yt.download([yt_song.video_url])
+    yt.download([song.video_url])
     print(f"Successfully downloaded {song.name}")
 
 

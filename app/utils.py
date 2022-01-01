@@ -1,7 +1,7 @@
 import os
 from re import search
 
-from exceptions import IncorrectSpotifyLinkError
+from exceptions import LinkError
 
 
 default_save_dir = os.getcwd() + "/yASD-dl"
@@ -11,6 +11,7 @@ def choice(msg: str) -> bool:
     """
     Offer the user a choice, infinite loop till they make a decision.
     """
+
     user_choice = ""
     choice_list = ("y", "n")
     while user_choice not in choice_list:
@@ -43,6 +44,7 @@ def directory_maker(path: str):
     Checks for the existence of a directory given the path
     and makes one if it doesn't exist.
     """
+
     if not check_dir(path):
         # if there's an error making the directory,
         # the app will return False automatically
@@ -58,14 +60,14 @@ if __name__ == "__main__":
     print(mk)
 
 
-def spotify_link_checker(link: str, patterns_list: list):
+def check_spotify_link(link: str, patterns_list: list):
     """
     Handles all checks needed to vet user-entered Spotify links.
     """
     if not link:
-        raise IncorrectSpotifyLinkError("Empty link!")
+        raise LinkError("You have entered an empty link!")
 
     # patterns_list contains a list of regex patterns for Spotify URLs
     for pattern in patterns_list:
         if not search(pattern=pattern, string=link):
-            raise IncorrectSpotifyLinkError("Not a valid Spotify link!")
+            raise LinkError("You have entered an invalid Spotify link!")

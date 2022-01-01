@@ -2,15 +2,10 @@
 # certain aspects in the application
 
 
-class AppError(Exception):
-    def __init__(
-        self, err_msg="An error occured during the exeuction of the application!"
-    ):
-        self.err_msg = err_msg
-        super().__init__(self.err_msg)
+class LinkError(Exception):
+    """
+    Exception raised when the provided link is incorrect.
+    """
 
-
-class IncorrectSpotifyLinkError(AppError):
-    def __init__(self, err_msg: str):
-        self.err_msg = err_msg
-        super().__init__(self.err_msg)
+    # spits out whatever error message is passed to it
+    pass

@@ -1,7 +1,7 @@
 import argparse
 from os import chdir
 
-from utils import directory_maker, default_save_dir, spotify_link_checker
+from utils import directory_maker, default_save_dir, check_spotify_link
 from spotify import get_song_data
 from youtube import download_song
 from config import spotify_link_patterns
@@ -11,6 +11,7 @@ def cli_args():
     """
     Contains and parses all command line arguments for the application.
     """
+
     parser = argparse.ArgumentParser()
     parser.add_argument("link", help="Spotify song link to download")
 
@@ -40,10 +41,11 @@ def controller():
     """
     Controls the flow of the program execution.
     """
+
     args = cli_args()
 
     # check whether the provided link is authentic
-    spotify_link_checker(args.link, spotify_link_patterns)
+    check_spotify_link(args.link, spotify_link_patterns)
 
     if args.dir:
         directory_maker(args.dir)
