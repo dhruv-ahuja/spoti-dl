@@ -65,9 +65,17 @@ def check_spotify_link(link: str, patterns_list: list):
     Handles all checks needed to vet user-entered Spotify links.
     """
     if not link:
-        raise LinkError("You have entered an empty link!")
+        # raise LinkError("You have entered an empty link!")
+
+        # setting exit as an alternative to perform a graceful exit
+        # the idea is to make an attempt to keep errors for user mistakes
+        # as clear as possible; raising an error sends a long message with
+        # ~3 tracebacks through the different files, which I think can be too
+        # confusing for the end user, just a small thought
+        exit("LinkError: You have entered an empty link!")
 
     # patterns_list contains a list of regex patterns for Spotify URLs
     for pattern in patterns_list:
         if not search(pattern=pattern, string=link):
-            raise LinkError("You have entered an invalid Spotify link!")
+            # raise LinkError("You have entered an invalid Spotify link!")
+            exit("LinkError: You have entered an invalid Spotify link!")
