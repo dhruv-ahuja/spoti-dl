@@ -15,7 +15,7 @@ class Song:
     album_art_url: str
 
     def __repr__(self):
-        return f"{', '.join(self.artists)}: {self.name}"
+        return f"{', '.join(self.artists)}- {self.name}"
 
 
 def get_song_data(link: str) -> Song:

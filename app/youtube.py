@@ -4,25 +4,8 @@ from dataclasses import dataclass
 from spotify import Song
 from yt_dlp import YoutubeDL
 
-# todo: convert this to be modular, add ability to customize options
-options = {
-    "format": "bestaudio/best",
-    "postprocessors": [
-        {
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "320",
-        }
-    ],
-    # todo: change the output according to the song title and artist
-    "outtmpl": "%(title)s.%(ext)s",
-    "quiet": True,
-    "noplaylist": True,
-    "progress": True,
-    "newline": True,
-}
 
-yt = YoutubeDL(options)
+yt = YoutubeDL()
 
 
 # creating a YoutubeSong dataclass just for insurance, if there's no need for it
@@ -36,10 +19,42 @@ class YoutubeSong:
     video_url: str
 
     def __repr__(self):
-        return f"{self.artist}: {self.title}"
+        return f"{self.artist}- {self.title}"
 
 
-def fetch_source(song: Song) -> YoutubeSong:
+def get_config(
+    codec: str, quality: str, quiet: bool, song_name: str, song_artists: str
+) -> dict:
+    """
+    Prepares the parameters that need to be passed onto the YoutubeDL object.
+    """
+
+    parameters = {
+        "format": "bestaudio/best",
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": codec,
+                "preferredquality": quality,
+            }
+        ],
+        "outtmpl": f"{song_artists}- {song_name}.%(ext)s",
+        # "outtmpl": "name.%(ext)s",
+        "quiet": quiet,
+    }
+
+    return parameters
+
+
+def get_downloader(params: dict):
+    """
+    Initiates the YoutubeDL class with the configured parameters.
+    """
+
+    return YoutubeDL(params=params)
+
+
+def fetch_source(yt: YoutubeDL, song: Song) -> YoutubeSong:
     """
     Fetch apt source for the song from Youtube using the given details.
     """
@@ -67,12 +82,31 @@ def fetch_source(song: Song) -> YoutubeSong:
         return yt_song
 
 
-def download_song(song: YoutubeSong, parameters: list[str]) -> bool:
-    print("Starting download...")
-    yt.download([song.video_url])
-    print(f"Successfully downloaded {song.name}")
+def download_song(yt: YoutubeDL, song_id: int, link: str = ""):
+    """
+    Registers the provided parameters with the YoutubeDL object and
+    downloads the song using the extracted information.
+    """
+
+    print("Starting download...\n")
+
+    try:
+        # using try-else since afaik the library itself doesn't return
+        # any errors
+        # attempts to download the song using the best matched
+        # youtube source link
+        yt.download(song_id)
+
+    except:
+        print("Download failed!\n")
+
+    else:
+        print(f"Successfully finished downloading!\n")
 
 
 if __name__ == "__main__":
-    download_song(song=Song("Whats Poppin(feat DaBaby)", ["Jack Harlow"], ""))
-    # download_song(song=Song("He Dont Love Me", ["Winona Oak"], ""))
+    params = get_config("flac", "best", False, "He Don't Love Me", "Winona Oak")
+    yt = get_downloader(params)
+    yt_song = fetch_source(yt, song=Song("He Don't Love Me", ["Winona Oak"], ""))
+
+    download_song(yt, yt_song.id)
