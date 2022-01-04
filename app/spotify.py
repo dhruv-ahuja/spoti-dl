@@ -9,7 +9,7 @@ sp = Spotify(auth_manager=SpotifyOAuth())
 
 # defining structure for the song data we are going to be parsing
 @dataclass
-class SpotifySong:
+class Song:
     name: str
     artists: list
     album_art_url: str
@@ -18,7 +18,7 @@ class SpotifySong:
         return f"{', '.join(self.artists)}- {self.name}"
 
 
-def get_song_data(link: str) -> SpotifySong:
+def get_song_data(link: str) -> Song:
     """
     Get relevant song details for the given Spotify song link.
     The link can be be a URL, URI or even a Spotify song ID.
@@ -37,7 +37,7 @@ def get_song_data(link: str) -> SpotifySong:
         for artist in song_details["artists"]:
             artists.append(artist["name"])
 
-        song = SpotifySong(
+        song = Song(
             song_details["name"],
             artists,
             # typically the 1st link contains a link to the album art

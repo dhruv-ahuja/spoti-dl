@@ -9,16 +9,11 @@ from yt_dlp import YoutubeDL
 class YoutubeSong:
     id: int
     title: str
-    # video_url: str
+    video_url: str
 
 
 def get_config(
-    codec: str,
-    quality: str,
-    quiet: bool,
-    force: bool,
-    song_name: str,
-    song_artists: str,
+    codec: str, quality: str, quiet: bool, song_name: str, song_artists: str
 ) -> dict:
     """
     Prepares the parameters that need to be passed onto the YoutubeDL object.
@@ -34,8 +29,8 @@ def get_config(
             }
         ],
         "outtmpl": f"{song_artists}- {song_name}.%(ext)s",
+        # "outtmpl": "name.%(ext)s",
         "quiet": quiet,
-        "force": force,
     }
 
     return parameters
@@ -69,13 +64,13 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
         yt_song = YoutubeSong(
             id=yt_info["id"],
             title=yt_info["title"],
-            # video_url=yt_info["webpage_url"],
+            video_url=yt_info["webpage_url"],
         )
 
         return yt_song
 
 
-def download_song(yt: YoutubeDL, song_id: int):
+def download_song(yt: YoutubeDL, song_id: int, link: str = ""):
     """
     Registers the provided parameters with the YoutubeDL object and
     downloads the song using the extracted information.
@@ -97,16 +92,14 @@ def download_song(yt: YoutubeDL, song_id: int):
         print(f"Successfully finished downloading!")
 
 
-def youtube_controller(
-    codec: str, quality: str, quiet: bool, force: bool, song: SpotifySong
-):
+def youtube_controller(codec: str, quality: str, quiet: bool, song: SpotifySong):
     """
     Handles the flow of the download process for the given song.
     Initiates the configuration as per the user-defined parameters and chains
     the rest of functions together.
     """
 
-    params = get_config(codec, quality, quiet, force, song.name, song.artists)
+    params = get_config(codec, quality, quiet, song.name, song.artists)
 
     yt = get_downloader(params)
 
