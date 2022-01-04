@@ -11,9 +11,7 @@ class YoutubeSong:
     video_url: str
 
 
-def get_config(
-    codec: str, quality: str, quiet: bool, song_name: str, song_artists: list
-) -> dict:
+def get_config(required_params: dict, song_name: str, song_artists: list) -> dict:
     """
     Prepares the parameters that need to be passed onto the YoutubeDL object.
     """
@@ -31,12 +29,12 @@ def get_config(
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
-                "preferredcodec": codec,
-                "preferredquality": quality,
+                "preferredcodec": required_params["codec"],
+                "preferredquality": required_params["quality"],
             }
         ],
         "outtmpl": f"{artists}- {song_name}.%(ext)s",
-        "quiet": quiet,
+        "quiet": required_params["quiet"],
     }
 
     return parameters
@@ -99,14 +97,14 @@ def download_song(yt: YoutubeDL, link: str):
         print(f"Successfully finished downloading!")
 
 
-def youtube_controller(codec: str, quality: str, quiet: bool, song: SpotifySong):
+def youtube_controller(required_params: dict, song: SpotifySong):
     """
     Handles the flow of the download process for the given song.
     Initiates the configuration as per the user-defined parameters and chains
     the rest of functions together.
     """
 
-    params = get_config(codec, quality, quiet, song.name, song.artists)
+    params = get_config(required_params, song.name, song.artists)
     yt = get_downloader(params)
 
     yt_song = fetch_source(yt, song)
@@ -114,8 +112,11 @@ def youtube_controller(codec: str, quality: str, quiet: bool, song: SpotifySong)
 
 
 if __name__ == "__main__":
-    download_song()
-    params = get_config("mp3", "320", True, "He Don't Love Me", ["Winona Oak"])
+    params = get_config(
+        {"codec": "mp3", "quality": "320", "quiet": True},
+        "He Don't Love Me",
+        ["Winona Oak"],
+    )
     yt = get_downloader(params)
     yt_song = fetch_source(yt, song=SpotifySong("He Don't Love Me", ["Winona Oak"], ""))
     download_song(yt, yt_song.video_url)

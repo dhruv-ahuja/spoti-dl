@@ -69,4 +69,11 @@ def controller():
 
     u.directory_maker(args.dir)
 
-    y.youtube_controller(args.codec, args.bitrate, args.quiet, song)
+    # grouping all youtube-dl required arguments together before passing them
+    # as the controller func parameters
+    required_params = {
+        "codec": args.codec,
+        "quality": args.bitrate,
+        "quiet": args.quiet,
+    }
+    y.youtube_controller(required_params, song)
