@@ -1,23 +1,30 @@
 from dataclasses import dataclass
 
-# from youtube_dl import YoutubeDL
 from spotify import SpotifySong
 from yt_dlp import YoutubeDL
 
 
 @dataclass
 class YoutubeSong:
-    id: int
+    id: str
     title: str
-    # video_url: str
+    video_url: str
 
 
 def get_config(
-    codec: str, quality: str, quiet: bool, song_name: str, song_artists: str
+    codec: str, quality: str, quiet: bool, song_name: str, song_artists: list
 ) -> dict:
     """
     Prepares the parameters that need to be passed onto the YoutubeDL object.
     """
+
+    # preparing the list as a string
+    artists = ""
+    for entry in song_artists:
+        if entry != song_artists[-1]:
+            artists += entry + ", "
+        else:
+            artists += entry
 
     parameters = {
         "format": "bestaudio/best",
@@ -28,8 +35,7 @@ def get_config(
                 "preferredquality": quality,
             }
         ],
-        "outtmpl": f"{song_artists}- {song_name}.%(ext)s",
-        # "outtmpl": "name.%(ext)s",
+        "outtmpl": f"{artists}- {song_name}.%(ext)s",
         "quiet": quiet,
     }
 
@@ -56,21 +62,22 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
 
         yt_info = yt.extract_info(f"ytsearch:{song_title}", download=False)
         yt_info = yt_info["entries"][0]
+        # print(yt_info.keys())
+        # exit()
 
     except Exception as e:
         print("Error when trying to get audio source from YT: ", e)
+        return
 
     else:
         yt_song = YoutubeSong(
-            id=yt_info["id"],
-            title=yt_info["title"],
-            video_url=yt_info["webpage_url"],
+            id=yt_info["id"], title=yt_info["title"], video_url=yt_info["webpage_url"]
         )
 
         return yt_song
 
 
-def download_song(yt: YoutubeDL, song_id: int):
+def download_song(yt: YoutubeDL, link: str):
     """
     Registers the provided parameters with the YoutubeDL object and
     downloads the song using the extracted information.
@@ -83,7 +90,7 @@ def download_song(yt: YoutubeDL, song_id: int):
         # any errors
         # attempts to download the song using the best matched
         # youtube source link
-        yt.download(song_id)
+        yt.download(link)
 
     except:
         print("Download failed!")
@@ -100,17 +107,15 @@ def youtube_controller(codec: str, quality: str, quiet: bool, song: SpotifySong)
     """
 
     params = get_config(codec, quality, quiet, song.name, song.artists)
-
     yt = get_downloader(params)
 
     yt_song = fetch_source(yt, song)
-
-    download_song(yt_song, yt_song.id)
+    download_song(yt, yt_song.video_url)
 
 
 if __name__ == "__main__":
-    params = get_config("mp3", "320", False, "He Don't Love Me", "Winona Oak")
+    download_song()
+    params = get_config("mp3", "320", True, "He Don't Love Me", ["Winona Oak"])
     yt = get_downloader(params)
-    yt_song = fetch_source(yt, song=SpotifySong("He Don't Love Me", ["Winona Oak"]))
-
-    download_song(yt, yt_song.id)
+    yt_song = fetch_source(yt, song=SpotifySong("He Don't Love Me", ["Winona Oak"], ""))
+    download_song(yt, yt_song.video_url)
