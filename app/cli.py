@@ -2,10 +2,13 @@ import argparse
 from os import chdir
 
 
-from utils import directory_maker, default_save_dir, check_spotify_link
-from spotify import get_song_data
-from youtube import Downloader
-from config import spotify_link_patterns, audio_formats, audio_bitrates
+# from utils import directory_maker, default_save_dir, check_spotify_link
+import utils as u
+import spotify as s
+import youtube as y
+
+# from config import spotify_link_patterns, audio_formats, audio_bitrates
+import config as c
 
 
 def cli_args():
@@ -20,7 +23,7 @@ def cli_args():
     parser.add_argument(
         "-d",
         "--dir",
-        default=default_save_dir,
+        default=u.default_save_dir,
         help="Save directory(is created if doesn't exist)",
     )
 
@@ -39,14 +42,22 @@ def cli_args():
         "-c",
         "--codec",
         default="mp3",
-        help=f"Audio format to download file as. List of available formats: {audio_formats}",
+        help=f"Audio format to download file as. List of available formats: {c.audio_formats}",
     )
 
     parser.add_argument(
         "-b",
         "--bitrate",
         default="192",
-        help=f"Audio quality of the file. List of available qualities: {audio_bitrates}",
+        help=f"Audio quality of the file. List of available qualities: {c.audio_bitrates}",
+    )
+
+    parser.add_argument(
+        "-f",
+        "--force",
+        default=False,
+        action="store_true",
+        help="Force-overwrite existing file",
     )
 
     # returns an argparse.Namespace object that stores our argument variables
@@ -59,18 +70,17 @@ def controller():
     """
 
     args = cli_args()
-    dl = Downloader()
 
     # check whether the provided link is authentic
-    check_spotify_link(args.link, spotify_link_patterns)
+    is_match = u.check_spotify_link(args.link, c.spotify_link_patterns)
+    if not is_match:
+        # raise LinkError("You have entered an invalid Spotify link!")
+        exit("LinkError: You have entered an invalid Spotify link!")
+
+    song = s.get_song_data(args.link)
 
     if args.dir:
-        directory_maker(args.dir)
+        u.directory_maker(args.dir)
         chdir(args.dir)
 
-    else:
-        directory_maker(default_save_dir)
-        chdir(default_save_dir)
-
-    song_data = get_song_data(args.link)
-    download_song(song_data)
+    y.youtube_controller(args.codec, args.bitrate, args.quiet, args.force, song)
