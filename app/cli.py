@@ -1,11 +1,11 @@
 import argparse
-from os import chdir
 
 
 import utils as u
 import spotify as s
 import youtube as y
 import config as c
+import exceptions as e
 
 
 def cli_args():
@@ -63,11 +63,10 @@ def controller():
     # check whether the provided link is authentic
     is_match = u.check_spotify_link(args.link, c.spotify_link_patterns)
     if not is_match:
-        # raise LinkError("You have entered an invalid Spotify link!")
-        exit("LinkError: You have entered an invalid Spotify link!")
+        raise e.LinkError("You have entered an invalid Spotify link!")
 
     song = s.get_song_data(args.link)
 
     u.directory_maker(args.dir)
 
-    y.youtube_controller(args.codec, args.bitrate, args.quiet, args.force, song)
+    y.youtube_controller(args.codec, args.bitrate, args.quiet, song)

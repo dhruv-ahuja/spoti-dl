@@ -1,6 +1,9 @@
 from spotipy import Spotify
+from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
+
 from dataclasses import dataclass
+from exceptions import NoDataReceivedError
 
 
 # initializing the spotify api connection
@@ -27,8 +30,10 @@ def get_song_data(link: str) -> SpotifySong:
     try:
         song_details = sp.track(link)
 
-    except Exception as e:
-        print("Error when trying to get track details from Spotify: ", e)
+    except SpotifyException as e:
+        # wrapping the Spotify Exception
+        # still unsure whether this is the correct approach
+        raise NoDataReceivedError(e)
 
     else:
         # there can be multiple results,
@@ -48,4 +53,5 @@ def get_song_data(link: str) -> SpotifySong:
         return song
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    pass

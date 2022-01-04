@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1428b946d6e7a195aa63fb0369bfddcfa5efbf5b1b01cd82ec59a2d792fe9662"
+            "sha256": "9ac50162482cec3ea0adb38461f04bf5f61380dca7949431b846cb4a5cb9fc8c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -85,11 +85,11 @@
         },
         "requests": {
             "hashes": [
-                "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24",
-                "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"
+                "sha256:8e5643905bf20a308e25e4c1dd379117c09000bf8a82ebccc462cfb1b34a16b5",
+                "sha256:f71a09d7feba4a6b64ffd8e9d9bc60f9bf7d7e19fd0e04362acb1cfc2e3d98df"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
-            "version": "==2.26.0"
+            "version": "==2.27.0"
         },
         "six": {
             "hashes": [
@@ -169,14 +169,6 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==10.1"
-        },
-        "youtube-dl": {
-            "hashes": [
-                "sha256:bc59e86c5d15d887ac590454511f08ce2c47698d5a82c27bfe27b5d814bbaed2",
-                "sha256:f1336d5de68647e0364a47b3c0712578e59ec76f02048ff5c50ef1c69d79cd55"
-            ],
-            "index": "pypi",
-            "version": "==2021.12.17"
         },
         "yt-dlp": {
             "hashes": [

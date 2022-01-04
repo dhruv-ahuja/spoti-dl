@@ -4,8 +4,16 @@
 
 class LinkError(Exception):
     """
-    Exception raised when the provided link is incorrect.
+    Raised when the provided link is incorrect.
     """
 
     # spits out whatever error message is passed to it
+    pass
+
+
+class NoDataReceivedError(Exception):
+    """
+    Raised when no data received from the external libraries.
+    """
+
     pass

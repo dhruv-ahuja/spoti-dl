@@ -1,7 +1,7 @@
 import os
 from re import search
 
-from exceptions import LinkError
+# from exceptions import LinkError
 
 
 default_save_dir = os.getcwd() + "/yASD-dl"
