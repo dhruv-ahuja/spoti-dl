@@ -1,25 +1,15 @@
 from dataclasses import dataclass
 
 # from youtube_dl import YoutubeDL
-from spotify import Song
+from spotify import SpotifySong
 from yt_dlp import YoutubeDL
 
 
-yt = YoutubeDL()
-
-
-# creating a YoutubeSong dataclass just for insurance, if there's no need for it
-# later, will remove it
 @dataclass
 class YoutubeSong:
     id: int
     title: str
-    artist: str
-    track: str
     video_url: str
-
-    def __repr__(self):
-        return f"{self.artist}- {self.title}"
 
 
 def get_config(
@@ -54,7 +44,7 @@ def get_downloader(params: dict):
     return YoutubeDL(params=params)
 
 
-def fetch_source(yt: YoutubeDL, song: Song) -> YoutubeSong:
+def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
     """
     Fetch apt source for the song from Youtube using the given details.
     """
@@ -75,8 +65,6 @@ def fetch_source(yt: YoutubeDL, song: Song) -> YoutubeSong:
             id=yt_info["id"],
             title=yt_info["title"],
             video_url=yt_info["webpage_url"],
-            artist=yt_info["artist"],
-            track=yt_info["track"],
         )
 
         return yt_song
@@ -98,15 +86,31 @@ def download_song(yt: YoutubeDL, song_id: int, link: str = ""):
         yt.download(song_id)
 
     except:
-        print("Download failed!\n")
+        print("Download failed!")
 
     else:
-        print(f"Successfully finished downloading!\n")
+        print(f"Successfully finished downloading!")
+
+
+def youtube_controller(codec: str, quality: str, quiet: bool, song: SpotifySong):
+    """
+    Handles the flow of the download process for the given song.
+    Initiates the configuration as per the user-defined parameters and chains
+    the rest of functions together.
+    """
+
+    params = get_config(codec, quality, quiet, song.name, song.artists)
+
+    yt = get_downloader(params)
+
+    yt_song = fetch_source(yt, song)
+
+    download_song(yt_song, yt_song.id)
 
 
 if __name__ == "__main__":
-    params = get_config("flac", "best", False, "He Don't Love Me", "Winona Oak")
+    params = get_config("mp3", "320", False, "He Don't Love Me", "Winona Oak")
     yt = get_downloader(params)
-    yt_song = fetch_source(yt, song=Song("He Don't Love Me", ["Winona Oak"], ""))
+    yt_song = fetch_source(yt, song=SpotifySong("He Don't Love Me", ["Winona Oak"], ""))
 
     download_song(yt, yt_song.id)
