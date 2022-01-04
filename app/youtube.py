@@ -9,7 +9,7 @@ from yt_dlp import YoutubeDL
 class YoutubeSong:
     id: int
     title: str
-    video_url: str
+    # video_url: str
 
 
 def get_config(
@@ -70,7 +70,7 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
         return yt_song
 
 
-def download_song(yt: YoutubeDL, song_id: int, link: str = ""):
+def download_song(yt: YoutubeDL, song_id: int):
     """
     Registers the provided parameters with the YoutubeDL object and
     downloads the song using the extracted information.
@@ -111,6 +111,6 @@ def youtube_controller(codec: str, quality: str, quiet: bool, song: SpotifySong)
 if __name__ == "__main__":
     params = get_config("mp3", "320", False, "He Don't Love Me", "Winona Oak")
     yt = get_downloader(params)
-    yt_song = fetch_source(yt, song=SpotifySong("He Don't Love Me", ["Winona Oak"], ""))
+    yt_song = fetch_source(yt, song=SpotifySong("He Don't Love Me", ["Winona Oak"]))
 
     download_song(yt, yt_song.id)
