@@ -1,5 +1,5 @@
 import argparse
-
+import os
 
 import utils as u
 import spotify as s
@@ -30,7 +30,7 @@ def cli_args():
     parser.add_argument(
         "-q",
         "--quiet",
-        default=False,
+        # default=False,
         action="store_true",
         help="Makes the downloader non-verbose/quiet",
     )
@@ -68,6 +68,7 @@ def controller():
     song = s.get_song_data(args.link)
 
     u.directory_maker(args.dir)
+    os.chdir(args.dir)
 
     # grouping all youtube-dl required arguments together before passing them
     # as the controller func parameters
