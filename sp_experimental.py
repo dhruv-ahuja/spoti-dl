@@ -5,6 +5,9 @@ from dataclasses import dataclass
 
 # from typing import List
 
+# sp.album(<link>).keys()
+# album_keys = (['album_type', 'artists', 'available_markets', 'copyrights', 'external_ids', 'external_urls', 'genres', 'href', 'id', 'images', 'label', 'name', 'popularity', 'release_date', 'release_date_precision', 'total_tracks', 'tracks', 'type', 'uri'])
+
 
 # define scopes for the api
 scopes = ""

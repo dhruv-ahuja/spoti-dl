@@ -45,7 +45,7 @@ def cli_args():
     parser.add_argument(
         "-b",
         "--bitrate",
-        default="192",
+        default="320",
         help=f"Audio quality of the file. List of available qualities: {c.audio_bitrates}",
     )
 
@@ -71,9 +71,9 @@ def controller():
 
     # grouping all youtube-dl required arguments together before passing them
     # as the controller func parameters
-    required_params = {
+    user_params = {
         "codec": args.codec,
         "quality": args.bitrate,
         "quiet": args.quiet,
     }
-    y.youtube_controller(required_params, song)
+    y.youtube_controller(user_params, song)

@@ -11,7 +11,7 @@ class YoutubeSong:
     video_url: str
 
 
-def get_config(required_params: dict, song_name: str, song_artists: list) -> dict:
+def get_config(user_params: dict, song_name: str, song_artists: list) -> dict:
     """
     Prepares the parameters that need to be passed onto the YoutubeDL object.
     """
@@ -24,20 +24,20 @@ def get_config(required_params: dict, song_name: str, song_artists: list) -> dic
         else:
             artists += entry
 
-    parameters = {
+    downloader_params = {
         "format": "bestaudio/best",
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
-                "preferredcodec": required_params["codec"],
-                "preferredquality": required_params["quality"],
+                "preferredcodec": user_params["codec"],
+                "preferredquality": user_params["quality"],
             }
         ],
         "outtmpl": f"{artists}- {song_name}.%(ext)s",
-        "quiet": required_params["quiet"],
+        "quiet": user_params["quiet"],
     }
 
-    return parameters
+    return downloader_params
 
 
 def get_downloader(params: dict):
@@ -60,8 +60,6 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
 
         yt_info = yt.extract_info(f"ytsearch:{song_title}", download=False)
         yt_info = yt_info["entries"][0]
-        # print(yt_info.keys())
-        # exit()
 
     except Exception as e:
         print("Error when trying to get audio source from YT: ", e)
@@ -97,26 +95,27 @@ def download_song(yt: YoutubeDL, link: str):
         print(f"Successfully finished downloading!")
 
 
-def youtube_controller(required_params: dict, song: SpotifySong):
+def youtube_controller(user_params: dict, song: SpotifySong):
     """
     Handles the flow of the download process for the given song.
     Initiates the configuration as per the user-defined parameters and chains
     the rest of functions together.
     """
 
-    params = get_config(required_params, song.name, song.artists)
-    yt = get_downloader(params)
+    # user parameters are used in the downloader parameters dictionary
+    # the downloader_params dict is then passed onto the YoutubeDL object
+    # when generating its instance.
+    downloader_params = get_config(user_params, song.name, song.artists)
+    yt = get_downloader(downloader_params)
 
     yt_song = fetch_source(yt, song)
     download_song(yt, yt_song.video_url)
 
 
 if __name__ == "__main__":
-    params = get_config(
-        {"codec": "mp3", "quality": "320", "quiet": True},
-        "He Don't Love Me",
-        ["Winona Oak"],
-    )
-    yt = get_downloader(params)
-    yt_song = fetch_source(yt, song=SpotifySong("He Don't Love Me", ["Winona Oak"], ""))
-    download_song(yt, yt_song.video_url)
+
+    song = SpotifySong("He Don't Love Me", ["Winona Oak"], "")
+
+    user_params = {"codec": "mp3", "quality": "320", "quiet": True}
+
+    youtube_controller(user_params, song)
