@@ -25,7 +25,7 @@ class SpotifySong:
 def get_song_data(link: str) -> SpotifySong:
     """
     Get relevant song details for the given Spotify song link.
-    The link can be be a URL, URI or even a Spotify song ID.
+    The link can be be a URL or URI.
     """
 
     try:
@@ -55,6 +55,10 @@ def get_song_data(link: str) -> SpotifySong:
         )
 
         return song
+
+
+def parse_album(link: str) -> list[SpotifySong]:
+    pass
 
 
 if __name__ == "__main__":

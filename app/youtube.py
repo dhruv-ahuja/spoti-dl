@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from spotify import SpotifySong
 from yt_dlp import YoutubeDL
+from utils import make_song_title
 
 
 @dataclass
@@ -16,9 +17,6 @@ def get_config(user_params: dict, song: SpotifySong) -> dict:
     Prepares the parameters that need to be passed onto the YoutubeDL object.
     """
 
-    # preparing the list as a string
-    artists = ", ".join(song.artists)
-
     downloader_params = {
         "postprocessors": [
             {
@@ -27,7 +25,7 @@ def get_config(user_params: dict, song: SpotifySong) -> dict:
                 "preferredquality": user_params["quality"],
             }
         ],
-        "outtmpl": f"{artists}-{song.name}.%(ext)s",
+        "outtmpl": f"{make_song_title(song.artists, song.name, ', ')}.%(ext)s",
         # "outtmpl": "%(artist)s-%(title)s.ext",
         "quiet": user_params["quiet"],
         "format": "bestaudio/best",
@@ -53,8 +51,7 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
     try:
         # using Song dataclasses' __repr__ function to construct the song name
         # adding "audio" to avoid 'official music videos' and similar types 😅
-        song_title = song.name + " audio"
-
+        song_title = make_song_title(song.artists, song.name, ", ") + " audio"
         search = yt.extract_info(f"ytsearch:{song_title}", download=False)
         yt_info = search["entries"][0]
 

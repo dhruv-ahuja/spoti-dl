@@ -76,3 +76,12 @@ def check_spotify_link(link: str, patterns_list: list) -> bool:
             is_match = True
 
     return is_match
+
+
+def make_song_title(artists: list, name: str, delim: str):
+    """
+    Generates a song title by joining the song title and artist names.
+    Artist names given in list format are split using the given delimiter.
+    """
+
+    return f"{delim.join(artists)} - {name}"
