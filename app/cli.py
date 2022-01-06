@@ -68,6 +68,7 @@ def controller():
 
     song = s.get_song_data(args.link)
 
+    # make the specified dir. if it doesn't exist and open it to store files
     u.directory_maker(args.dir)
     os.chdir(args.dir)
 
@@ -83,5 +84,6 @@ def controller():
     y.youtube_controller(user_params, song)
 
     # write metadata to the downloaded file
-    path = f"{', '.join(song.artists)}-{song.name}.{args.codec}"
-    m.add_metadata(path, song)
+    file_name = f"{u.make_song_title(song.artists, song.name, ', ')}.{args.codec}"
+
+    m.metadata_controller(file_name, song, args.dir)

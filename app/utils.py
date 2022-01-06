@@ -2,11 +2,8 @@ import os
 from re import search
 from urllib.request import urlretrieve
 
-# from exceptions import LinkError
-
 
 default_save_dir = os.getcwd() + "/yASD-dl"
-# album_art_dir = default_save_dir + "/album-art"
 
 
 def choice(msg: str) -> bool:
@@ -84,7 +81,9 @@ def make_song_title(artists: list, name: str, delim: str):
     return f"{delim.join(artists)} - {name}"
 
 
-def download_album_art(path: str, link: str, title: str, extension: str) -> str:
+def download_album_art(
+    path: str, link: str, title: str, extension: str = "jpeg"
+) -> str:
     """
     Downloads album art- in a folder at the given path- to be embedded into songs.
     """

@@ -73,7 +73,7 @@ def download_song(yt: YoutubeDL, link: str):
     downloads the song using the extracted information.
     """
 
-    print("Starting download...\n")
+    print("\nStarting download..")
 
     try:
         # attempts to download the song using the best matched
@@ -81,10 +81,10 @@ def download_song(yt: YoutubeDL, link: str):
         yt.download(link)
 
     except:
-        print("Download failed!")
+        print("\nDownload failed!")
 
     else:
-        print(f"Successfully finished downloading!")
+        print(f"\nSuccessfully finished downloading!")
 
 
 def youtube_controller(user_params: dict, song: SpotifySong):

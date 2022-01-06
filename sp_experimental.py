@@ -82,3 +82,33 @@ song = Song(
 )
 
 print(f"\n{', '.join(song.artist)}: {song.name}")
+
+
+# adding this func for backup just in case
+
+
+def check(img_url, title, artist, album, track):
+
+    response = requests.get(img_url, stream=True)
+    with open("img.jpg", "wb") as out_file:
+        shutil.copyfileobj(response.raw, out_file)
+    del response
+
+    print(os.getcwd())
+    # exit()
+    audio = ID3("<song_name>.<codec>")
+    audio["TPE1"] = TPE1(encoding=3, text=artist)
+    audio["TIT2"] = TALB(encoding=3, text=title)
+    audio["TRCK"] = TRCK(encoding=3, text=track)
+    audio["TALB"] = TALB(encoding=3, text=album)
+
+    with open("img.jpg", "rb") as albumart:
+        audio["APIC"] = APIC(
+            encoding=3, mime="image/jpeg", type=3, desc="Cover", data=albumart.read()
+        )
+
+    audio.save(v2_version=3)
+
+    # print(os.getcwd()) base folder
+    # when this program shall be run from the cli controller, the directory will
+    # be yASD/<download directory>
