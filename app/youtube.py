@@ -11,21 +11,15 @@ class YoutubeSong:
     video_url: str
 
 
-def get_config(user_params: dict, song_name: str, song_artists: list) -> dict:
+def get_config(user_params: dict, song: SpotifySong) -> dict:
     """
     Prepares the parameters that need to be passed onto the YoutubeDL object.
     """
 
     # preparing the list as a string
-    artists = ""
-    for entry in song_artists:
-        if entry != song_artists[-1]:
-            artists += entry + ", "
-        else:
-            artists += entry
+    artists = ", ".join(song.artists)
 
     downloader_params = {
-        "format": "bestaudio/best",
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -33,8 +27,11 @@ def get_config(user_params: dict, song_name: str, song_artists: list) -> dict:
                 "preferredquality": user_params["quality"],
             }
         ],
-        "outtmpl": f"{artists}- {song_name}.%(ext)s",
+        "outtmpl": f"{artists}-{song.name}.%(ext)s",
+        # "outtmpl": "%(artist)s-%(title)s.ext",
         "quiet": user_params["quiet"],
+        "format": "bestaudio/best",
+        "dynamic_mpd": False,
     }
 
     return downloader_params
@@ -56,10 +53,10 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
     try:
         # using Song dataclasses' __repr__ function to construct the song name
         # adding "audio" to avoid 'official music videos' and similar types 😅
-        song_title = str(song) + " audio"
+        song_title = song.name + " audio"
 
-        yt_info = yt.extract_info(f"ytsearch:{song_title}", download=False)
-        yt_info = yt_info["entries"][0]
+        search = yt.extract_info(f"ytsearch:{song_title}", download=False)
+        yt_info = search["entries"][0]
 
     except Exception as e:
         print("Error when trying to get audio source from YT: ", e)
@@ -82,8 +79,6 @@ def download_song(yt: YoutubeDL, link: str):
     print("Starting download...\n")
 
     try:
-        # using try-else since afaik the library itself doesn't return
-        # any errors
         # attempts to download the song using the best matched
         # youtube source link
         yt.download(link)
@@ -105,7 +100,7 @@ def youtube_controller(user_params: dict, song: SpotifySong):
     # user parameters are used in the downloader parameters dictionary
     # the downloader_params dict is then passed onto the YoutubeDL object
     # when generating its instance.
-    downloader_params = get_config(user_params, song.name, song.artists)
+    downloader_params = get_config(user_params, song)
     yt = get_downloader(downloader_params)
 
     yt_song = fetch_source(yt, song)
@@ -114,7 +109,14 @@ def youtube_controller(user_params: dict, song: SpotifySong):
 
 if __name__ == "__main__":
 
-    song = SpotifySong("He Don't Love Me", ["Winona Oak"], "")
+    song = SpotifySong(
+        name="He Don't Love Me",
+        artists=["Winona Oak"],
+        cover_url="",
+        album_name="",
+        disc_number=10,
+        track_number=20,
+    )
 
     user_params = {"codec": "mp3", "quality": "320", "quiet": True}
 

@@ -1,9 +1,14 @@
-from collections import namedtuple
+# reference file for spotipy library's code and experimentations
+
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 from dataclasses import dataclass
 
 # from typing import List
+
+
+# sp.track(<link>).keys()
+# dict_keys(['album', 'artists', 'available_markets', 'disc_number', 'duration_ms', 'explicit', 'external_ids', 'external_urls', 'href', 'id', 'is_local', 'name', 'popularity', 'preview_url', 'track_number', 'type', 'uri'])
 
 # sp.album(<link>).keys()
 # album_keys = (['album_type', 'artists', 'available_markets', 'copyrights', 'external_ids', 'external_urls', 'genres', 'href', 'id', 'images', 'label', 'name', 'popularity', 'release_date', 'release_date_precision', 'total_tracks', 'tracks', 'type', 'uri'])
