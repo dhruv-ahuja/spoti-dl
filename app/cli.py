@@ -6,6 +6,7 @@ import spotify as s
 import youtube as y
 import config as c
 import exceptions as e
+import metadata as m
 
 
 def cli_args():
@@ -77,4 +78,10 @@ def controller():
         "quality": args.bitrate,
         "quiet": args.quiet,
     }
+
+    # use the youtube controller to scrape audio source and download the song
     y.youtube_controller(user_params, song)
+
+    # write metadata to the downloaded file
+    path = f"{', '.join(song.artists)}-{song.name}.{args.codec}"
+    m.add_metadata(path, song)

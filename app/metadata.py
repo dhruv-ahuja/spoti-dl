@@ -11,6 +11,7 @@ def add_metadata(path: str, song: SpotifySong):
     Path must contain file extension as well.
     """
     try:
+        print("Adding metadata...")
         meta = EasyID3(path)
 
     except ID3NoHeaderError:
@@ -20,10 +21,11 @@ def add_metadata(path: str, song: SpotifySong):
     meta["title"] = song.name
     meta["artist"] = "/".join(song.artists)
     meta["album"] = song.album_name
-    meta["discnumber"] = song.disc_number
-    meta["tracknumber"] = song.track_number
+    meta["tracknumber"] = str(song.track_number)
+    meta["discnumber"] = str(song.disc_number)
 
     meta.save(v1=2, v2_version=3)
+    print("Successfully wrote metadata!")
 
 
 if __name__ == "__main__":
