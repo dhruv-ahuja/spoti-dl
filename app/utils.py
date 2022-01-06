@@ -1,10 +1,12 @@
 import os
 from re import search
+from urllib.request import urlretrieve
 
 # from exceptions import LinkError
 
 
 default_save_dir = os.getcwd() + "/yASD-dl"
+# album_art_dir = default_save_dir + "/album-art"
 
 
 def choice(msg: str) -> bool:
@@ -46,13 +48,8 @@ def directory_maker(path: str):
     """
 
     if not check_dir(path):
-        # if there's an error making the directory,
-        # the app will return False automatically
         if make_dir(path):
             print("Successfully created save directory.")
-
-    else:
-        print("Directory exists, using it as save space.")
 
 
 if __name__ == "__main__":
@@ -85,3 +82,29 @@ def make_song_title(artists: list, name: str, delim: str):
     """
 
     return f"{delim.join(artists)} - {name}"
+
+
+def download_album_art(path: str, link: str, title: str, extension: str) -> str:
+    """
+    Downloads album art- in a folder at the given path- to be embedded into songs.
+    """
+
+    # make a folder in the given path to store album art
+    folder = "/album-art"
+    full_path = path + folder
+    directory_maker(full_path)
+
+    download_path = full_path + f"/{title}.{extension}"
+    urlretrieve(link, download_path)
+
+    return download_path
+
+
+if __name__ == "__main__":
+    d = download_album_art(
+        default_save_dir,
+        "https://i.scdn.co/image/ab67616d0000b2730cf68eb8c1d1a406ba63162a",
+        "Portrait For a Firewood",
+        "jpeg",
+    )
+    print(d)
