@@ -94,7 +94,9 @@ def download_album_art(
     directory_maker(full_path)
 
     download_path = full_path + f"/{title}.{extension}"
-    urlretrieve(link, download_path)
+
+    if not check_file(download_path):
+        urlretrieve(link, download_path)
 
     return download_path
 

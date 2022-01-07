@@ -61,10 +61,17 @@ def controller():
 
     args = cli_args()
 
+    # adding checks to ensure argument validity
+    if args.codec not in c.audio_formats:
+        raise argparse.ArgumentTypeError("Invalid codec entered!")
+
+    if args.bitrate not in c.audio_bitrates:
+        raise argparse.ArgumentTypeError("Invalid bitrate entered!")
+
     # check whether the provided link is authentic
     is_match = u.check_spotify_link(args.link, c.spotify_link_patterns)
     if not is_match:
-        raise e.LinkError("You have entered an invalid Spotify link!")
+        raise e.LinkError("Invalid Spotify link entered!")
 
     song = s.get_song_data(args.link)
 

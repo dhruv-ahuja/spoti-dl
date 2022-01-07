@@ -114,20 +114,22 @@ def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
     Handles the metadata writing process flow.
     """
 
-    print("\nWriting metadata...")
 
     album_art_path = download_album_art(
         path=dir, link=song.cover_url, title=song.album_name
     )
 
-    if codec == "flac":
-        add_metadata_flac(file_name, song, album_art_path)
+    print("\nWriting metadata...")
 
-    elif codec == "mp3":  # or codec == "wav":  # or codec == "m4a":
-        add_metadata_mp3(file_name, song, album_art_path)
+    match codec:
+        case "flac":
+            add_metadata_flac(file_name, song, album_art_path)
 
-    elif codec == "m4a":
-        add_metadata_m4a(file_name, song, album_art_path)
+        case "mp3":
+            add_metadata_mp3(file_name, song, album_art_path)
+
+        case "m4a":
+            add_metadata_m4a(file_name, song, album_art_path)
 
     print("\nFinished writing metadata!")
 
