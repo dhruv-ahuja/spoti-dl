@@ -2,6 +2,7 @@
 #testing folder making capabilities
 yASD-dl/
 *.mp3
+exp_code.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

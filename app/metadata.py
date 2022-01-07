@@ -1,9 +1,8 @@
 import mutagen
 from mutagen.easyid3 import EasyID3
-from mutagen.flac import FLAC
 from mutagen.id3 import ID3, APIC
+from mutagen.flac import FLAC, Picture
 
-import mutagen.flac
 from spotify import SpotifySong
 from utils import download_album_art
 
@@ -35,20 +34,20 @@ def add_metadata(file_name: str, song: SpotifySong, album_art_path: str):
     # here we write the downloaded album art image to our downloaded song.
     meta = ID3(file_name)
 
-    with open(album_art_path, "rb") as album_art:
+    with open(album_art_path, "rb") as pic:
         meta["APIC"] = APIC(
             # type 3 is for the front cover of a song
             encoding=3,
             mime="image/jpeg",
             type=3,
-            data=album_art.read(),
+            data=pic.read(),
         )
 
     # setting the v2 version to 3 is key- nothing will work without it
-    meta.save(v1=2, v2_version=3)
+    meta.save(v2_version=3)
 
 
-def add_metadata_flac(file_name: str, song: SpotifySong):
+def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
     """
     Adds textual metadata to a FLAC file given it's path.
     File name must contain file extension as well.
@@ -71,7 +70,12 @@ def add_metadata_flac(file_name: str, song: SpotifySong):
     meta["discnumber"] = str(song.disc_number)
 
     # now, to write the album art to the file
-    meta.add_picture()
+    p = Picture()
+
+    with open(album_art_path, "rb") as pic:
+        p.data = pic.read()
+
+    meta.add_picture(p)
 
     meta.save()
 
@@ -87,10 +91,10 @@ def metadata_controller(file_name: str, song: SpotifySong, dir: str, codec: str)
         path=dir, link=song.cover_url, title=song.album_name
     )
 
-    if codec == "flac" or codec == "vorbis":
-        add_metadata_flac(file_name, song)
+    if codec == "flac":
+        add_metadata_flac(file_name, song, album_art_path)
 
-    else:
+    elif codec == "mp3":  # or codec == "wav":  # or codec == "m4a":
         add_metadata(file_name, song, album_art_path)
 
     print("\nFinished writing metadata!")
