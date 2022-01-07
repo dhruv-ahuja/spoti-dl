@@ -81,7 +81,7 @@ def controller():
     }
 
     # use the youtube controller to scrape audio source and download the song
-    y.youtube_controller(user_params, song)
+    y.controller(user_params, song)
 
     # write metadata to the downloaded file
     if args.codec == "vorbis":
@@ -89,4 +89,6 @@ def controller():
 
     file_name = f"{u.make_song_title(song.artists, song.name, ', ')}.{args.codec}"
 
-    m.metadata_controller(file_name, song, args.dir, args.codec)
+    m.controller(file_name, song, args.dir, args.codec)
+
+    # todo: implement check to ensure that the "codec" & "bitrate" args are valid entries

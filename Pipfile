@@ -8,7 +8,7 @@ spotipy = "*"
 yt-dlp = "*"
 mutagen = "*"
 eyed3 = "*"
-ffmpeg = "*"
+ffmpy = "*"
 
 [dev-packages]
 

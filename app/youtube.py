@@ -87,7 +87,7 @@ def download_song(yt: YoutubeDL, link: str):
         print(f"\nSuccessfully finished downloading!")
 
 
-def youtube_controller(user_params: dict, song: SpotifySong):
+def controller(user_params: dict, song: SpotifySong):
     """
     Handles the flow of the download process for the given song.
     Initiates the configuration as per the user-defined parameters and chains
@@ -117,4 +117,4 @@ if __name__ == "__main__":
 
     user_params = {"codec": "mp3", "quality": "320", "quiet": True}
 
-    youtube_controller(user_params, song)
+    controller(user_params, song)

@@ -129,9 +129,6 @@ def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
     elif codec == "m4a":
         add_metadata_m4a(file_name, song, album_art_path)
 
-    elif codec == "wav":
-        add_metadata_wav(file_name, song, album_art_path)
-
     print("\nFinished writing metadata!")
 
 

@@ -5,9 +5,7 @@
 # anyone would want to download songs at anything below 128kbps
 audio_bitrates = ["best", "320", "256", "192", "128", "96", "32", "worst"]
 
-# flac needs to have its metadata encoded/written differently
-# vorbis' actual extension is ".ogg"
-audio_formats = ["mp3", "aac", "flac", "opus", "m4a", "vorbis", "wav"]
+audio_formats = ["mp3", "flac", "m4a"]
 
 
 # regex patterns for spotify URLs
