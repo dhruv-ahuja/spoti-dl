@@ -74,7 +74,7 @@ def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
     # check whether the provided link is authentic
     is_match = u.check_spotify_link(link, c.spotify_link_patterns)
 
-    return True if is_match else False
+    return is_match
 
 
 def controller():

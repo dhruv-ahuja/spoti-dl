@@ -3,7 +3,6 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.flac import FLAC, Picture
 
-
 from spotify import SpotifySong
 from utils import download_album_art
 
@@ -31,6 +30,9 @@ def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
     meta["album"] = song.album_name
     meta["tracknumber"] = str(song.track_number)
     meta["discnumber"] = str(song.disc_number)
+
+    meta.save(v2_version=3)
+
 
     # here we write the downloaded album art image to our downloaded song.
     meta = ID3(file_name)
@@ -120,6 +122,9 @@ def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
     )
 
     print("\nWriting metadata...")
+
+    # import os
+    # print(os.getcwd(), "file path: ", file_name)
 
     match codec:
         case "flac":
