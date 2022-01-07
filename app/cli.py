@@ -54,6 +54,29 @@ def cli_args():
     return parser.parse_args()
 
 
+def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
+    """
+    Corrects audio-related arguments if they are incorrect and finally calls
+    for Spotify link checks.
+    """
+
+    # adding checks to ensure argument validity
+    if codec not in c.audio_formats:
+        # raise argparse.ArgumentTypeError("Invalid codec entered!")
+        print("Invalid codec entered! Using default value.")
+        codec = "mp3"
+
+    if bitrate not in c.audio_bitrates:
+        # raise argparse.ArgumentTypeError("Invalid bitrate entered!")
+        print("Invalid bitrate entered! Using default value.")
+        bitrate = "320"
+
+    # check whether the provided link is authentic
+    is_match = u.check_spotify_link(link, c.spotify_link_patterns)
+
+    return True if is_match else False
+
+
 def controller():
     """
     Controls the flow of the program execution.
@@ -61,16 +84,8 @@ def controller():
 
     args = cli_args()
 
-    # adding checks to ensure argument validity
-    if args.codec not in c.audio_formats:
-        raise argparse.ArgumentTypeError("Invalid codec entered!")
-
-    if args.bitrate not in c.audio_bitrates:
-        raise argparse.ArgumentTypeError("Invalid bitrate entered!")
-
-    # check whether the provided link is authentic
-    is_match = u.check_spotify_link(args.link, c.spotify_link_patterns)
-    if not is_match:
+    #  perform necessary argument validity checks
+    if not check_cli_args(args.codec, args.bitrate, args.link):
         raise e.LinkError("Invalid Spotify link entered!")
 
     song = s.get_song_data(args.link)
@@ -91,11 +106,6 @@ def controller():
     y.controller(user_params, song)
 
     # write metadata to the downloaded file
-    if args.codec == "vorbis":
-        args.codec = "ogg"
-
     file_name = f"{u.make_song_title(song.artists, song.name, ', ')}.{args.codec}"
 
     m.controller(file_name, song, args.dir, args.codec)
-
-    # todo: implement check to ensure that the "codec" & "bitrate" args are valid entries
