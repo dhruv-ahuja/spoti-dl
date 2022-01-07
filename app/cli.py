@@ -84,6 +84,9 @@ def controller():
     y.youtube_controller(user_params, song)
 
     # write metadata to the downloaded file
+    if args.codec == "vorbis":
+        args.codec = "ogg"
+
     file_name = f"{u.make_song_title(song.artists, song.name, ', ')}.{args.codec}"
 
-    m.metadata_controller(file_name, song, args.dir)
+    m.metadata_controller(file_name, song, args.dir, args.codec)
