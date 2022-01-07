@@ -3,13 +3,14 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.flac import FLAC, Picture
 
+
 from spotify import SpotifySong
 from utils import download_album_art
 
 
-def add_metadata(file_name: str, song: SpotifySong, album_art_path: str):
+def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
     """
-    Adds metadata to a file given it's path.
+    Adds metadata to a MP3 file given it's path.
     File name must contain file extension as well.
     """
 
@@ -49,7 +50,7 @@ def add_metadata(file_name: str, song: SpotifySong, album_art_path: str):
 
 def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
     """
-    Adds textual metadata to a FLAC file given it's path.
+    Adds metadata to a FLAC file given it's path.
     File name must contain file extension as well.
     """
 
@@ -59,8 +60,7 @@ def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
         meta.add_tags()
 
     except mutagen.flac.FLACVorbisError:
-        # if this error occurs, it means that the vorbis comment block already
-        # exists and we actually just need to start writing metadata
+        # if this error occurs, the vorbis comment block already exists
         meta.delete()
 
     meta["title"] = song.name
@@ -80,7 +80,36 @@ def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
     meta.save()
 
 
-def metadata_controller(file_name: str, song: SpotifySong, dir: str, codec: str):
+def add_metadata_m4a(file_name: str, song: SpotifySong, album_art_path: str):
+    """
+    Adds metadata to an M4A file given it's path.
+    File name must contain file extension as well.
+    """
+
+    from mutagen.mp4 import MP4, MP4Cover
+
+    meta = MP4(file_name)
+
+    try:
+        meta.add_tags()
+
+    except mutagen.MutagenError:
+        meta.delete()
+
+    meta["title"] = song.name
+    meta["artist"] = "/".join(song.artists)
+    meta["album"] = song.album_name
+    meta["tracknumber"] = str(song.track_number)
+    meta["discnumber"] = str(song.disc_number)
+
+    # now, to write the album art
+    with open(album_art_path, "rb") as pic:
+        meta["covr"] = [MP4Cover(pic.read(), imageformat=MP4Cover.FORMAT_JPEG)]
+
+    meta.save()
+
+
+def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
     """
     Handles the metadata writing process flow.
     """
@@ -95,7 +124,13 @@ def metadata_controller(file_name: str, song: SpotifySong, dir: str, codec: str)
         add_metadata_flac(file_name, song, album_art_path)
 
     elif codec == "mp3":  # or codec == "wav":  # or codec == "m4a":
-        add_metadata(file_name, song, album_art_path)
+        add_metadata_mp3(file_name, song, album_art_path)
+
+    elif codec == "m4a":
+        add_metadata_m4a(file_name, song, album_art_path)
+
+    elif codec == "wav":
+        add_metadata_wav(file_name, song, album_art_path)
 
     print("\nFinished writing metadata!")
 
