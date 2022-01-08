@@ -58,6 +58,8 @@ def get_song_data(link: str) -> SpotifySong:
         return song
 
 
+# this will serve as the common point for all entry types
+# (individual song link, album link, etc.) 
 def new_song(query: dict, type: str, **album_details) -> SpotifySong:
     """
     Makes a new SpotifySong given a raw "track" type item received from Spotify API.
@@ -78,7 +80,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
             album_name=query["album"]["name"],
             disc_number=query["disc_number"],
             track_number=query["track_number"],
-            # typically the 1st link contains a link to the album art
+            # the 1st link contains a link to the album art
             # of size 640 x 640 pixels
             cover_url=query["album"]["images"][0]["url"],
         )

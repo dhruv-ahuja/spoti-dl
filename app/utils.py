@@ -2,6 +2,7 @@ import os
 from re import search
 from urllib.request import urlretrieve
 
+import config as c
 
 default_save_dir = os.getcwd() + "/yASD-dl"
 
@@ -101,11 +102,55 @@ def download_album_art(
     return download_path
 
 
+def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
+    """
+    Corrects audio-related arguments if they are incorrect and finally calls
+    for Spotify link checks.
+    """
+
+    # adding checks to ensure argument validity
+    if codec not in c.audio_formats:
+        # raise argparse.ArgumentTypeError("Invalid codec entered!")
+        print("Invalid codec entered! Using default value.")
+        codec = "mp3"
+
+    if bitrate not in c.audio_bitrates:
+        # raise argparse.ArgumentTypeError("Invalid bitrate entered!")
+        print("Invalid bitrate entered! Using default value.")
+        bitrate = "320"
+
+    # check whether the provided link is authentic
+    is_match = check_spotify_link(link, c.spotify_link_patterns)
+
+    return is_match
+
+
+def get_link_type(link: str) -> str:
+    """
+    Analyzes the given link and returns the type of download type required.
+    (track for individual song, album for an album URL and playlist if given
+    a the Spotify link of a playlist).
+    """
+
+    # a spotify link is in the form of: open.spotify.com/<type>/<id>
+    # we only need the type part
+    type = link.split("/")
+
+    return type[len(type) - 2]
+
+
 if __name__ == "__main__":
-    d = download_album_art(
-        default_save_dir,
-        "https://i.scdn.co/image/ab67616d0000b2730cf68eb8c1d1a406ba63162a",
-        "Portrait For a Firewood",
-        "jpeg",
+    # testing
+
+    # d = download_album_art(
+    #     default_save_dir,
+    #     "https://i.scdn.co/image/ab67616d0000b2730cf68eb8c1d1a406ba63162a",
+    #     "Portrait For a Firewood",
+    #     "jpeg",
+    # )
+    # print(d)
+
+    type = get_link_type(
+        "https://open.spotify.com/track/4Y9glyanYndWX8GNrRx1pI?si=947514736d6447d7"
     )
-    print(d)
+    print(type)

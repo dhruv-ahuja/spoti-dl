@@ -7,15 +7,22 @@ audio_bitrates = ["best", "320", "256", "192", "128", "96", "32", "worst"]
 
 audio_formats = ["mp3", "flac", "m4a"]
 
+spotify_link_types = ["track", "album", "playlist"]
 
-# regex patterns for spotify URLs
-spotify_link_patterns = [
-    # r"^(spotify:|[a-z]+\.spotify\.com/)",
-    r"^(spotify:|[a-z]+\.spotify\.com/track/)",
-    r"^(spotify:|[a-z]+\.spotify\.com/album/)",
-    r"^(spotify:|[a-z]+\.spotify\.com/playlist/)"
-    # r"^(spotify:|https://[a-z]+\.spotify\.com/)",
-    r"^(spotify:|https://[a-z]+\.spotify\.com/album/)",
-    r"^(spotify:|https://[a-z]+\.spotify\.com/playlist/)",
-    r"^(spotify:|https://[a-z]+\.spotify\.com/track/)",
-]
+
+# regex patterns for spotify URLs stored according to the url type
+spotify_link_patterns = {
+    "track": [
+        r"^(spotify:|[a-z]+\.spotify\.com/track/)",
+        r"^(spotify:|https://[a-z]+\.spotify\.com/track/)",
+    ],
+    "album": [
+        r"^(spotify:|[a-z]+\.spotify\.com/album/)",
+        r"^(spotify:|https://[a-z]+\.spotify\.com/album/)",
+    ],
+    # playlist will be implemented soon!
+    "playlist": [
+        r"^(spotify:|[a-z]+\.spotify\.com/playlist/)"
+        r"^(spotify:|https://[a-z]+\.spotify\.com/playlist/)",
+    ],
+}

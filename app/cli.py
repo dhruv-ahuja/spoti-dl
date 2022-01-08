@@ -25,6 +25,13 @@ def cli_args():
         help="Save directory(is created if doesn't exist)",
     )
 
+    parser.add_argument(
+        "-t",
+        "--type",
+        default="track",
+        help=f"Download type of the given link. Can be {c.spotify_link_types}",
+    )
+
     # audio-related arguments
     # quiet is stored to be True, means we don't have to enter anything
     # after calling "-q/--quiet", it defaults to True if called else False
@@ -54,29 +61,6 @@ def cli_args():
     return parser.parse_args()
 
 
-def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
-    """
-    Corrects audio-related arguments if they are incorrect and finally calls
-    for Spotify link checks.
-    """
-
-    # adding checks to ensure argument validity
-    if codec not in c.audio_formats:
-        # raise argparse.ArgumentTypeError("Invalid codec entered!")
-        print("Invalid codec entered! Using default value.")
-        codec = "mp3"
-
-    if bitrate not in c.audio_bitrates:
-        # raise argparse.ArgumentTypeError("Invalid bitrate entered!")
-        print("Invalid bitrate entered! Using default value.")
-        bitrate = "320"
-
-    # check whether the provided link is authentic
-    is_match = u.check_spotify_link(link, c.spotify_link_patterns)
-
-    return is_match
-
-
 def controller():
     """
     Controls the flow of the program execution.
@@ -85,10 +69,13 @@ def controller():
     args = cli_args()
 
     #  perform necessary argument validity checks
-    if not check_cli_args(args.codec, args.bitrate, args.link):
+    if not u.check_cli_args(args.codec, args.bitrate, args.link):
         raise e.LinkError("Invalid Spotify link entered!")
 
-    song = s.get_song_data(args.link)
+    # i believe getting the link type should be separated from just checking
+    # the validity of the link and the audio-related args like codec and bitrate
+    if not u.get_link_type(args.link) in c.spotify_link_types:
+        raise e.LinkError("Invalid Spotify link type entered!")
 
     # make the specified dir. if it doesn't exist and open it to store files
     u.directory_maker(args.dir)
@@ -102,10 +89,32 @@ def controller():
         "quiet": args.quiet,
     }
 
+    song_download_controller(args.link, user_params)
+
+
+def song_download_controller(link: str, user_params: dict):
+    """
+    Handles the control flow for the process to download an individual song.
+    """
+
+    # gets the SpotifySong dataclass object to be used for everything else in the func
+    song = s.get_song_data(link)
+
     # use the youtube controller to scrape audio source and download the song
     y.controller(user_params, song)
 
     # write metadata to the downloaded file
-    file_name = f"{u.make_song_title(song.artists, song.name, ', ')}.{args.codec}"
+    file_name = (
+        f"{u.make_song_title(song.artists, song.name, ', ')}.{user_params['codec']}"
+    )
 
-    m.controller(file_name, song, args.dir, args.codec)
+    m.controller(file_name, song, user_params["dir"], user_params["codec"])
+
+
+def album_download_controller(link: str, user_params: dict, save_dir: str):
+    """
+    Handles the control flow for the process to download a complete album.
+    """
+
+    # todo: we need to make a new directory for the album
+    pass
