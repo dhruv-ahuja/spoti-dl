@@ -3,6 +3,7 @@ import mutagen.easyid3
 import mutagen.id3 
 import mutagen.flac
 import mutagen.mp4
+import mutagen.m4a
 
 from spotify import SpotifySong
 from utils import download_album_art
@@ -27,6 +28,7 @@ def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
         meta.add_tags()
 
     meta["title"] = song.name
+    #  ID3v2.3 spec: the delimiter is a "/" for multiple entries. 
     meta["artist"] = "/".join(song.artists)
     meta["album"] = song.album_name
     meta["tracknumber"] = str(song.track_number)
@@ -90,24 +92,19 @@ def add_metadata_m4a(file_name: str, song: SpotifySong, album_art_path: str):
 
     meta = mutagen.mp4.MP4(file_name)
 
-    try:
-        meta.add_tags()
+    # refer https://stackoverflow.com/questions/56660170/\problem-using-mutagen-to-set-custom-tags-for-mp4-file
 
-    except mutagen.MutagenError:
-        meta.delete()
-
-    meta["title"] = song.name
-    meta["artist"] = "/".join(song.artists)
-    meta["album"] = song.album_name
-    meta["tracknumber"] = str(song.track_number)
-    meta["discnumber"] = str(song.disc_number)
+    meta["\xa9nam"] = song.name
+    meta['\xa9ART'] = "/".join(song.artists)
+    meta["\xa9alb"] = song.album_name
 
     # now, to write the album art
     with open(album_art_path, "rb") as pic:
         meta["covr"] = [mutagen.mp4.MP4Cover(pic.read(),
         imageformat=mutagen.mp4.MP4Cover.FORMAT_JPEG)]
 
-    meta.save()
+    meta.save(file_name)
+
 
 
 def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
