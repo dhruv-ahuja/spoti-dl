@@ -25,12 +25,12 @@ def cli_args():
         help="Save directory(is created if doesn't exist)",
     )
 
-    parser.add_argument(
-        "-t",
-        "--type",
-        default="track",
-        help=f"Download type of the given link. Can be {c.spotify_link_types}",
-    )
+    # parser.add_argument(
+    #     "-t",
+    #     "--type",
+    #     default="track",
+    #     help=f"Download type of the given link. Can be {c.spotify_link_types}",
+    # )
 
     # audio-related arguments
     # quiet is stored to be True, means we don't have to enter anything
@@ -74,7 +74,8 @@ def controller():
 
     # i believe getting the link type should be separated from just checking
     # the validity of the link and the audio-related args like codec and bitrate
-    if not u.get_link_type(args.link) in c.spotify_link_types:
+    link_type = u.get_link_type(args.link)
+    if not link_type in c.spotify_link_types:
         raise e.LinkError("Invalid Spotify link type entered!")
 
     # make the specified dir. if it doesn't exist and open it to store files
@@ -87,9 +88,17 @@ def controller():
         "codec": args.codec,
         "quality": args.bitrate,
         "quiet": args.quiet,
+        "dir": args.dir,
     }
 
-    song_download_controller(args.link, user_params)
+    match link_type:
+        case "track":
+            song_download_controller(args.link, user_params)
+
+        case "album":
+            # album controller requires the directory since it will 
+            # create a separate folder for the album
+            album_download_controller(args.link, user_params)
 
 
 def song_download_controller(link: str, user_params: dict):
@@ -111,10 +120,30 @@ def song_download_controller(link: str, user_params: dict):
     m.controller(file_name, song, user_params["dir"], user_params["codec"])
 
 
-def album_download_controller(link: str, user_params: dict, save_dir: str):
+def album_download_controller(link: str, user_params: dict):
     """
     Handles the control flow for the process to download a complete album.
     """
 
-    # todo: we need to make a new directory for the album
-    pass
+    # get album information
+    album_name, album_data = s.get_album_data(link)
+    album_save_dir = "./" + album_name
+
+    #make a directory to store the album
+    u.directory_maker(album_save_dir)
+
+    os.chdir(album_save_dir)
+
+    for song in album_data:
+        y.controller(user_params, song)
+
+        # write metadata to the downloaded file
+        file_name = (
+            f"{u.make_song_title(song.artists, song.name, ', ')}.{user_params['codec']}"
+        )
+
+        # since we have already entered the <album_name> directory, we don't
+        # have to pass in anything except the current directory indicator 
+        m.controller(file_name, song, ".", user_params["codec"])
+
+    print(f"\n Download for album '{album_name}' completed. Enjoy!")

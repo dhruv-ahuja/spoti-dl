@@ -4,7 +4,6 @@ import mutagen.id3
 import mutagen.flac
 import mutagen.mp4
 
-
 from spotify import SpotifySong
 from utils import download_album_art
 

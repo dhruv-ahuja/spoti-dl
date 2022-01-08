@@ -68,7 +68,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
 
     artists = []
     for artist in query["artists"]:
-        artists.append(artist)
+        artists.append(artist["name"])
 
     match type:
         # "song" refers to the case where the user enters a song link; we need
@@ -101,7 +101,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
     return song 
 
 
-def get_album_data(link: str) -> list[SpotifySong]:
+def get_album_data(link: str) -> tuple:
     """
     Gets album data for the given Spotify album link.
     It is then passed onto other functions for further processing.
@@ -123,9 +123,9 @@ def get_album_data(link: str) -> list[SpotifySong]:
         # since this time we are directly receiving data that we otherwise
         # extracted from get_song_data using a link entered by the user, we
         # will need to generate a SpotifySong object another way
-        artists = []
-        for artist in track["artists"]:
-            artists.append(artist["name"])
+        # artists = []
+        # for artist in track["artists"]:
+        #     artists.append(artist["name"])
 
         song = new_song(track, type="album", 
         album_name=query["name"], 
@@ -133,7 +133,9 @@ def get_album_data(link: str) -> list[SpotifySong]:
 
         album.append(song)
 
-    return album
+    # returning album name since we'll need it when making the album folder to
+    # use as the save directory
+    return (query["name"], album)
 
 
 if __name__ == "__main__":

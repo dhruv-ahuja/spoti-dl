@@ -47,7 +47,8 @@ def directory_maker(path: str):
 
     if not check_dir(path):
         if make_dir(path):
-            print("Successfully created save directory.")
+            _, dir_name = os.path.split(path)
+            print(f"Successfully created '{dir_name}' directory.")
 
 
 if __name__ == "__main__":

@@ -73,7 +73,7 @@ def download_song(yt: YoutubeDL, link: str):
     downloads the song using the extracted information.
     """
 
-    print("\nStarting download..")
+    print("\nStarting download..\n")
 
     try:
         # attempts to download the song using the best matched
