@@ -1,7 +1,9 @@
 import mutagen
-from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, APIC
-from mutagen.flac import FLAC, Picture
+import mutagen.easyid3 
+import mutagen.id3 
+import mutagen.flac
+import mutagen.mp4
+
 
 from spotify import SpotifySong
 from utils import download_album_art
@@ -18,8 +20,8 @@ def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
         file_name = file_name.replace("?", "#")
 
     # writing textual metadata to the file
-    try:
-        meta = EasyID3(file_name)
+    try:        
+        meta = mutagen.easyid3.EasyID3(file_name)
 
     except mutagen.id3.ID3NoHeaderError:
         meta = mutagen.File(file_name, easy=True)
@@ -33,12 +35,11 @@ def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
 
     meta.save(v2_version=3)
 
-
     # here we write the downloaded album art image to our downloaded song.
-    meta = ID3(file_name)
+    meta = mutagen.id3.ID3(file_name)
 
     with open(album_art_path, "rb") as pic:
-        meta["APIC"] = APIC(
+        meta["APIC"] = mutagen.id3.APIC(
             # type 3 is for the front cover of a song
             encoding=3,
             mime="image/jpeg",
@@ -56,7 +57,7 @@ def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
     File name must contain file extension as well.
     """
 
-    meta = FLAC(file_name)
+    meta = mutagen.flac.FLAC(file_name)
 
     try:
         meta.add_tags()
@@ -72,7 +73,7 @@ def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
     meta["discnumber"] = str(song.disc_number)
 
     # now, to write the album art to the file
-    p = Picture()
+    p = mutagen.flac.Picture()
 
     with open(album_art_path, "rb") as pic:
         p.data = pic.read()
@@ -88,9 +89,7 @@ def add_metadata_m4a(file_name: str, song: SpotifySong, album_art_path: str):
     File name must contain file extension as well.
     """
 
-    from mutagen.mp4 import MP4, MP4Cover
-
-    meta = MP4(file_name)
+    meta = mutagen.mp4.MP4(file_name)
 
     try:
         meta.add_tags()
@@ -106,7 +105,8 @@ def add_metadata_m4a(file_name: str, song: SpotifySong, album_art_path: str):
 
     # now, to write the album art
     with open(album_art_path, "rb") as pic:
-        meta["covr"] = [MP4Cover(pic.read(), imageformat=MP4Cover.FORMAT_JPEG)]
+        meta["covr"] = [mutagen.mp4.MP4Cover(pic.read(),
+        imageformat=mutagen.mp4.MP4Cover.FORMAT_JPEG)]
 
     meta.save()
 
@@ -116,15 +116,11 @@ def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
     Handles the metadata writing process flow.
     """
 
-
     album_art_path = download_album_art(
         path=dir, link=song.cover_url, title=song.album_name
     )
 
     print("\nWriting metadata...")
-
-    # import os
-    # print(os.getcwd(), "file path: ", file_name)
 
     match codec:
         case "flac":

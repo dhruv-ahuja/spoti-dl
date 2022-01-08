@@ -4,6 +4,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 from dataclasses import dataclass
 from exceptions import NoDataReceivedError
+from utils import make_song_title
 
 
 # initializing the spotify api connection
@@ -15,11 +16,20 @@ sp = Spotify(auth_manager=SpotifyOAuth())
 @dataclass
 class SpotifySong:
     name: str
-    artists: list
+    artists: dict
     album_name: str
     disc_number: int
     track_number: int
     cover_url: str
+
+    def __str__(self):
+        # print(self.artists)
+        # exit() 
+        artists = []
+        for artist in self.artists:
+            artists.append(artist["name"])
+
+        return make_song_title(artists, self.name, ", ")
 
 
 def get_song_data(link: str) -> SpotifySong:
@@ -43,21 +53,12 @@ def get_song_data(link: str) -> SpotifySong:
         for artist in query["artists"]:
             artists.append(artist["name"])
 
-        song = SpotifySong(
-            name=query["name"],
-            artists=artists,
-            album_name=query["album"]["name"],
-            disc_number=query["disc_number"],
-            track_number=query["track_number"],
-            # typically the 1st link contains a link to the album art
-            # of size 640 x 640 pixels
-            cover_url=query["album"]["images"][0]["url"],
-        )
+        song = new_song(query, type="song")
 
         return song
 
 
-def new_song(query: dict, type: str, album_name = None) -> SpotifySong:
+def new_song(query: dict, type: str, **album_details) -> SpotifySong:
     """
     Makes a new SpotifySong given a raw "track" type item received from Spotify API.
     The track queried using different methods returns slightly modified data.
@@ -83,13 +84,15 @@ def new_song(query: dict, type: str, album_name = None) -> SpotifySong:
         )
 
         case "album":
+            # print(query.keys())
+            # exit()
             song = SpotifySong(
             name=query["name"],
             artists=artists,
-            album_name=query["name"],
+            album_name=album_details["album_name"],
             disc_number=query["disc_number"],
             track_number=query["track_number"],
-            cover_url=query["images"][0]["url"],
+            cover_url=album_details["album_cover_url"],
         )
 
     
@@ -122,7 +125,9 @@ def get_album_data(link: str) -> list[SpotifySong]:
         for artist in track["artists"]:
             artists.append(artist["name"])
 
-        song = new_song(track, album_name=query["name"])
+        song = new_song(track, type="album", 
+        album_name=query["name"], 
+        album_cover_url=query["images"][0]["url"])
 
         album.append(song)
 
@@ -134,7 +139,7 @@ if __name__ == "__main__":
     song = get_song_data(
         "https://open.spotify.com/track/0Ey8buiWgtBQjb7ypaACKN?si=22882b3a21ae4c71"
     )
-    print(song.__repr__())
+    print(song)
 
     album = get_album_data(
         "https://open.spotify.com/album/0bWYlK9rRmIB68icHx9PNR?si=0PRvNMbBSticZvfdCeGdjw"
