@@ -148,7 +148,7 @@ def correct_name(query: str) -> str:
 
     for char in c.illegal_chars:
         if char in query:
-            query.replace(char, "#")
+            query = query.replace(char, "#")
 
     return query
 
