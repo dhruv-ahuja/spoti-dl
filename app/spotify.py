@@ -90,8 +90,6 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
         )
 
         case "album":
-            # print(query.keys())
-            # exit()
             song = SpotifySong(
             name=name, 
             artists=artists,
@@ -118,8 +116,8 @@ def get_album_data(link: str) -> tuple:
     try:
         query = sp.album(link)
 
-    except SpotifyException as e:
-        e.NoDataReceivedError(e)
+    except SpotifyException as ex:
+        e.NoDataReceivedError(ex)
 
     album: list[SpotifySong] = []
     album_name = u.correct_name(query["name"])
@@ -128,9 +126,6 @@ def get_album_data(link: str) -> tuple:
         # since this time we are directly receiving data that we otherwise
         # extracted from get_song_data using a link entered by the user, we
         # will need to generate a SpotifySong object another way
-        # artists = []
-        # for artist in track["artists"]:
-        #     artists.append(artist["name"])
 
         song = new_song(track, type="album", 
         album_name=album_name, 
@@ -142,6 +137,42 @@ def get_album_data(link: str) -> tuple:
     # use as the save directory
     return (album_name, album)
 
+
+
+def get_playlist_data(link: str) -> tuple:
+    """
+    Gets playlist data for the given Spotify playlist link.
+    It is then passed onto other functions for further processing.
+    """
+
+    # we need playlist id to fetch its information
+    playlist_id = u.get_playlist_id(link)
+
+    try:
+        query = sp.playlist_tracks(playlist_id)
+        playlist_name = sp.playlist(playlist_id)["name"]
+
+    except SpotifyException as ex:
+        raise e.NoDataReceivedError(ex)
+
+    # can fetch a 100 tracks at a time
+    # the "next" dictionary key gets the next batch, if the no. of results
+    # exceeds 100
+    tracks = query["items"]
+
+    while query["next"]:
+        query = sp.next(query)
+        tracks.extend(query["items"])
+
+    # now, to extract data from each entry in the list and get a SpotifySong object
+    playlist_songs: list[SpotifySong] = []
+
+    for track in tracks:
+        song = new_song(track["track"], type="song")
+    
+        playlist_songs.append(song)
+
+    return playlist_name, playlist_songs
 
 if __name__ == "__main__":
 

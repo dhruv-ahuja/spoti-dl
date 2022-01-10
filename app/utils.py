@@ -153,6 +153,20 @@ def correct_name(query: str) -> str:
     return query
 
 
+# since we cannot fetch any playlist data without a playlist id, this will be
+# of paramount importance
+def get_playlist_id(link: str):
+    """
+    Returns a playlist ID given a Spotify playlist URL.
+    """
+
+    data = link.split("/")[-1]
+
+    # we can safely return the last part if there's no question mark in it,
+    # otherwise we need to split it again to remove the "si" code
+    return data.split("?")[0] if "?" in data else data[-1]
+
+
 if __name__ == "__main__":
     # testing
 

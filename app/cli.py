@@ -92,6 +92,9 @@ def controller():
             # create a separate folder for the album
             album_download_controller(args.link, user_params)
 
+        case "playlist":
+            playlist_download_controller(args.link, user_params)
+
 
 def song_download_controller(link: str, user_params: dict):
     """
@@ -118,25 +121,50 @@ def album_download_controller(link: str, user_params: dict):
     """
 
     # get album information
-    album_name, album_data = s.get_album_data(link)
-    album_save_dir = "./" + album_name
+    album_name, songs = s.get_album_data(link)
+    save_dir = "./" + album_name
 
     #make a directory to store the album
-    u.directory_maker(album_save_dir)
+    u.directory_maker(save_dir)
+    os.chdir(save_dir)
 
-    os.chdir(album_save_dir)
-
-    for song in album_data:
+    for song in songs:
         y.controller(user_params, song)
 
         # write metadata to the downloaded file
-        file_name = (
-            f"{u.make_song_title(song.artists, song.name, ', ')}.{user_params['codec']}"
-        )
+        file_name = f"{u.make_song_title(song.artists, song.name, ', ')}.{user_params['codec']}"
+        
 
         # since we have already entered the <album_name> directory, we don't
         # have to pass in anything except the current directory indicator 
+        # we have to change directories since we are creating a dedicated folder
+        # for the album unlike a song
         m.controller(file_name, song, ".", user_params["codec"])
 
     print(f"\nDownload for album '{album_name}' completed. Enjoy!")
 
+
+def playlist_download_controller(link: str, user_params: dict):
+    """
+    Handles the control flow for the process to download a complete playlist.
+    """
+
+    # get playlist information
+    playlist_name, songs = s.get_playlist_data(link)
+    save_dir = "./" + playlist_name
+
+    # make a directory to store the playlist
+    u.directory_maker(save_dir)
+    os.chdir(save_dir)
+
+    for song in songs: 
+        y.controller(user_params, song)
+
+        # write metadata to the downloaded file
+        file_name = f"{u.make_song_title(song.artists, song.name, delim=', ')}.{user_params['codec']}"
+
+        # passing "." aka curr dir indicator since we've already moved 
+        # into the <playlist_name> directory
+        m.controller(file_name, song, dir=".", codec=user_params["codec"])
+    
+    print(f"\nDownload for playlist '{playlist_name}' completed. Enjoy!")
