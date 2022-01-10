@@ -8,7 +8,6 @@ spotipy = "*"
 yt-dlp = "*"
 mutagen = "*"
 eyed3 = "*"
-ffmpy = "*"
 
 [dev-packages]
 

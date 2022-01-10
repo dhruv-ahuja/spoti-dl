@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "yASD"
+version = "0.1.0"
+description = "yet Another Song Downloader"
+authors = ["Dhruv <good-times-ahead@users.noreply.github.com>"]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+python = "3.10"
+spotipy = "^2.19.0"
+yt-dlp = "^2021.12.27"
+eyed3 = "^0.9.6"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
