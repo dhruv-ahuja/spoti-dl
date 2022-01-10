@@ -25,20 +25,12 @@ def cli_args():
         help="Save directory(is created if doesn't exist)",
     )
 
-    # parser.add_argument(
-    #     "-t",
-    #     "--type",
-    #     default="track",
-    #     help=f"Download type of the given link. Can be {c.spotify_link_types}",
-    # )
-
     # audio-related arguments
     # quiet is stored to be True, means we don't have to enter anything
     # after calling "-q/--quiet", it defaults to True if called else False
     parser.add_argument(
         "-q",
         "--quiet",
-        # default=False,
         action="store_true",
         help="Makes the downloader non-verbose/quiet",
     )
@@ -146,4 +138,5 @@ def album_download_controller(link: str, user_params: dict):
         # have to pass in anything except the current directory indicator 
         m.controller(file_name, song, ".", user_params["codec"])
 
-    print(f"\n Download for album '{album_name}' completed. Enjoy!")
+    print(f"\nDownload for album '{album_name}' completed. Enjoy!")
+

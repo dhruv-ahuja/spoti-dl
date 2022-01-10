@@ -140,6 +140,19 @@ def get_link_type(link: str) -> str:
     return type[len(type) - 2]
 
 
+def correct_name(query: str) -> str:
+    """
+    Checks for illegal characters in file or folder name and corrects them
+    if needed.
+    """
+
+    for char in c.illegal_chars:
+        if char in query:
+            query.replace(char, "#")
+
+    return query
+
+
 if __name__ == "__main__":
     # testing
 

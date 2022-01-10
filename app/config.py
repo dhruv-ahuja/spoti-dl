@@ -26,3 +26,7 @@ spotify_link_patterns = {
         r"^(spotify:|https://[a-z]+\.spotify\.com/playlist/)",
     ],
 }
+
+# list of illegal file name characters; replace them in case any of these
+# is in the song name
+illegal_chars = ["?", ">", "<", "|", ":", "/", "\\", "*"]

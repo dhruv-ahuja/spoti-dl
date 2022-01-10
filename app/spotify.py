@@ -1,14 +1,18 @@
+from dotenv.main import load_dotenv
 from spotipy import Spotify
 from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
 
 from dataclasses import dataclass
-from exceptions import NoDataReceivedError
-from utils import make_song_title
 
+import exceptions as e 
+import utils as u 
 
+# loading .env variables
+load_dotenv()
 # initializing the spotify api connection
-# the OAuth object automatically reads valid env. variables
+# the OAuth object automatically reads valid env. variables so we don't need to
+# manually assign them using `os.environ.get(<env_var name>)` 
 sp = Spotify(auth_manager=SpotifyOAuth())
 
 
@@ -23,13 +27,11 @@ class SpotifySong:
     cover_url: str
 
     def __str__(self):
-        # print(self.artists)
-        # exit() 
         artists = []
         for artist in self.artists:
             artists.append(artist["name"])
 
-        return make_song_title(artists, self.name, ", ")
+        return u.make_song_title(artists, self.name, ", ")
 
 
 def get_song_data(link: str) -> SpotifySong:
@@ -44,7 +46,7 @@ def get_song_data(link: str) -> SpotifySong:
     except SpotifyException as e:
         # wrapping the Spotify Exception
         # still unsure whether this is the correct approach
-        raise NoDataReceivedError(e)
+        raise e.NoDataReceivedError(e)
 
     else:
         # there can be multiple results,
@@ -70,12 +72,14 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
     for artist in query["artists"]:
         artists.append(artist["name"])
 
+    name = u.correct_name(query["name"])
+
     match type:
         # "song" refers to the case where the user enters a song link; we need
         # to fetch data for just a single song 
         case "song":
             song = SpotifySong(
-            name=query["name"],
+            name=name,
             artists=artists,
             album_name=query["album"]["name"],
             disc_number=query["disc_number"],
@@ -89,7 +93,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
             # print(query.keys())
             # exit()
             song = SpotifySong(
-            name=query["name"],
+            name=name, 
             artists=artists,
             album_name=album_details["album_name"],
             disc_number=query["disc_number"],
@@ -115,9 +119,10 @@ def get_album_data(link: str) -> tuple:
         query = sp.album(link)
 
     except SpotifyException as e:
-        NoDataReceivedError(e)
+        e.NoDataReceivedError(e)
 
     album: list[SpotifySong] = []
+    album_name = u.correct_name(query["name"])
 
     for track in query["tracks"]["items"]:
         # since this time we are directly receiving data that we otherwise
@@ -128,14 +133,14 @@ def get_album_data(link: str) -> tuple:
         #     artists.append(artist["name"])
 
         song = new_song(track, type="album", 
-        album_name=query["name"], 
+        album_name=album_name, 
         album_cover_url=query["images"][0]["url"])
 
         album.append(song)
 
     # returning album name since we'll need it when making the album folder to
     # use as the save directory
-    return (query["name"], album)
+    return (album_name, album)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ license = "MIT License"
 python = "3.10"
 spotipy = "^2.19.0"
 yt-dlp = "^2021.12.27"
-eyed3 = "^0.9.6"
+python-dotenv = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
 
