@@ -2,13 +2,11 @@
 name = "yASD"
 version = "1.0.0"
 description = "yet Another Song Downloader- download songs, albums and playlists using Spotify links"
-authors = ["Dhruv <good-times-ahead@users.noreply.github.com>"]
+authors = ["Dhruv"]
 license = "MIT"
 readme = "README.md"
+homepage = "https://github.com/good-times-ahead/yASD/"
 repository = "https://github.com/good-times-ahead/yASD/"
-packages = [
-    {include = "yASD"}
-    ]
 
 [tool.poetry.dependencies]
 python = "3.10"
@@ -22,3 +20,5 @@ python-dotenv = "^0.19.2"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.scripts]
+yasd = "main:cli"
