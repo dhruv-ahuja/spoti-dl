@@ -1,21 +1,27 @@
 from dotenv.main import load_dotenv
-from spotipy import Spotify
+import spotipy
 from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
 
 from dataclasses import dataclass
+import os 
 
 import yasd.exceptions as e 
 import yasd.utils as u 
 
 # loading .env variables
 load_dotenv()
-# todo: trigger an error if the required env variables not found!
+
 
 # initializing the spotify api connection
 # the OAuth object automatically reads valid env. variables so we don't need to
 # manually assign them using `os.environ.get(<env_var name>)` 
-sp = Spotify(auth_manager=SpotifyOAuth())
+try:
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth())
+
+except spotipy.oauth2.SpotifyOauthError as ex:
+    # env variables aren't configured properly!
+    raise e.EnvVariablesError(ex)
 
 
 # defining structure for the song data we are going to be parsing

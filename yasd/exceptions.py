@@ -17,3 +17,11 @@ class NoDataReceivedError(Exception):
     """
 
     pass
+
+
+class EnvVariablesError(Exception):
+    """
+    Raised when environment variables aren't configured.
+    """
+
+    pass
