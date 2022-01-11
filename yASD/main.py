@@ -1,4 +1,5 @@
-# main should not contain complex app logic
+#!/usr/bin/env python
+# the main file should not contain complex app logic
 # just be used to run the main functions themselves mostly
 
 

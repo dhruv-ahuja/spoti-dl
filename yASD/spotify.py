@@ -10,6 +10,8 @@ import utils as u
 
 # loading .env variables
 load_dotenv()
+# todo: trigger an error if the required env variables not found!
+
 # initializing the spotify api connection
 # the OAuth object automatically reads valid env. variables so we don't need to
 # manually assign them using `os.environ.get(<env_var name>)` 

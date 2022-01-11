@@ -1,9 +1,14 @@
 [tool.poetry]
 name = "yASD"
-version = "0.1.0"
-description = "yet Another Song Downloader"
+version = "1.0.0"
+description = "yet Another Song Downloader- download songs, albums and playlists using Spotify links"
 authors = ["Dhruv <good-times-ahead@users.noreply.github.com>"]
-license = "MIT License"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/good-times-ahead/yASD/"
+packages = [
+    {include = "yASD"}
+    ]
 
 [tool.poetry.dependencies]
 python = "3.10"
