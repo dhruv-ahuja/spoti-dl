@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 from yt_dlp import YoutubeDL
 
-from yasd.spotify import SpotifySong
-from yasd.utils import make_song_title
+from spotidl.spotify import SpotifySong
+from spotidl.utils import make_song_title
 
 
 @dataclass

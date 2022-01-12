@@ -5,8 +5,8 @@ from spotipy.oauth2 import SpotifyOAuth
 
 from dataclasses import dataclass
 
-import yasd.exceptions as e 
-import yasd.utils as u 
+import spotidl.exceptions as e 
+import spotidl.utils as u 
 
 # loading .env vars
 load_dotenv()

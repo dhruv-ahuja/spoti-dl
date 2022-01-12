@@ -1,13 +1,13 @@
 import argparse
 import os
 
-import yasd.utils as u
+import spotidl.utils as u
 # import utils as u
-import yasd.spotify as s
-import yasd.youtube as y
-import yasd.config as c
-import yasd.exceptions as e
-import yasd.metadata as m
+import spotidl.spotify as s
+import spotidl.youtube as y
+import spotidl.config as c
+import spotidl.exceptions as e
+import spotidl.metadata as m
 
 
 def cli_args():

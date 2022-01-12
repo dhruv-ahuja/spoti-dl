@@ -1,4 +1,4 @@
-from yasd.cli import controller
+from spotidl.cli import controller
 
 
 def cli():

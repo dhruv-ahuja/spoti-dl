@@ -1,12 +1,15 @@
 [tool.poetry]
-name = "yASD"
-version = "1.0.6"
-description = "yet Another Song Downloader- download songs, albums and playlists using Spotify links"
+name = "spoti-dl"
+version = "0.9.1"
+description = "spotidl: download songs, albums and playlists using Spotify links"
 authors = ["Dhruv"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/good-times-ahead/yASD/"
-repository = "https://github.com/good-times-ahead/yASD/"
+homepage = "https://github.com/good-times-ahead/spoti-dl/"
+repository = "https://github.com/good-times-ahead/spoti-dl/"
+packages = [
+    {include = "spotidl"}
+]
 
 [tool.poetry.dependencies]
 python = "3.10"
@@ -21,4 +24,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-yasd = "yasd.cli:controller"
+spotidl = "spotidl.cli:controller"

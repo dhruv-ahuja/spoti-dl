@@ -2,11 +2,11 @@ import os
 from re import search
 from urllib.request import urlretrieve
 
-import yasd.config as c
-import yasd.exceptions as e
+import spotidl.config as c
+import spotidl.exceptions as e
 
 
-default_save_dir = os.getcwd() + "/yASD-dl"
+default_save_dir = os.getcwd() + "/spoti-dl"
 
 
 def check_env_vars():

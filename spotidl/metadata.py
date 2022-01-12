@@ -5,8 +5,8 @@ import mutagen.flac
 import mutagen.mp4
 import mutagen.m4a
 
-from yasd.spotify import SpotifySong
-from yasd.utils import download_album_art
+from spotidl.spotify import SpotifySong
+from spotidl.utils import download_album_art
 
 
 def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
