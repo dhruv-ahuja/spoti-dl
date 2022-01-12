@@ -3,10 +3,34 @@ from re import search
 from urllib.request import urlretrieve
 
 import yasd.config as c
+import yasd.exceptions as e
+
 
 default_save_dir = os.getcwd() + "/yASD-dl"
 
 
+def check_env_vars():
+    """
+    Run a barebones check to ensure that the three needed environment variables
+    are not blank.
+    """
+
+    client_id, client_secret = os.getenv("SPOTIPY_CLIENT_ID"), os.getenv(
+        "SPOTIPY_CLIENT_SECRET"
+    )
+    redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
+
+    if not client_id:
+        raise e.EnvVariablesError("SPOTIPY_CLIENT_ID not configured!")
+
+    elif not client_secret:
+        raise e.EnvVariablesError("SPOTIPY_CLIENT_SECRET not configured!")
+
+    elif not redirect_uri:
+        raise e.EnvVariablesError("SPOTIPY_REDIRECT_URI not configured!")
+
+
+# unused, will keep just in case *shrug*
 def choice(msg: str) -> bool:
     """
     Offer the user a choice, infinite loop till they make a decision.

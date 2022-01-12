@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yASD"
-version = "1.0.4"
+version = "1.0.6"
 description = "yet Another Song Downloader- download songs, albums and playlists using Spotify links"
 authors = ["Dhruv"]
 license = "MIT"

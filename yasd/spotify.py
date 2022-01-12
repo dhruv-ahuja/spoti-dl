@@ -4,14 +4,15 @@ from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
 
 from dataclasses import dataclass
-import os 
 
 import yasd.exceptions as e 
 import yasd.utils as u 
 
-# loading .env variables
+# loading .env vars
 load_dotenv()
 
+#check env vars
+u.check_env_vars()
 
 # initializing the spotify api connection
 # the OAuth object automatically reads valid env. variables so we don't need to
@@ -21,7 +22,7 @@ try:
 
 except spotipy.oauth2.SpotifyOauthError as ex:
     # env variables aren't configured properly!
-    raise e.EnvVariablesError(ex)
+    raise e.EnvVariablesError("Environment variables arn't configured properly!")
 
 
 # defining structure for the song data we are going to be parsing
