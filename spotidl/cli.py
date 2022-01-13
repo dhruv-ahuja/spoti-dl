@@ -2,6 +2,7 @@ import argparse
 import os
 
 import spotidl.utils as u
+
 # import utils as u
 import spotidl.spotify as s
 import spotidl.youtube as y
@@ -84,17 +85,17 @@ def controller():
         "dir": args.dir,
     }
 
-    match link_type:
-        case "track":
-            song_download_controller(args.link, user_params)
+    # replacing match-case with if else for comaptibility's sake
+    if link_type == "track":
+        song_download_controller(args.link, user_params)
 
-        case "album":
-            # album controller requires the directory since it will 
-            # create a separate folder for the album
-            album_download_controller(args.link, user_params)
+    elif link_type == "album":
+        # album controller requires the directory since it will
+        # create a separate folder for the album
+        album_download_controller(args.link, user_params)
 
-        case "playlist":
-            playlist_download_controller(args.link, user_params)
+    elif link_type == "playlist":
+        playlist_download_controller(args.link, user_params)
 
 
 def song_download_controller(link: str, user_params: dict):
@@ -125,7 +126,7 @@ def album_download_controller(link: str, user_params: dict):
     album_name, songs = s.get_album_data(link)
     save_dir = "./" + album_name
 
-    #make a directory to store the album
+    # make a directory to store the album
     u.directory_maker(save_dir)
     os.chdir(save_dir)
 
@@ -133,11 +134,12 @@ def album_download_controller(link: str, user_params: dict):
         y.controller(user_params, song)
 
         # write metadata to the downloaded file
-        file_name = f"{u.make_song_title(song.artists, song.name, ', ')}.{user_params['codec']}"
-        
+        file_name = (
+            f"{u.make_song_title(song.artists, song.name, ', ')}.{user_params['codec']}"
+        )
 
         # since we have already entered the <album_name> directory, we don't
-        # have to pass in anything except the current directory indicator 
+        # have to pass in anything except the current directory indicator
         # we have to change directories since we are creating a dedicated folder
         # for the album unlike a song
         m.controller(file_name, song, ".", user_params["codec"])
@@ -158,14 +160,14 @@ def playlist_download_controller(link: str, user_params: dict):
     u.directory_maker(save_dir)
     os.chdir(save_dir)
 
-    for song in songs: 
+    for song in songs:
         y.controller(user_params, song)
 
         # write metadata to the downloaded file
         file_name = f"{u.make_song_title(song.artists, song.name, delim=', ')}.{user_params['codec']}"
 
-        # passing "." aka curr dir indicator since we've already moved 
+        # passing "." aka curr dir indicator since we've already moved
         # into the <playlist_name> directory
         m.controller(file_name, song, dir=".", codec=user_params["codec"])
-    
+
     print(f"\nDownload for playlist '{playlist_name}' completed. Enjoy!")

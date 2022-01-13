@@ -5,18 +5,18 @@ from spotipy.oauth2 import SpotifyOAuth
 
 from dataclasses import dataclass
 
-import spotidl.exceptions as e 
-import spotidl.utils as u 
+import spotidl.exceptions as e
+import spotidl.utils as u
 
 # loading .env vars
 load_dotenv()
 
-#check env vars
+# check env vars
 u.check_env_vars()
 
 # initializing the spotify api connection
 # the OAuth object automatically reads valid env. variables so we don't need to
-# manually assign them using `os.environ.get(<env_var name>)` 
+# manually assign them using `os.environ.get(<env_var name>)`
 try:
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth())
 
@@ -70,7 +70,7 @@ def get_song_data(link: str) -> SpotifySong:
 
 
 # this will serve as the common point for all entry types
-# (individual song link, album link, etc.) 
+# (individual song link, album link, etc.)
 def new_song(query: dict, type: str, **album_details) -> SpotifySong:
     """
     Makes a new SpotifySong given a raw "track" type item received from Spotify API.
@@ -83,11 +83,10 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
 
     name = u.correct_name(query["name"])
 
-    match type:
+    if type == "song":
         # "song" refers to the case where the user enters a song link; we need
-        # to fetch data for just a single song 
-        case "song":
-            song = SpotifySong(
+        # to fetch data for just a single song
+        song = SpotifySong(
             name=name,
             artists=artists,
             album_name=query["album"]["name"],
@@ -98,9 +97,9 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
             cover_url=query["album"]["images"][0]["url"],
         )
 
-        case "album":
-            song = SpotifySong(
-            name=name, 
+    elif type == "album":
+        song = SpotifySong(
+            name=name,
             artists=artists,
             album_name=album_details["album_name"],
             disc_number=query["disc_number"],
@@ -108,8 +107,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
             cover_url=album_details["album_cover_url"],
         )
 
-    
-    return song 
+    return song
 
 
 def get_album_data(link: str) -> tuple:
@@ -136,16 +134,18 @@ def get_album_data(link: str) -> tuple:
         # extracted from get_song_data using a link entered by the user, we
         # will need to generate a SpotifySong object another way
 
-        song = new_song(track, type="album", 
-        album_name=album_name, 
-        album_cover_url=query["images"][0]["url"])
+        song = new_song(
+            track,
+            type="album",
+            album_name=album_name,
+            album_cover_url=query["images"][0]["url"],
+        )
 
         album.append(song)
 
     # returning album name since we'll need it when making the album folder to
     # use as the save directory
     return (album_name, album)
-
 
 
 def get_playlist_data(link: str) -> tuple:
@@ -178,10 +178,11 @@ def get_playlist_data(link: str) -> tuple:
 
     for track in tracks:
         song = new_song(track["track"], type="song")
-    
+
         playlist_songs.append(song)
 
     return playlist_name, playlist_songs
+
 
 if __name__ == "__main__":
 

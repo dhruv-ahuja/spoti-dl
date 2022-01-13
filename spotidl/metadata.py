@@ -1,6 +1,6 @@
 import mutagen
-import mutagen.easyid3 
-import mutagen.id3 
+import mutagen.easyid3
+import mutagen.id3
 import mutagen.flac
 import mutagen.mp4
 import mutagen.m4a
@@ -20,7 +20,7 @@ def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
         file_name = file_name.replace("?", "#")
 
     # writing textual metadata to the file
-    try:        
+    try:
         meta = mutagen.easyid3.EasyID3(file_name)
 
     except mutagen.id3.ID3NoHeaderError:
@@ -28,7 +28,7 @@ def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
         meta.add_tags()
 
     meta["title"] = song.name
-    #  ID3v2.3 spec: the delimiter is a "/" for multiple entries. 
+    #  ID3v2.3 spec: the delimiter is a "/" for multiple entries.
     meta["artist"] = "/".join(song.artists)
     meta["album"] = song.album_name
     meta["tracknumber"] = str(song.track_number)
@@ -95,16 +95,18 @@ def add_metadata_m4a(file_name: str, song: SpotifySong, album_art_path: str):
     # refer https://stackoverflow.com/questions/56660170/\problem-using-mutagen-to-set-custom-tags-for-mp4-file
 
     meta["\xa9nam"] = song.name
-    meta['\xa9ART'] = "/".join(song.artists)
+    meta["\xa9ART"] = "/".join(song.artists)
     meta["\xa9alb"] = song.album_name
 
     # now, to write the album art
     with open(album_art_path, "rb") as pic:
-        meta["covr"] = [mutagen.mp4.MP4Cover(pic.read(),
-        imageformat=mutagen.mp4.MP4Cover.FORMAT_JPEG)]
+        meta["covr"] = [
+            mutagen.mp4.MP4Cover(
+                pic.read(), imageformat=mutagen.mp4.MP4Cover.FORMAT_JPEG
+            )
+        ]
 
     meta.save(file_name)
-
 
 
 def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
@@ -118,15 +120,14 @@ def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
 
     print("\nWriting metadata...")
 
-    match codec:
-        case "flac":
-            add_metadata_flac(file_name, song, album_art_path)
+    if codec == "flac":
+        add_metadata_flac(file_name, song, album_art_path)
 
-        case "mp3":
-            add_metadata_mp3(file_name, song, album_art_path)
+    elif codec == "mp3":
+        add_metadata_mp3(file_name, song, album_art_path)
 
-        case "m4a":
-            add_metadata_m4a(file_name, song, album_art_path)
+    elif codec == "m4a":
+        add_metadata_m4a(file_name, song, album_art_path)
 
     print("\nFinished writing metadata!")
 

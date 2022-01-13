@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spoti-dl"
-version = "0.9.3"
+version = "0.9.5"
 description = "spotidl: download songs, albums and playlists using Spotify links"
 authors = ["Dhruv"]
 license = "MIT"
@@ -12,12 +12,13 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = ">=3.8,<3.11"
 spotipy = "^2.19.0"
 yt-dlp = "^2021.12.27"
 python-dotenv = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
+black = {version = "^21.12b0", allow-prereleases = true}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
