@@ -2,7 +2,7 @@
 
 spoti-dl(I had a better name but that was already taken on PyPi), is a song downloader app that accepts Spotify links, fetches individual song—and basic album—metadata from Spotify, downloads the song from Youtube. The metadata is then written onto the downloaded song file using the trusty Mutagen library, this includes the album/song cover art as well. 
 
-The app currently supports downloading songs, albums and playlists in the mp3, flac and m4a formats(the m4a format right now does not have full textual metadata support but I'm working on it 😅). 
+The app currently supports downloading songs, albums and playlists. 
 
 I got the inspiration for the project from my friend Swapnil's [spotify-dl](https://github.com/SwapnilSoni1999/spotify-dl) app written in JavaScript. This seemed like the perfect pet project to make and consequently learn from :)
 
@@ -31,4 +31,33 @@ Also note that the first time you run the app you might get a popup window in yo
 
 # Usage
 
-WIP
+MP3 is the selected codec (audio file format; MP3 is the standard) and 320KBPS the selected bitrate (audio quality). So by default, running this downloads the song/album/playlist with these defaults-
+```
+spotidl <spotify link>
+``` 
+
+as an example, running this would download Rick Astley's 'Never Gonna Give You Up'- 
+```
+spotidl https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=06f5d7ab5bd240e7
+```
+
+The following audio formats are supported:
+- mp3 
+- flac
+- m4a (the m4a format only has partial textual-metadata support 😅))
+
+The following bitrates are supported:
+- best 
+- 320kbps
+- 256kbps 
+- 192kbps (slightly better than Spotify's 'high' audio setting, this is the bare minimum in my opinion to have a good listening experience)
+- 96kbps
+- 32kbps
+- worst
+
+Again, the following link types are supported:
+- song links
+- album links
+- playlist links 
+
+Note: File names (audio files or folder names (eg., playlist's directory name)) are changed to ensure compatibility with the operating systems since many characters like '?' or the '/' are illegal when making files/folders.

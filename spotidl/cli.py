@@ -1,9 +1,8 @@
 import argparse
 import os
+import pkg_resources
 
 import spotidl.utils as u
-
-# import utils as u
 import spotidl.spotify as s
 import spotidl.youtube as y
 import spotidl.config as c
@@ -28,7 +27,7 @@ def cli_args():
     )
 
     # audio-related arguments
-    # quiet is stored to be True, means we don't have to enter anything
+    # quiet is a 'stored' argument, means we don't have to enter anything
     # after calling "-q/--quiet", it defaults to True if called else False
     parser.add_argument(
         "-q",
@@ -49,6 +48,14 @@ def cli_args():
         "--bitrate",
         default="320",
         help=f"Audio quality of the file. List of available qualities: {c.audio_bitrates}",
+    )
+
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=pkg_resources.get_distribution("spoti-dl").version,
+        help="Displays the current app version",
     )
 
     # returns an argparse.Namespace object that stores our argument variables
