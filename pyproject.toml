@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spoti-dl"
-version = "0.9.6"
+version = "0.9.7"
 description = "spotidl: download songs, albums and playlists using Spotify links"
 authors = ["Dhruv"]
 license = "MIT"
@@ -25,4 +25,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-spotidl = "spotidl.cli:controller"
+spotidl = "spotidl.main:cli"

@@ -103,19 +103,3 @@ def controller(user_params: dict, song: SpotifySong):
 
     yt_song = fetch_source(yt, song)
     download_song(yt, yt_song.video_url)
-
-
-if __name__ == "__main__":
-
-    song = SpotifySong(
-        name="He Don't Love Me",
-        artists=["Winona Oak"],
-        cover_url="",
-        album_name="",
-        disc_number=10,
-        track_number=20,
-    )
-
-    user_params = {"codec": "mp3", "quality": "320", "quiet": True}
-
-    controller(user_params, song)

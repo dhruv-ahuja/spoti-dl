@@ -30,9 +30,3 @@ spotify_link_patterns = {
 # list of illegal file name characters; replace them in case any of these
 # is in the song name
 illegal_chars = ["?", ">", "<", "|", ":", "/", "\\", "*"]
-
-
-if __name__ == "__main__":
-    from exceptions import *
-
-    print("ok")

@@ -130,7 +130,3 @@ def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
         add_metadata_m4a(file_name, song, album_art_path)
 
     print("\nFinished writing metadata!")
-
-
-# if __name__ == "__main__":
-# add_cover(file_path="./yASD-dl/Rauw Alejandro, Tainy - ¿Cuándo Fue#")

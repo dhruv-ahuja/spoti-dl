@@ -5,14 +5,14 @@ from spotipy.oauth2 import SpotifyOAuth
 
 from dataclasses import dataclass
 
-import spotidl.exceptions as e
-import spotidl.utils as u
+import spotidl.exceptions as exceptions
+import spotidl.utils as utils
 
 # loading .env vars
 load_dotenv()
 
 # check env vars
-u.check_env_vars()
+utils.check_env_vars()
 
 # initializing the spotify api connection
 # the OAuth object automatically reads valid env. variables so we don't need to
@@ -22,7 +22,9 @@ try:
 
 except spotipy.oauth2.SpotifyOauthError as ex:
     # env variables aren't configured properly!
-    raise e.EnvVariablesError("Environment variables arn't configured properly!")
+    raise exceptions.EnvVariablesError(
+        "Environment variables arn't configured properly!"
+    )
 
 
 # defining structure for the song data we are going to be parsing
@@ -40,7 +42,7 @@ class SpotifySong:
         for artist in self.artists:
             artists.append(artist["name"])
 
-        return u.make_song_title(artists, self.name, ", ")
+        return utils.make_song_title(artists, self.name, ", ")
 
 
 def get_song_data(link: str) -> SpotifySong:
@@ -55,7 +57,7 @@ def get_song_data(link: str) -> SpotifySong:
     except SpotifyException as ex:
         # wrapping the Spotify Exception
         # still unsure whether this is the correct approach
-        raise e.NoDataReceivedError(ex)
+        raise exceptions.NoDataReceivedError(ex)
 
     else:
         # there can be multiple results,
@@ -81,7 +83,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
     for artist in query["artists"]:
         artists.append(artist["name"])
 
-    name = u.correct_name(query["name"])
+    name = utils.correct_name(query["name"])
 
     if type == "song":
         # "song" refers to the case where the user enters a song link; we need
@@ -124,10 +126,10 @@ def get_album_data(link: str) -> tuple:
         query = sp.album(link)
 
     except SpotifyException as ex:
-        e.NoDataReceivedError(ex)
+        exceptions.NoDataReceivedError(ex)
 
     album: list[SpotifySong] = []
-    album_name = u.correct_name(query["name"])
+    album_name = utils.correct_name(query["name"])
 
     for track in query["tracks"]["items"]:
         # since this time we are directly receiving data that we otherwise
@@ -155,14 +157,14 @@ def get_playlist_data(link: str) -> tuple:
     """
 
     # we need playlist id to fetch its information
-    playlist_id = u.get_playlist_id(link)
+    playlist_id = utils.get_playlist_id(link)
 
     try:
         query = sp.playlist_tracks(playlist_id)
         playlist_name = sp.playlist(playlist_id)["name"]
 
     except SpotifyException as ex:
-        raise e.NoDataReceivedError(ex)
+        raise exceptions.NoDataReceivedError(ex)
 
     # can fetch a 100 tracks at a time
     # the "next" dictionary key gets the next batch, if the no. of results
@@ -182,16 +184,3 @@ def get_playlist_data(link: str) -> tuple:
         playlist_songs.append(song)
 
     return playlist_name, playlist_songs
-
-
-if __name__ == "__main__":
-
-    song = get_song_data(
-        "https://open.spotify.com/track/0Ey8buiWgtBQjb7ypaACKN?si=22882b3a21ae4c71"
-    )
-    print(song)
-
-    album = get_album_data(
-        "https://open.spotify.com/album/0bWYlK9rRmIB68icHx9PNR?si=0PRvNMbBSticZvfdCeGdjw"
-    )
-    print(album[0])
