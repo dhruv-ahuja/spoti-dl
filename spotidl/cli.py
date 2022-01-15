@@ -62,20 +62,33 @@ def cli_args():
     return parser.parse_args()
 
 
+def prerun_checks(args: argparse.Namespace):
+    """
+    Performs all the necessary pre-run checks.
+    """
+
+    # we can't download and convert songs using the yt-dlp library w/o ffmpeg
+    if not utils.check_ffmpeg_installed():
+        raise exceptions.FFmpegNotInstalledError("FFmpeg is not installed!")
+
+    #  perform necessary cli-argument validity checks
+    if not utils.check_cli_args(args.codec, args.bitrate, args.link):
+        raise exceptions.LinkError("Invalid Spotify link entered!")
+
+
 def controller():
     """
     Controls the flow of the program execution.
     """
 
     args = cli_args()
-
-    #  perform necessary argument validity checks
-    if not utils.check_cli_args(args.codec, args.bitrate, args.link):
-        raise exceptions.LinkError("Invalid Spotify link entered!")
+    prerun_checks(args)
 
     # i believe getting the link type should be separated from just checking
     # the validity of the link and the audio-related args like codec and bitrate
+    # that are covered in the prerun_checks func
     link_type = utils.get_link_type(args.link)
+
     if not link_type in config.spotify_link_types:
         raise exceptions.LinkError("Invalid Spotify link type entered!")
 
@@ -113,14 +126,15 @@ def song_download_controller(link: str, user_params: dict):
     # gets the SpotifySong dataclass object to be used for everything else in the func
     song = spotify.get_song_data(link)
 
-    # use the youtube controller to scrape audio source and download the song
-    youtube.controller(user_params, song)
-
-    # write metadata to the downloaded file
+    # create the file name to be used when writing metadata
     file_name = (
         f"{utils.make_song_title(song.artists, song.name, ', ')}.{user_params['codec']}"
     )
 
+    # use the youtube controller to download the song
+    youtube.controller(user_params, song, file_name)
+
+    # write metadata to the downloaded file
     metadata.controller(file_name, song, user_params["dir"], user_params["codec"])
 
 
@@ -166,11 +180,15 @@ def playlist_download_controller(link: str, user_params: dict):
     os.chdir(save_dir)
 
     for song in songs:
-        youtube.controller(user_params, song)
-
-        # write metadata to the downloaded file
+        # generate file_name to use to ensure song hasn't been downloaded
+        # before already
+        # it's possible someone might re-download the same playlist or album again,
+        # for example
         file_name = f"{utils.make_song_title(song.artists, song.name, delim=', ')}.{user_params['codec']}"
 
+        youtube.controller(user_params, song, file_name)
+
+        # write metadata to the downloaded file
         # passing "." aka curr dir indicator since we've already moved
         # into the <playlist_name> directory
         metadata.controller(file_name, song, dir=".", codec=user_params["codec"])

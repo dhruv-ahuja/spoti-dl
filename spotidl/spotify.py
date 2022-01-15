@@ -84,6 +84,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
         artists.append(artist["name"])
 
     name = utils.correct_name(query["name"])
+    album_name = utils.correct_name(query["album"]["name"])
 
     if type == "song":
         # "song" refers to the case where the user enters a song link; we need
@@ -91,7 +92,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
         song = SpotifySong(
             name=name,
             artists=artists,
-            album_name=query["album"]["name"],
+            album_name=album_name,
             disc_number=query["disc_number"],
             track_number=query["track_number"],
             # the 1st link contains a link to the album art
@@ -103,7 +104,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
         song = SpotifySong(
             name=name,
             artists=artists,
-            album_name=album_details["album_name"],
+            album_name=album_name,
             disc_number=query["disc_number"],
             track_number=query["track_number"],
             cover_url=album_details["album_cover_url"],

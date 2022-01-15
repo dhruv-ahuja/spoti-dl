@@ -1,9 +1,9 @@
-from dataclasses import dataclass
-
 from yt_dlp import YoutubeDL
 
+from dataclasses import dataclass
+
 from spotidl.spotify import SpotifySong
-from spotidl.utils import make_song_title
+from spotidl.utils import make_song_title, check_file
 
 
 @dataclass
@@ -88,18 +88,24 @@ def download_song(yt: YoutubeDL, link: str):
         print(f"\nSuccessfully finished downloading!")
 
 
-def controller(user_params: dict, song: SpotifySong):
+def controller(user_params: dict, song: SpotifySong, file_name: str):
     """
     Handles the flow of the download process for the given song.
     Initiates the configuration as per the user-defined parameters and chains
     the rest of functions together.
     """
 
-    # user parameters are used in the downloader parameters dictionary
-    # the downloader_params dict is then passed onto the YoutubeDL object
-    # when generating its instance.
-    downloader_params = get_config(user_params, song)
-    yt = get_downloader(downloader_params)
+    # check if song has already been downloaded before at some point;
+    # only proceed with download if it doesn't
+    if check_file(file_name):
+        print(f"\n{file_name} already exists! Skipping download...")
 
-    yt_song = fetch_source(yt, song)
-    download_song(yt, yt_song.video_url)
+    else:
+        # user parameters are used in the downloader parameters dictionary
+        # the downloader_params dict is then passed onto the YoutubeDL object
+        # when generating its instance.
+        downloader_params = get_config(user_params, song)
+        yt = get_downloader(downloader_params)
+
+        yt_song = fetch_source(yt, song)
+        download_song(yt, yt_song.video_url)

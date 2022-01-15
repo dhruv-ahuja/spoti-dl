@@ -1,6 +1,6 @@
 .vscode/
 #testing folder making capabilities
-yASD-dl/
+dl/
 *.mp3
 exp_code.py
 

@@ -1,4 +1,6 @@
 import os
+import subprocess
+import platform
 from re import search
 from urllib.request import urlretrieve
 
@@ -6,7 +8,7 @@ import spotidl.config as config
 import spotidl.exceptions as exceptions
 
 
-default_save_dir = os.getcwd() + "/spoti-dl"
+default_save_dir = os.getcwd() + "/dl"
 
 
 def check_env_vars():
@@ -174,7 +176,7 @@ def correct_name(query: str) -> str:
 
 # since we cannot fetch any playlist data without a playlist id, this will be
 # of paramount importance
-def get_playlist_id(link: str):
+def get_playlist_id(link: str) -> str:
     """
     Returns a playlist ID given a Spotify playlist URL.
     """
@@ -184,3 +186,25 @@ def get_playlist_id(link: str):
     # we can safely return the last part if there's no question mark in it,
     # otherwise we need to split it again to remove the "si" code
     return data.split("?")[0] if "?" in data else data[-1]
+
+
+# adding a check to see whether ffmpeg is installed since otherwise
+# the user gets barraged with a whole lot of tracebacks
+# this should simplify that
+def check_ffmpeg_installed() -> bool:
+    """
+    Checks whether FFmpeg is installed or not.
+    """
+
+    os_platform = platform.system()
+
+    try:
+        if os_platform == "Windows":
+            subprocess.check_output(["where", "ffmpeg"])
+
+        subprocess.check_output(["which", "ffmpeg"])
+
+    except Exception:
+        return False
+
+    return True
