@@ -44,7 +44,7 @@ spotidl https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=06f5d7ab5bd240e
 The following audio formats are supported:
 - mp3 
 - flac
-- m4a (the m4a format only has partial textual-metadata support 😅))
+- m4a (the m4a format only has partial textual-metadata support 😅)
 
 The following bitrates are supported:
 - best 
@@ -60,4 +60,4 @@ Again, the following link types are supported:
 - album links
 - playlist links 
 
-Note: File names (audio files or folder names (eg., playlist's directory name)) are changed to ensure compatibility with the operating systems since many characters like '?' or the '/' are illegal when making files/folders.
+Note: File names (audio files or folder names (eg., playlist's directory name) are changed to ensure compatibility with the operating systems since many characters like '?' or the '/' are illegal when making files/folders.
