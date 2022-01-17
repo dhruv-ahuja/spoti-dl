@@ -84,9 +84,9 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
         artists.append(artist["name"])
 
     name = utils.correct_name(query["name"])
-    album_name = utils.correct_name(query["album"]["name"])
 
     if type == "song":
+        album_name = utils.correct_name(query["album"]["name"])
         # "song" refers to the case where the user enters a song link; we need
         # to fetch data for just a single song
         song = SpotifySong(
@@ -104,7 +104,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
         song = SpotifySong(
             name=name,
             artists=artists,
-            album_name=album_name,
+            album_name=album_details["album_name"],
             disc_number=query["disc_number"],
             track_number=query["track_number"],
             cover_url=album_details["album_cover_url"],

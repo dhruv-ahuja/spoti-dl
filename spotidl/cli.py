@@ -15,7 +15,7 @@ def cli_args():
     Contains and parses all command line arguments for the application.
     """
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="spotidl")
     parser.add_argument("link", help="Spotify song link to download")
 
     # important argument(s)
@@ -152,10 +152,12 @@ def album_download_controller(link: str, user_params: dict):
     os.chdir(save_dir)
 
     for song in songs:
-        youtube.controller(user_params, song)
+        file_name = f"{utils.make_song_title(song.artists, song.name, ', ')}.\
+{user_params['codec']}"
+
+        youtube.controller(user_params, song, file_name)
 
         # write metadata to the downloaded file
-        file_name = f"{utils.make_song_title(song.artists, song.name, ', ')}.{user_params['codec']}"
 
         # since we have already entered the <album_name> directory, we don't
         # have to pass in anything except the current directory indicator
@@ -184,7 +186,8 @@ def playlist_download_controller(link: str, user_params: dict):
         # before already
         # it's possible someone might re-download the same playlist or album again,
         # for example
-        file_name = f"{utils.make_song_title(song.artists, song.name, delim=', ')}.{user_params['codec']}"
+        file_name = f"{utils.make_song_title(song.artists, song.name, delim=', ')}.\
+{user_params['codec']}"
 
         youtube.controller(user_params, song, file_name)
 
