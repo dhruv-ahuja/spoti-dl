@@ -129,26 +129,27 @@ def get_album_data(link: str) -> tuple:
     except SpotifyException as ex:
         exceptions.NoDataReceivedError(ex)
 
-    album: list[SpotifySong] = []
-    album_name = utils.correct_name(query["name"])
+    else:
+        album: list[SpotifySong] = []
+        album_name = utils.correct_name(query["name"])
 
-    for track in query["tracks"]["items"]:
-        # since this time we are directly receiving data that we otherwise
-        # extracted from get_song_data using a link entered by the user, we
-        # will need to generate a SpotifySong object another way
+        for track in query["tracks"]["items"]:
+            # since this time we are directly receiving data that we otherwise
+            # extracted from get_song_data using a link entered by the user, we
+            # will need to generate a SpotifySong object another way
 
-        song = new_song(
-            track,
-            type="album",
-            album_name=album_name,
-            album_cover_url=query["images"][0]["url"],
-        )
+            song = new_song(
+                track,
+                type="album",
+                album_name=album_name,
+                album_cover_url=query["images"][0]["url"],
+            )
 
-        album.append(song)
+            album.append(song)
 
-    # returning album name since we'll need it when making the album folder to
-    # use as the save directory
-    return (album_name, album)
+        # returning album name since we'll need it when making the album folder to
+        # use as the save directory
+        return (album_name, album)
 
 
 def get_playlist_data(link: str) -> tuple:
@@ -167,21 +168,22 @@ def get_playlist_data(link: str) -> tuple:
     except SpotifyException as ex:
         raise exceptions.NoDataReceivedError(ex)
 
-    # can fetch a 100 tracks at a time
-    # the "next" dictionary key gets the next batch, if the no. of results
-    # exceeds 100
-    tracks = query["items"]
+    else:
+        # can fetch a 100 tracks at a time
+        # the "next" dictionary key gets the next batch, if the no. of results
+        # exceeds 100
+        tracks = query["items"]
 
-    while query["next"]:
-        query = sp.next(query)
-        tracks.extend(query["items"])
+        while query["next"]:
+            query = sp.next(query)
+            tracks.extend(query["items"])
 
-    # now, to extract data from each entry in the list and get a SpotifySong object
-    playlist_songs: list[SpotifySong] = []
+        # now, to extract data from each entry in the list and get a SpotifySong object
+        playlist_songs: list[SpotifySong] = []
 
-    for track in tracks:
-        song = new_song(track["track"], type="song")
+        for track in tracks:
+            song = new_song(track["track"], type="song")
 
-        playlist_songs.append(song)
+            playlist_songs.append(song)
 
-    return playlist_name, playlist_songs
+        return playlist_name, playlist_songs
