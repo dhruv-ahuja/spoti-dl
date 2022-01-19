@@ -117,12 +117,10 @@ def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
 
     # adding checks to ensure argument validity
     if codec not in config.audio_formats:
-        # raise argparse.ArgumentTypeError("Invalid codec entered!")
         print("Invalid codec entered! Using default value.")
         codec = "mp3"
 
     if bitrate not in config.audio_bitrates:
-        # raise argparse.ArgumentTypeError("Invalid bitrate entered!")
         print("Invalid bitrate entered! Using default value.")
         bitrate = "320"
 
