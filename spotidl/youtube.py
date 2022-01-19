@@ -81,7 +81,7 @@ def download_song(yt: YoutubeDL, link: str):
         # youtube source link
         yt.download(link)
 
-    except:
+    except Exception:
         print("\nDownload failed!")
 
     else:

@@ -4,7 +4,6 @@ import spotipy
 import spotidl.spotify as package
 
 
-# defining for ease of access
 exceptions = package.exceptions
 
 
@@ -19,8 +18,11 @@ def test_sp(sp):
 
 @pytest.fixture()
 def generate_song_data():
-    # helper function that makes the SpotifySong object for the given name
     def make_song(name: str):
+        """
+        Helper function that makes a SpotifySong object for the given name.
+        """
+
         if name == "gotye-somebody that I used to know":
             song = package.SpotifySong(
                 name="Somebody That I Used To Know",
@@ -45,25 +47,33 @@ d2b0b758777f081",
 
         return song
 
-    # we return the function so that we can re-use the fixture to test different
+    # we return the function so that we can re-use the fixture for different
     # inputs
     return make_song
 
 
-def test_get_song_data(generate_song_data):
+def test_get_song_data(generate_song_data, capsys):
     expected_output = generate_song_data
 
-    assert (
-        package.get_song_data(
-            "https://open.spotify.com/track/1qDrWA6lyx8cLECdZE7TV7?\
-si=b1b87827cc604d0a"
-        )
-        == expected_output("gotye-somebody that I used to know")
+    actual_output = package.get_song_data(
+        "https://open.spotify.com/track/1qDrWA6lyx8cLECdZE7TV7?si=\
+b1b87827cc604d0a"
     )
 
-    assert package.get_song_data(
-        "https://open.spotify.com/track/67tMk3x5UwaPc6ATevv9BN?si=3877bdc40b0d4a97"
-    ) == expected_output("santiago-colourblind")
+    assert actual_output == expected_output("gotye-somebody that I used to know")
+
+    actual_output = package.get_song_data(
+        "https://open.spotify.com/track/67tMk3x5UwaPc6ATevv9BN?si=\
+3877bdc40b0d4a97"
+    )
+
+    assert actual_output == expected_output("santiago-colourblind")
+
+    # now, to check whether the string formatting is correct
+    # (when printing the SpotifySong object)
+    expected_string = "Santiago - Colourblind"
+
+    assert str(actual_output) == expected_string
 
 
 @pytest.fixture()

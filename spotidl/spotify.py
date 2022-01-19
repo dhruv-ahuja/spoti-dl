@@ -3,7 +3,7 @@ import spotipy
 from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import spotidl.exceptions as exceptions
 import spotidl.utils as utils
@@ -21,28 +21,21 @@ try:
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth())
 
 except spotipy.oauth2.SpotifyOauthError as ex:
-    # env variables aren't configured properly!
-    raise exceptions.EnvVariablesError(
-        "Environment variables arn't configured properly!"
-    )
+    raise exceptions.EnvVariablesError(ex)
 
 
 # defining structure for the song data we are going to be parsing
 @dataclass
 class SpotifySong:
-    name: str
-    artists: dict
-    album_name: str
-    disc_number: int
-    track_number: int
-    cover_url: str
+    name: str = "Unknown Song"
+    artists: list = field(default_factory=list("Unknown Artist"))
+    album_name: str = "Unknown Album"
+    disc_number: int = 1
+    track_number: int = 1
+    cover_url: str = "No Cover"
 
     def __str__(self):
-        artists = []
-        for artist in self.artists:
-            artists.append(artist["name"])
-
-        return utils.make_song_title(artists, self.name, ", ")
+        return utils.make_song_title(self.artists, self.name, ", ")
 
 
 def get_song_data(link: str) -> SpotifySong:

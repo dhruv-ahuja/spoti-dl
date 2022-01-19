@@ -17,9 +17,8 @@ def check_env_vars():
     are not blank.
     """
 
-    client_id, client_secret = os.getenv("SPOTIPY_CLIENT_ID"), os.getenv(
-        "SPOTIPY_CLIENT_SECRET"
-    )
+    client_id = os.getenv("SPOTIPY_CLIENT_ID")
+    client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
     redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
 
     if not client_id:
@@ -30,20 +29,6 @@ def check_env_vars():
 
     elif not redirect_uri:
         raise exceptions.EnvVariablesError("SPOTIPY_REDIRECT_URI not configured!")
-
-
-# unused, will keep just in case *shrug*
-def choice(msg: str) -> bool:
-    """
-    Offer the user a choice, infinite loop till they make a decision.
-    """
-
-    user_choice = ""
-    choice_list = ("y", "n")
-    while user_choice not in choice_list:
-        user_choice = input(msg + ": ")
-
-    return True if user_choice[0].lower() == "y" else False
 
 
 def make_dir(path: str) -> bool:
