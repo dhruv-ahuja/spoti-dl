@@ -15,7 +15,10 @@ def cli_args():
     Contains and parses all command line arguments for the application.
     """
 
-    parser = argparse.ArgumentParser(prog="spotidl")
+    parser = argparse.ArgumentParser(
+        prog="spotidl",
+        description="spotidl: download songs, albums and playlists using Spotify links",
+    )
     parser.add_argument("link", help="Spotify song link to download")
 
     # important argument(s)

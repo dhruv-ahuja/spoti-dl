@@ -50,9 +50,9 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
     """
 
     try:
-        # using Song dataclasses' __repr__ function to construct the song name
         # adding "audio" to avoid 'official music videos' and similar types 😅
         song_title = make_song_title(song.artists, song.name, ", ") + " audio"
+
         search = yt.extract_info(f"ytsearch:{song_title}", download=False)
         yt_info = search["entries"][0]
 
@@ -62,7 +62,9 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
 
     else:
         yt_song = YoutubeSong(
-            id=yt_info["id"], title=yt_info["title"], video_url=yt_info["webpage_url"]
+            id=yt_info["id"],
+            title=yt_info["title"],
+            video_url=yt_info["webpage_url"],
         )
 
         return yt_song
@@ -85,7 +87,7 @@ def download_song(yt: YoutubeDL, link: str):
         print("\nDownload failed!")
 
     else:
-        print(f"\nSuccessfully finished downloading!")
+        print("\nSuccessfully finished downloading!")
 
 
 def controller(user_params: dict, song: SpotifySong, file_name: str):
