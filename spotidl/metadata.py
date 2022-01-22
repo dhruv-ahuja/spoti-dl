@@ -15,10 +15,6 @@ def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
     File name must contain file extension as well.
     """
 
-    # fix for invalid character in file name on windows
-    if "?" in file_name:
-        file_name = file_name.replace("?", "#")
-
     # writing textual metadata to the file
     try:
         meta = mutagen.easyid3.EasyID3(file_name)
@@ -109,13 +105,13 @@ def add_metadata_m4a(file_name: str, song: SpotifySong, album_art_path: str):
     meta.save(file_name)
 
 
-def controller(file_name: str, song: SpotifySong, dir: str, codec: str):
+def controller(file_name: str, song: SpotifySong, directory: str, codec: str):
     """
     Handles the metadata writing process flow.
     """
 
     album_art_path = download_album_art(
-        path=dir, link=song.cover_url, title=song.album_name
+        path=directory, link=song.cover_url, title=song.album_name
     )
 
     print("\nWriting metadata...")

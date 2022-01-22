@@ -4,7 +4,7 @@ import pkg_resources
 
 import spotidl.utils as utils
 import spotidl.spotify as spotify
-import spotidl.youtube as youtube
+import spotidl.downloader as downloader
 import spotidl.config as config
 import spotidl.exceptions as exceptions
 import spotidl.metadata as metadata
@@ -135,7 +135,7 @@ def song_download_controller(link: str, user_params: dict):
     )
 
     # use the youtube controller to download the song
-    youtube.controller(user_params, song, file_name)
+    downloader.controller(user_params, song, file_name)
 
     # write metadata to the downloaded file
     metadata.controller(file_name, song, user_params["dir"], user_params["codec"])
@@ -158,7 +158,7 @@ def album_download_controller(link: str, user_params: dict):
         file_name = f"{utils.make_song_title(song.artists, song.name, ', ')}.\
 {user_params['codec']}"
 
-        youtube.controller(user_params, song, file_name)
+        downloader.controller(user_params, song, file_name)
 
         # write metadata to the downloaded file
 
@@ -192,11 +192,11 @@ def playlist_download_controller(link: str, user_params: dict):
         file_name = f"{utils.make_song_title(song.artists, song.name, delim=', ')}.\
 {user_params['codec']}"
 
-        youtube.controller(user_params, song, file_name)
+        downloader.controller(user_params, song, file_name)
 
         # write metadata to the downloaded file
         # passing "." aka curr dir indicator since we've already moved
         # into the <playlist_name> directory
-        metadata.controller(file_name, song, dir=".", codec=user_params["codec"])
+        metadata.controller(file_name, song, directory=".", codec=user_params["codec"])
 
     print(f"\nDownload for playlist '{playlist_name}' completed. Enjoy!")

@@ -2,7 +2,7 @@
 #testing folder making capabilities
 dl/
 *.mp3
-exp_code.py
+*.jpeg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

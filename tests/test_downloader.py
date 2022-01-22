@@ -3,7 +3,7 @@ import pytest
 
 import os
 
-import spotidl.youtube as package
+import spotidl.downloader as package
 from tests.test_spotify import generate_new_song
 
 
@@ -100,7 +100,7 @@ def test_download_song(generate_downloader, generate_yt_song):
         assert os.path.isfile(f"./{song_title}.mp3")
 
 
-def test_controller(generate_new_song, capsys):
+def test_controller_mp3(generate_new_song, capsys):
     song = generate_new_song
     file_name = "Juliette - Le sort de Circé.mp3"
     user_params = {"codec": "mp3", "quality": "320", "quiet": True}
@@ -108,6 +108,9 @@ def test_controller(generate_new_song, capsys):
     # since we already downloaded the song in the previous test, we will first get to test the first part of the controller
     expected_output = f"\n{file_name} already exists! Skipping download...\n"
 
+    # changing directory to the app's default downloads folder
+    os.makedirs("./dl", exist_ok=True)
+    os.chdir("./dl")
     package.controller(user_params, song, file_name)
     captured = capsys.readouterr()
 
@@ -120,4 +123,24 @@ def test_controller(generate_new_song, capsys):
 
     assert os.path.isfile(f"./{file_name}")
 
+    os.chdir("..")
+
+
+def test_controller_flac(generate_new_song):
+    song = generate_new_song
+    file_name = "Juliette - Le sort de Circé.flac"
+    user_params = {"codec": "flac", "quality": "320", "quiet": True}
+
+    # changing directory to the app's default downloads folder
+    os.makedirs("./dl", exist_ok=True)
+    os.chdir("./dl")
+    package.controller(user_params, song, file_name)
+
+    # now testing the else statement part
     os.remove(f"./{file_name}")
+
+    package.controller(user_params, song, file_name)
+
+    assert os.path.isfile(f"./{file_name}")
+
+    os.chdir("..")
