@@ -144,7 +144,7 @@ def test_controller_flac(generate_new_song, generate_metadata):
     os.chdir("..")
 
 
-def cleanup():
-    os.remove("dl/Juliette - Le sort de Circé.flac")
-    os.remove("dl/Juliette - Le sort de Circé.mp3")
-    os.remove("dl/album-art/Mutatis mutandis.jpeg")
+# def cleanup():
+#     os.remove("dl/Juliette - Le sort de Circé.flac")
+#     os.remove("dl/Juliette - Le sort de Circé.mp3")
+#     os.remove("dl/album-art/Mutatis mutandis.jpeg")

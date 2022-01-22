@@ -89,6 +89,10 @@ def test_download_song(generate_downloader, generate_yt_song):
     song_title = "Juliette - Le sort de Circé"
     yt_song = generate_yt_song(song_title)
 
+    # changing directory to the app's default downloads folder
+    os.makedirs("./dl", exist_ok=True)
+    os.chdir("./dl")
+
     try:
         package.download_song(yt, yt_song.video_url)
 
