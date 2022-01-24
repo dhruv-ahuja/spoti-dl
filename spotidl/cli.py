@@ -10,7 +10,7 @@ import spotidl.exceptions as exceptions
 import spotidl.metadata as metadata
 
 
-def cli_args():
+def cli_args() -> argparse.Namespace:
     """
     Contains and parses all command line arguments for the application.
     """
@@ -53,6 +53,8 @@ def cli_args():
         help=f"Audio quality of the file. List of available qualities: {config.audio_bitrates}",
     )
 
+    # misc. arguments
+    # tells the app version by reading it from the poetry toml file
     parser.add_argument(
         "-v",
         "--version",
@@ -61,7 +63,6 @@ def cli_args():
         help="Displays the current app version",
     )
 
-    # returns an argparse.Namespace object that stores our argument variables
     return parser.parse_args()
 
 
