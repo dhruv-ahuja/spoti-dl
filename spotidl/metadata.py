@@ -2,8 +2,6 @@ import mutagen
 import mutagen.easyid3
 import mutagen.id3
 import mutagen.flac
-import mutagen.mp4
-import mutagen.m4a
 
 from spotidl.spotify import SpotifySong
 from spotidl.utils import download_album_art
@@ -80,31 +78,6 @@ def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
     meta.save()
 
 
-def add_metadata_m4a(file_name: str, song: SpotifySong, album_art_path: str):
-    """
-    Adds metadata to an M4A file given it's path.
-    File name must contain file extension as well.
-    """
-
-    meta = mutagen.mp4.MP4(file_name)
-
-    # refer https://stackoverflow.com/questions/56660170/\problem-using-mutagen-to-set-custom-tags-for-mp4-file
-
-    meta["\xa9nam"] = song.name
-    meta["\xa9ART"] = "/".join(song.artists)
-    meta["\xa9alb"] = song.album_name
-
-    # now, to write the album art
-    with open(album_art_path, "rb") as pic:
-        meta["covr"] = [
-            mutagen.mp4.MP4Cover(
-                pic.read(), imageformat=mutagen.mp4.MP4Cover.FORMAT_JPEG
-            )
-        ]
-
-    meta.save(file_name)
-
-
 def controller(file_name: str, song: SpotifySong, directory: str, codec: str):
     """
     Handles the metadata writing process flow.
@@ -121,8 +94,5 @@ def controller(file_name: str, song: SpotifySong, directory: str, codec: str):
 
     elif codec == "mp3":
         add_metadata_mp3(file_name, song, album_art_path)
-
-    elif codec == "m4a":
-        add_metadata_m4a(file_name, song, album_art_path)
 
     print("\nFinished writing metadata!")

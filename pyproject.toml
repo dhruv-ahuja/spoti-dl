@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spoti-dl"
-version = "0.9.9"
+version = "1.0.0"
 description = "spotidl: download songs, albums and playlists using Spotify links"
 authors = ["Dhruv"]
 license = "MIT"

@@ -5,7 +5,7 @@
 # anyone would want to download songs at anything below 128kbps
 audio_bitrates = ["best", "320", "256", "192", "128", "96", "32", "worst"]
 
-audio_formats = ["mp3", "flac", "m4a"]
+audio_formats = ["mp3", "flac"]
 
 spotify_link_types = ["track", "album", "playlist"]
 
