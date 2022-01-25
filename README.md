@@ -31,7 +31,6 @@ Also note that the first time you run the app you might get a popup window in yo
 
 # Usage
 
-MP3 is the selected codec (audio file format; MP3 is the standard) and 320KBPS the selected bitrate (audio quality). So by default, running this downloads the song/album/playlist with these defaults-
 ```
 spotidl <spotify link>
 ``` 
@@ -44,7 +43,6 @@ spotidl https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=06f5d7ab5bd240e
 The following audio formats are supported:
 - mp3 
 - flac
-- m4a (the m4a format only has partial textual-metadata support 😅)
 
 The following bitrates are supported:
 - best 
