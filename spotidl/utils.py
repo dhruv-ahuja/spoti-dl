@@ -185,7 +185,8 @@ def check_ffmpeg_installed() -> bool:
         if os_platform == "Windows":
             subprocess.check_output(["where", "ffmpeg"])
 
-        subprocess.check_output(["which", "ffmpeg"])
+        else:
+            subprocess.check_output(["which", "ffmpeg"])
 
     except Exception:
         return False
