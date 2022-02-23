@@ -59,3 +59,14 @@ Again, the following link types are supported:
 - playlist links 
 
 Note: File names (audio files or folder names (eg., playlist's directory name) are changed to ensure compatibility with the operating systems since many characters like '?' or the '/' are illegal when making files/folders.
+
+## Flags
+ 
+| Flag  | Long Flag         | Usage                                                                   |
+| ----- | ----------------- | ----------------------------------------------------------------------- |
+| -h    | --help            | shows all the argument flags and their details                          |
+| -d    | --dir             | the save directory to use while downloading                             |
+| -q    | --quiet           | changes the verbosity level to be "quiet"                               |
+| -c    | --codec           | the codec to use for downloads                                          |
+| -b    | --bitrate         | set the bitrate to use for downloads                                    |
+| -v    | --version         | displays the current app version                                        |
