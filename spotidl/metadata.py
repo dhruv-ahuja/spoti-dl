@@ -31,19 +31,20 @@ def add_metadata_mp3(file_name: str, song: SpotifySong, album_art_path: str):
     meta.save(v2_version=3)
 
     # here we write the downloaded album art image to our downloaded song.
-    meta = mutagen.id3.ID3(file_name)
+    if album_art_path:
+        meta = mutagen.id3.ID3(file_name)
 
-    with open(album_art_path, "rb") as pic:
-        meta["APIC"] = mutagen.id3.APIC(
-            # type 3 is for the front cover of a song
-            encoding=3,
-            mime="image/jpeg",
-            type=3,
-            data=pic.read(),
-        )
+        with open(album_art_path, "rb") as pic:
+            meta["APIC"] = mutagen.id3.APIC(
+                # type 3 is for the front cover of a song
+                encoding=3,
+                mime="image/jpeg",
+                type=3,
+                data=pic.read(),
+            )
 
-    # setting the v2 version to 3 is key- nothing will work without it
-    meta.save(v2_version=3)
+        # setting the v2 version to 3 is key- nothing will work without it
+        meta.save(v2_version=3)
 
 
 def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
@@ -68,17 +69,19 @@ def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
     meta["discnumber"] = str(song.disc_number)
 
     # now, to write the album art to the file
-    p = mutagen.flac.Picture()
+    if album_art_path:
+        p = mutagen.flac.Picture()
 
-    with open(album_art_path, "rb") as pic:
-        p.data = pic.read()
+        with open(album_art_path, "rb") as pic:
+            p.data = pic.read()
 
-    meta.add_picture(p)
+        meta.add_picture(p)
 
-    meta.save()
+        meta.save()
 
 
-def controller(file_name: str, song: SpotifySong, directory: str, codec: str):
+# setting default directory to be the current folder(represented as ".")
+def controller(file_name: str, song: SpotifySong, codec: str, directory: str = "."):
     """
     Handles the metadata writing process flow.
     """
@@ -86,6 +89,9 @@ def controller(file_name: str, song: SpotifySong, directory: str, codec: str):
     album_art_path = download_album_art(
         path=directory, link=song.cover_url, title=song.album_name
     )
+
+    if not album_art_path:
+        print("Album art couldn't be retrieved.")
 
     print("\nWriting metadata...")
 

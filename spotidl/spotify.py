@@ -24,15 +24,16 @@ except spotipy.oauth2.SpotifyOauthError as ex:
     raise exceptions.EnvVariablesError(ex)
 
 
-# defining structure for the song data we are going to be parsing
+# defining structure for the song data we are going to get
 @dataclass
 class SpotifySong:
     name: str = "Unknown Song"
-    artists: list = field(default_factory=list("Unknown Artist"))
+    # this generates a list with an unknown artist default
+    artists: list = field(default_factory=lambda: ["Unknown Artist"])
     album_name: str = "Unknown Album"
     disc_number: int = 1
     track_number: int = 1
-    cover_url: str = "No Cover"
+    cover_url: str = ""
 
     def __str__(self):
         return utils.make_song_title(self.artists, self.name, ", ")

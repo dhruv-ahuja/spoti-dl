@@ -1,7 +1,7 @@
 import os
 import subprocess
 import platform
-from re import search
+import re
 from urllib.request import urlretrieve
 
 import spotidl.config as config
@@ -42,6 +42,8 @@ def make_dir(path: str) -> bool:
         return True
 
 
+# two helper functions to avoid having to import the os package in each module
+# individually wherever we need to make use of file or directory checks
 def check_dir(path: str) -> bool:
     return os.path.isdir(path)
 
@@ -69,18 +71,15 @@ def check_spotify_link(link: str, patterns_list: list) -> bool:
 
     is_match = False
 
-    if not link:
-        return is_match
-
     # patterns_list contains a list of regex patterns for Spotify URLs
     for pattern in patterns_list:
-        if search(pattern=pattern, string=link):
+        if re.search(pattern=pattern, string=link):
             is_match = True
 
     return is_match
 
 
-def make_song_title(artists: list, name: str, delim: str):
+def make_song_title(artists: list, name: str, delim: str) -> str:
     """
     Generates a song title by joining the song title and artist names.
     Artist names given in list format are split using the given delimiter.
@@ -96,17 +95,22 @@ def download_album_art(
     Downloads album art- in a folder at the given path- to be embedded into songs.
     """
 
+    if not link:
+        return ""
+
     # make a folder in the given path to store album art
     folder = "/album-art"
     full_path = path + folder
     directory_maker(full_path)
 
-    download_path = full_path + f"/{title}.{extension}"
+    file = full_path + f"/{title}.{extension}"
 
-    if not check_file(download_path):
-        urlretrieve(link, download_path)
+    if not check_file(file):
+        # urlretrieve downloads the resource from the given link and writes it
+        # to the given file
+        urlretrieve(link, file)
 
-    return download_path
+    return file
 
 
 def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
@@ -150,9 +154,8 @@ def correct_name(query: str) -> str:
     if needed.
     """
 
-    for char in config.illegal_chars:
-        if char in query:
-            query = query.replace(char, "#")
+    query = [char if char not in config.illegal_chars else "#" for char in query]
+    query = "".join(query)
 
     return query
 
@@ -164,6 +167,7 @@ def get_playlist_id(link: str) -> str:
     Returns a playlist ID given a Spotify playlist URL.
     """
 
+    # first remove the general URL part
     data = link.split("/")[-1]
 
     # we can safely return the last part if there's no question mark in it,

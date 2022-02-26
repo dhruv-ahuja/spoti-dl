@@ -1,4 +1,3 @@
-import pkg_resources
 import argparse
 
 import pytest
@@ -7,7 +6,7 @@ import pytest
 @pytest.fixture()
 def generate_parser():
     def make_parser():
-        parser = argparse.ArgumentParser(exit_on_error=False)
+        parser = argparse.ArgumentParser()
 
         return parser
 
@@ -21,17 +20,17 @@ def test_version(capsys, generate_parser):
         "-v",
         "--version",
         action="version",
-        version=pkg_resources.get_distribution("spoti-dl").version,
+        version="1.0.2",
     )
 
     try:
         parser.parse_args(["-v"])
-        assert parser.parse_args().version == "1.0.0"
+        assert parser.parse_args().version == "1.0.2"
 
     except SystemExit:
         captured = capsys.readouterr()
 
-    assert captured.out == "1.0.0\n"
+    assert captured.out == "1.0.2\n"
 
 
 def test_defaults(generate_parser):
@@ -53,8 +52,8 @@ def test_defaults(generate_parser):
 
     except SystemExit:
         # adding a 'pass' here since the argparse module runs,
-        # parses all arguments and then calls `sys.exit()`, without an except
-        # block here, our tests will keep failing
+        # parses all arguments and then calls `sys.exit()`.
+        # without an except block here, our tests will keep failing
         pass
 
     expected_output = argparse.Namespace(

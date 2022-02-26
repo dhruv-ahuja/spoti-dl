@@ -46,11 +46,11 @@ def get_downloader(params: dict):
 
 def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
     """
-    Fetch apt source for the song from Youtube using the given details.
+    Fetch appropriate source for the song from Youtube using the given details.
     """
 
     try:
-        # adding "audio" to avoid 'official music videos' and similar types 😅
+        # adding "audio" to avoid 'official music videos' and similar types
         song_title = make_song_title(song.artists, song.name, ", ") + " audio"
 
         search = yt.extract_info(f"ytsearch:{song_title}", download=False)
@@ -72,8 +72,7 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
 
 def download_song(yt: YoutubeDL, link: str):
     """
-    Registers the provided parameters with the YoutubeDL object and
-    downloads the song using the extracted information.
+    Downloads the song given its source link and the YouTube downloader object.
     """
 
     print("\nStarting song download...\n")
