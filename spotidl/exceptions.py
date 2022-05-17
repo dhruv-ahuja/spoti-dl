@@ -12,16 +12,19 @@ class LinkError(Exception):
     Raised when the provided link is incorrect.
     """
 
-    # spits out whatever error message is passed to it
-    pass
+    def __init__(self, message="Invalid Spotify link entered!"):
+        self.message = message
+        super().__init__(self.message)
 
 
 class NoDataReceivedError(Exception):
     """
-    Raised when no data received from the external libraries.
+    Raised when no data received from the library service.
     """
 
-    pass
+    def __init__(self, message="No data received from the service."):
+        self.message = message
+        super().__init__(self.message)
 
 
 class EnvVariablesError(Exception):
@@ -29,7 +32,9 @@ class EnvVariablesError(Exception):
     Raised when environment variables aren't configured.
     """
 
-    pass
+    def __init__(self, message="Environment variables aren't configured properly!"):
+        self.message = message
+        super().__init__(self.message)
 
 
 class FFmpegNotInstalledError(Exception):
@@ -37,4 +42,6 @@ class FFmpegNotInstalledError(Exception):
     Raised when FFmpeg is not found in the user's PATH.
     """
 
-    pass
+    def __init__(self, message="FFMpeg is not installed!"):
+        self.message = message
+        super().__init__(self.message)

@@ -2,12 +2,8 @@ import argparse
 import os
 import pkg_resources
 
-import spotidl.utils as utils
-import spotidl.spotify as spotify
-import spotidl.downloader as downloader
-import spotidl.config as config
-import spotidl.exceptions as exceptions
-import spotidl.metadata as metadata
+
+from spotidl import utils, spotify, downloader, config, exceptions, metadata
 
 
 def cli_args() -> argparse.Namespace:
@@ -73,11 +69,11 @@ def prerun_checks(args: argparse.Namespace):
 
     # we can't download and convert songs using the yt-dlp library w/o ffmpeg
     if not utils.check_ffmpeg_installed():
-        raise exceptions.FFmpegNotInstalledError("FFmpeg is not installed!")
+        raise exceptions.FFmpegNotInstalledError()
 
     #  perform necessary cli-argument validity checks
     if not utils.check_cli_args(args.codec, args.bitrate, args.link):
-        raise exceptions.LinkError("Invalid Spotify link entered!")
+        raise exceptions.LinkError()
 
 
 def controller():
