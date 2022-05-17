@@ -24,19 +24,23 @@ def check_env_vars():
     if not client_id:
         raise exceptions.EnvVariablesError("SPOTIPY_CLIENT_ID not configured!")
 
-    elif not client_secret:
+    if not client_secret:
         raise exceptions.EnvVariablesError("SPOTIPY_CLIENT_SECRET not configured!")
 
-    elif not redirect_uri:
+    if not redirect_uri:
         raise exceptions.EnvVariablesError("SPOTIPY_REDIRECT_URI not configured!")
 
 
 def make_dir(path: str) -> bool:
+    """
+    Creates a directory given a path.
+    """
+
     try:
         os.makedirs(path, exist_ok=True)
 
-    except OSError as e:
-        print("Error when attempting to make directory: ", e)
+    except OSError as exception:
+        print("Error when attempting to make directory: ", exception)
 
     else:
         return True
@@ -45,10 +49,18 @@ def make_dir(path: str) -> bool:
 # two helper functions to avoid having to import the os package in each module
 # individually wherever we need to make use of file or directory checks
 def check_dir(path: str) -> bool:
+    """
+    Checks whether a directory exists or not.
+    """
+
     return os.path.isdir(path)
 
 
 def check_file(path: str) -> bool:
+    """
+    Check whether a file exists or not.
+    """
+
     return os.path.isfile(path)
 
 
@@ -143,9 +155,9 @@ def get_link_type(link: str) -> str:
 
     # a spotify link is in the form of: open.spotify.com/<type>/<id>
     # we only need the type part
-    type = link.split("/")
+    link_type = link.split("/")
 
-    return type[len(type) - 2]
+    return link_type[len(link_type) - 2]
 
 
 def correct_name(query: str) -> str:
@@ -187,12 +199,16 @@ def check_ffmpeg_installed() -> bool:
 
     try:
         if os_platform == "Windows":
-            subprocess.check_output(["where", "ffmpeg"])
+            subprocess.run(["where", "ffmpeg"], check=True)
 
         else:
-            subprocess.check_output(["which", "ffmpeg"])
+            subprocess.run(["which", "ffmpeg"], check=True)
 
-    except Exception:
+    # this is an error returned when the platform can't be recognized,
+    # from what I've seen
+    # like, if the windows `where` command is run on a linux system, it'll pop
+    # this exception
+    except FileNotFoundError:
         return False
 
     return True
