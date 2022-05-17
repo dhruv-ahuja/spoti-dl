@@ -2,8 +2,14 @@ import argparse
 import os
 import pkg_resources
 
+import dotenv
+
 
 from spotidl import utils, spotify, downloader, config, exceptions, metadata
+
+
+# loading .env vars
+dotenv.load_dotenv()
 
 
 def cli_args() -> argparse.Namespace:
@@ -74,6 +80,10 @@ def prerun_checks(args: argparse.Namespace):
     #  perform necessary cli-argument validity checks
     if not utils.check_cli_args(args.codec, args.bitrate, args.link):
         raise exceptions.LinkError()
+
+    # checks to see whether required environment variables have been added
+    # or not
+    utils.check_env_vars()
 
 
 def controller():

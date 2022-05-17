@@ -70,12 +70,12 @@ def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
 
     # now, to write the album art to the file
     if album_art_path:
-        p = mutagen.flac.Picture()
+        pic = mutagen.flac.Picture()
 
         with open(album_art_path, "rb") as pic:
-            p.data = pic.read()
+            pic.data = pic.read()
 
-        meta.add_picture(p)
+        meta.add_picture(pic)
 
         meta.save()
 

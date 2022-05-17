@@ -2,7 +2,6 @@ from typing import List
 from dataclasses import dataclass, field
 
 
-from dotenv.main import load_dotenv
 import spotipy
 from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
@@ -13,11 +12,6 @@ from spotipy.oauth2 import SpotifyOAuth
 
 from spotidl import exceptions, utils
 
-# loading .env vars
-load_dotenv()
-
-# check env vars
-utils.check_env_vars()
 
 # initializing the spotify api connection
 # the OAuth object automatically reads valid env. variables so we don't need to
