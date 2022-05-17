@@ -1,6 +1,7 @@
+from dataclasses import dataclass
+
 from yt_dlp import YoutubeDL
 
-from dataclasses import dataclass
 
 from spotidl.spotify import SpotifySong
 from spotidl.utils import make_song_title, check_file
@@ -8,6 +9,10 @@ from spotidl.utils import make_song_title, check_file
 
 @dataclass
 class YoutubeSong:
+    """
+    Umbrella for the song data extracted from Youtube.
+    """
+
     id: str
     title: str
     video_url: str

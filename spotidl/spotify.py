@@ -1,12 +1,17 @@
+from typing import List
+from dataclasses import dataclass, field
+
+
 from dotenv.main import load_dotenv
 import spotipy
 from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
 
-from dataclasses import dataclass, field
 
-import spotidl.exceptions as exceptions
-import spotidl.utils as utils
+# import spotidl.exceptions as exceptions
+# import spotidl.utils as utils
+
+from spotidl import exceptions, utils
 
 # loading .env vars
 load_dotenv()
@@ -27,6 +32,10 @@ except spotipy.oauth2.SpotifyOauthError as ex:
 # defining structure for the song data we are going to get
 @dataclass
 class SpotifySong:
+    """
+    Stores data for the song fetched from Spotify.
+    """
+
     name: str = "Unknown Song"
     # this generates a list with an unknown artist default
     artists: list = field(default_factory=lambda: ["Unknown Artist"])
@@ -48,10 +57,10 @@ def get_song_data(link: str) -> SpotifySong:
     try:
         query = sp.track(link)
 
-    except SpotifyException as ex:
+    except SpotifyException as exception:
         # wrapping the Spotify Exception
         # still unsure whether this is the correct approach
-        raise exceptions.NoDataReceivedError(ex)
+        raise exceptions.NoDataReceivedError(exception)
 
     else:
         # there can be multiple results,
@@ -60,14 +69,14 @@ def get_song_data(link: str) -> SpotifySong:
         for artist in query["artists"]:
             artists.append(artist["name"])
 
-        song = new_song(query, type="song")
+        song = new_song(query, type_="song")
 
         return song
 
 
 # this will serve as the common point for all entry types
 # (individual song link, album link, etc.)
-def new_song(query: dict, type: str, **album_details) -> SpotifySong:
+def new_song(query: dict, type_: str, **album_details) -> SpotifySong:
     """
     Makes a new SpotifySong given a raw "track" type item received from Spotify API.
     The track queried using different methods returns slightly modified data.
@@ -79,7 +88,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
 
     name = utils.correct_name(query["name"])
 
-    if type == "song":
+    if type_ == "song":
         album_name = utils.correct_name(query["album"]["name"])
         # "song" refers to the case where the user enters a song link; we need
         # to fetch data for just a single song
@@ -94,7 +103,7 @@ def new_song(query: dict, type: str, **album_details) -> SpotifySong:
             cover_url=query["album"]["images"][0]["url"],
         )
 
-    elif type == "album":
+    elif type_ == "album":
         song = SpotifySong(
             name=name,
             artists=artists,
@@ -120,11 +129,11 @@ def get_album_data(link: str) -> tuple:
     try:
         query = sp.album(link)
 
-    except SpotifyException as ex:
-        exceptions.NoDataReceivedError(ex)
+    except SpotifyException as exception:
+        raise exceptions.NoDataReceivedError(exception)
 
     else:
-        album: list[SpotifySong] = []
+        album: List[SpotifySong] = []
         album_name = utils.correct_name(query["name"])
 
         for track in query["tracks"]["items"]:
@@ -134,7 +143,7 @@ def get_album_data(link: str) -> tuple:
 
             song = new_song(
                 track,
-                type="album",
+                type_="album",
                 album_name=album_name,
                 album_cover_url=query["images"][0]["url"],
             )
@@ -159,8 +168,8 @@ def get_playlist_data(link: str) -> tuple:
         query = sp.playlist_tracks(playlist_id)
         playlist_name = sp.playlist(playlist_id)["name"]
 
-    except SpotifyException as ex:
-        raise exceptions.NoDataReceivedError(ex)
+    except SpotifyException as exception:
+        raise exceptions.NoDataReceivedError(exception)
 
     else:
         # can fetch a 100 tracks at a time
@@ -173,10 +182,10 @@ def get_playlist_data(link: str) -> tuple:
             tracks.extend(query["items"])
 
         # now, to extract data from each entry in the list and get a SpotifySong object
-        playlist_songs: list[SpotifySong] = []
+        playlist_songs: List[SpotifySong] = []
 
         for track in tracks:
-            song = new_song(track["track"], type="song")
+            song = new_song(track["track"], type_="song")
 
             playlist_songs.append(song)
 
