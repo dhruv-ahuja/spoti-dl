@@ -20,7 +20,7 @@ def test_version(capsys, generate_parser):
         "-v",
         "--version",
         action="version",
-        version="1.0.3",
+        version="1.0.4",
     )
 
     try:
@@ -30,7 +30,7 @@ def test_version(capsys, generate_parser):
     except SystemExit:
         captured = capsys.readouterr()
 
-    assert captured.out == "1.0.3\n"
+    assert captured.out == "1.0.4\n"
 
 
 def test_defaults(generate_parser):
