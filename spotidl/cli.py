@@ -142,14 +142,15 @@ def song_download_controller(link: str, user_params: dict):
     # use the youtube controller to download the song
     # we also send the filename here since the download controller checks
     # to ensure that the song hasn't been downloaded before.
-    downloader.controller(user_params, song, file_name)
+    is_downloaded = downloader.controller(user_params, song, file_name)
 
-    # write metadata to the downloaded file
-    metadata.controller(
-        file_name, song, codec=user_params["codec"], directory=user_params["dir"]
-    )
+    if is_downloaded:
+        # write metadata to the downloaded file
+        metadata.controller(
+            file_name, song, codec=user_params["codec"], directory=user_params["dir"]
+        )
 
-    print(f"\nDownload for song '{song.name}' completed. Enjoy!")
+        print(f"\nDownload for song '{song.name}' completed. Enjoy!")
 
 
 def album_download_controller(link: str, user_params: dict):
@@ -171,10 +172,11 @@ def album_download_controller(link: str, user_params: dict):
         file_name = f"{utils.make_song_title(song.artists, song.name, ', ')}.\
 {user_params['codec']}"
 
-        downloader.controller(user_params, song, file_name)
+        is_downloaded = downloader.controller(user_params, song, file_name)
 
-        # write metadata to the downloaded file
-        metadata.controller(file_name, song, codec=user_params["codec"])
+        if is_downloaded:
+            # write metadata to the downloaded file
+            metadata.controller(file_name, song, codec=user_params["codec"])
 
     print(f"\nDownload for album '{album_name}' completed. Enjoy!")
 
@@ -198,9 +200,10 @@ def playlist_download_controller(link: str, user_params: dict):
         file_name = f"{utils.make_song_title(song.artists, song.name, delim=', ')}.\
 {user_params['codec']}"
 
-        downloader.controller(user_params, song, file_name)
+        is_downloaded = downloader.controller(user_params, song, file_name)
 
-        # write metadata to the downloaded file
-        metadata.controller(file_name, song, codec=user_params["codec"])
+        if is_downloaded:
+            # write metadata to the downloaded file
+            metadata.controller(file_name, song, codec=user_params["codec"])
 
     print(f"\nDownload for playlist '{playlist_name}' completed. Enjoy!")

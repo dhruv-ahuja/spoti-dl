@@ -36,6 +36,8 @@ def get_config(user_params: dict, song: SpotifySong) -> dict:
         "quiet": user_params["quiet"],
         "format": "bestaudio/best",
         "dynamic_mpd": False,
+        "noplaylist": True,
+        "prefer_ffmpeg": True,
     }
 
     return downloader_params
@@ -49,7 +51,7 @@ def get_downloader(params: dict):
     return YoutubeDL(params=params)
 
 
-def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
+def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
     """
     Fetch appropriate source for the song from Youtube using the given details.
     """
@@ -58,8 +60,28 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
         # adding "audio" to avoid 'official music videos' and similar types
         song_title = make_song_title(song.artists, song.name, ", ") + " audio"
 
-        search = yt.extract_info(f"ytsearch:{song_title}", download=False)
+        search: dict = ydl.extract_info(f"ytsearch:{song_title}", download=False)
+
+        # extracting the first entry from the nested dict
         yt_info = search["entries"][0]
+
+        # we are unable to find the song
+        if song.name not in yt_info["title"]:
+            print("Couldn't find the apt audio source with that name, retrying...")
+
+            # retrying the search but with album name added
+            song_title = (
+                make_song_title(song.artists, song.name, ", ")
+                + f" {song.album_name} audio"
+            )
+
+            search: dict = ydl.extract_info(f"ytsearch:{song_title}", download=False)
+
+            yt_info = search["entries"][0]
+
+            # now, if we are still getting the wrong result,
+            # we should avoid the download
+            return None
 
     except Exception as e:
         print("Error when trying to get audio source from YT: ", e)
@@ -75,26 +97,21 @@ def fetch_source(yt: YoutubeDL, song: SpotifySong) -> YoutubeSong:
         return yt_song
 
 
-def download_song(yt: YoutubeDL, link: str):
+def download_song(ydl: YoutubeDL, link: str):
     """
     Downloads the song given its source link and the YouTube downloader object.
     """
 
-    print("\nStarting song download...\n")
-
     try:
         # attempts to download the song using the best matched
         # youtube source link
-        yt.download(link)
+        ydl.download(link)
 
     except Exception:
         print("\nDownload failed!")
 
-    else:
-        print("\nSuccessfully finished downloading!")
 
-
-def controller(user_params: dict, song: SpotifySong, file_name: str):
+def controller(user_params: dict, song: SpotifySong, file_name: str) -> bool:
     """
     Handles the flow of the download process for the given song.
     Initiates the configuration as per the user-defined parameters and chains
@@ -111,7 +128,14 @@ def controller(user_params: dict, song: SpotifySong, file_name: str):
         # the downloader_params dict is then passed onto the YoutubeDL object
         # when generating its instance.
         downloader_params = get_config(user_params, song)
-        yt = get_downloader(downloader_params)
+        ydl = get_downloader(downloader_params)
 
-        yt_song = fetch_source(yt, song)
-        download_song(yt, yt_song.video_url)
+        yt_song = fetch_source(ydl, song)
+
+        if yt_song:
+            download_song(ydl, yt_song.video_url)
+        else:
+            print("Couldn't find audio source for the song, skipping...")
+            return False
+
+        return True
