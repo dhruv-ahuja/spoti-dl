@@ -140,6 +140,11 @@ def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
         print("Invalid bitrate entered! Using default value.")
         bitrate = "320"
 
+    # if someone enters "" for example, after typing spotidl, it counts as an
+    # arg for the parser but not for us
+    if not link:
+        raise exceptions.LinkError("Spotify link needed to proceed!")
+
     # check whether the provided link is authentic
     is_match = check_spotify_link(link, config.spotify_link_patterns)
 
