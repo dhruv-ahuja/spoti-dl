@@ -14,7 +14,7 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
 spotipy = "^2.19.0"
-yt-dlp = "^2021.12.27"
+yt-dlp = "^2022.5.18"
 python-dotenv = "^0.19.2"
 pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
