@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from yt_dlp import YoutubeDL
-
+import yt_dlp
 
 from spotidl.spotify import SpotifySong
 from spotidl.utils import make_song_title, check_file
@@ -83,8 +83,8 @@ def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
             # we should avoid the download
             return None
 
-    except Exception as e:
-        print("Error when trying to get audio source from YT: ", e)
+    except yt_dlp.DownloadError as exception:
+        print("Error when trying to get audio source from YT: ", exception)
         return
 
     else:
@@ -107,7 +107,7 @@ def download_song(ydl: YoutubeDL, link: str):
         # youtube source link
         ydl.download(link)
 
-    except Exception:
+    except yt_dlp.DownloadError:
         print("\nDownload failed!")
 
 
@@ -122,6 +122,8 @@ def controller(user_params: dict, song: SpotifySong, file_name: str) -> bool:
     # only proceed with download if it doesn't
     if check_file(file_name):
         print(f"\n{file_name} already exists! Skipping download...\n")
+        # False will ensure that we don't attempt to re-write metadata again
+        return False
 
     else:
         # user parameters are used in the downloader parameters dictionary
