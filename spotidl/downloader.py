@@ -67,7 +67,7 @@ def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
 
         # we are unable to find the song
         if song.name not in yt_info["title"]:
-            print("\nCouldn't find the apt audio source with that name, retrying...")
+            print("Couldn't find the apt audio source with that name, retrying...")
 
             # retrying the search but with album name added
             song_title = (
@@ -83,8 +83,8 @@ def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
             # we should avoid the download
             return None
 
-    except yt_dlp.DownloadError as exception:
-        print("Error when trying to get audio source from YT: ", exception)
+    except yt_dlp.DownloadError as ex:
+        print("Error when trying to get audio source from YT: ", ex)
         return
 
     else:
@@ -97,18 +97,27 @@ def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
         return yt_song
 
 
-def download_song(ydl: YoutubeDL, link: str):
+def download_song(ydl: YoutubeDL, link: str) -> bool:
     """
     Downloads the song given its source link and the YouTube downloader object.
     """
 
-    try:
-        # attempts to download the song using the best matched
-        # youtube source link
-        ydl.download(link)
+    count = 0
+    while count:
+        try:
+            # attempts to download the song using the best matched
+            # youtube source link
+            count += 1
+            ydl.download(link)
 
-    except yt_dlp.DownloadError:
-        print("\nDownload failed!")
+        except yt_dlp.DownloadError as ex:
+            if count < 3:
+                print("\nDownload failed! Retrying...")
+            else:
+                print("\nDownload failed: ", ex)
+                return False
+
+    return True
 
 
 def controller(user_params: dict, song: SpotifySong, file_name: str) -> bool:
@@ -125,21 +134,23 @@ def controller(user_params: dict, song: SpotifySong, file_name: str) -> bool:
         # False will ensure that we don't attempt to re-write metadata again
         return False
 
-    else:
-        # user parameters are used in the downloader parameters dictionary
-        # the downloader_params dict is then passed onto the YoutubeDL object
-        # when generating its instance.
-        downloader_params = get_config(user_params, song)
-        ydl = get_downloader(downloader_params)
+    # user parameters are used in the downloader parameters dictionary
+    # the downloader_params dict is then passed onto the YoutubeDL object
+    # when generating its instance.
+    downloader_params = get_config(user_params, song)
+    ydl = get_downloader(downloader_params)
 
-        print(f"Starting '{song}' song download...\n")
-        yt_song = fetch_source(ydl, song)
+    print(f"Starting '{song}' song download...\n")
+    yt_song = fetch_source(ydl, song)
 
-        if yt_song:
-            download_song(ydl, yt_song.video_url)
-        else:
-            print("Couldn't find audio source for the song, skipping...\n")
-            return False
+    if not yt_song:
+        print("Couldn't find audio source for the song, skipping...\n")
+        return False
 
-        print(f"\nDownload for song '{song}' completed. Enjoy!")
-        return True
+    if not download_song(ydl, yt_song.video_url):
+        # we already print the download failed statement when encountering
+        # the exception in the function itself, so just return False here
+        return False
+
+    print(f"\nDownload for song '{song}' completed. Enjoy!")
+    return True
