@@ -138,7 +138,6 @@ def song_download_controller(link: str, user_params: dict):
     file_name = f"{utils.make_song_title(song.artists, song.name, ', ')}.\
 {user_params['codec']}"
 
-    print(f"Starting '{song.name}' song download...\n")
     # use the youtube controller to download the song
     # we also send the filename here since the download controller checks
     # to ensure that the song hasn't been downloaded before.
@@ -149,8 +148,6 @@ def song_download_controller(link: str, user_params: dict):
         metadata.controller(
             file_name, song, codec=user_params["codec"], directory=user_params["dir"]
         )
-
-        print(f"\nDownload for song '{song.name}' completed. Enjoy!")
 
 
 def album_download_controller(link: str, user_params: dict):
@@ -166,7 +163,7 @@ def album_download_controller(link: str, user_params: dict):
     utils.directory_maker(save_dir)
     os.chdir(save_dir)
 
-    print(f"Starting '{album_name}' song download...\n")
+    print(f"Starting '{album_name}' album download...\n")
 
     for song in songs:
         file_name = f"{utils.make_song_title(song.artists, song.name, ', ')}.\
@@ -194,7 +191,7 @@ def playlist_download_controller(link: str, user_params: dict):
     utils.directory_maker(save_dir)
     os.chdir(save_dir)
 
-    print(f"Starting '{playlist_name}' song download...\n")
+    print(f"Starting '{playlist_name}' playlist download...\n")
 
     for song in songs:
         file_name = f"{utils.make_song_title(song.artists, song.name, delim=', ')}.\

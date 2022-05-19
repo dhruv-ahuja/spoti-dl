@@ -67,7 +67,7 @@ def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
 
         # we are unable to find the song
         if song.name not in yt_info["title"]:
-            print("Couldn't find the apt audio source with that name, retrying...")
+            print("\nCouldn't find the apt audio source with that name, retrying...")
 
             # retrying the search but with album name added
             song_title = (
@@ -121,7 +121,7 @@ def controller(user_params: dict, song: SpotifySong, file_name: str) -> bool:
     # check if song has already been downloaded before at some point;
     # only proceed with download if it doesn't
     if check_file(file_name):
-        print(f"\n{file_name} already exists! Skipping download...")
+        print(f"\n{file_name} already exists! Skipping download...\n")
 
     else:
         # user parameters are used in the downloader parameters dictionary
@@ -130,12 +130,14 @@ def controller(user_params: dict, song: SpotifySong, file_name: str) -> bool:
         downloader_params = get_config(user_params, song)
         ydl = get_downloader(downloader_params)
 
+        print(f"Starting '{song}' song download...\n")
         yt_song = fetch_source(ydl, song)
 
         if yt_song:
             download_song(ydl, yt_song.video_url)
         else:
-            print("Couldn't find audio source for the song, skipping...")
+            print("Couldn't find audio source for the song, skipping...\n")
             return False
 
+        print(f"\nDownload for song '{song}' completed. Enjoy!")
         return True
