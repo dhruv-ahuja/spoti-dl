@@ -97,13 +97,12 @@ def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
         return yt_song
 
 
-def download_song(ydl: YoutubeDL, link: str) -> bool:
+def download_song(ydl: YoutubeDL, link: str, count: int = 0) -> bool:
     """
     Downloads the song given its source link and the YouTube downloader object.
     """
 
-    count = 0
-    while count:
+    while count < 3:
         try:
             # attempts to download the song using the best matched
             # youtube source link
@@ -111,11 +110,13 @@ def download_song(ydl: YoutubeDL, link: str) -> bool:
             ydl.download(link)
 
         except yt_dlp.DownloadError as ex:
-            if count < 3:
-                print("\nDownload failed! Retrying...")
-            else:
+            if count >= 3:
                 print("\nDownload failed: ", ex)
                 return False
+
+            print("\nDownload failed! Retrying...")
+            # call the function again but increase the count figure
+            download_song(ydl, link, count=count + 1)
 
     return True
 
