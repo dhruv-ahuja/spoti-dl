@@ -97,7 +97,7 @@ def make_song_title(artists: list, name: str, delim: str) -> str:
     Artist names given in list format are split using the given delimiter.
     """
 
-    return f"{delim.join(artists)} {name}"
+    return f"{delim.join(artists)} - {name}"
 
 
 def download_album_art(
