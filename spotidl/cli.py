@@ -1,12 +1,11 @@
 import argparse
 import os
-import pkg_resources
 
 import dotenv
 
 
 from spotidl import utils, spotify, downloader, config, exceptions, metadata
-
+from . import __version__
 
 # loading .env vars
 dotenv.load_dotenv()
@@ -61,7 +60,10 @@ def cli_args() -> argparse.Namespace:
         "-v",
         "--version",
         action="version",
-        version=pkg_resources.get_distribution("spoti-dl").version,
+        # setting the version action's code will allow us to use this argument
+        # during testing directly, instead of having to manually update the
+        # tests each time
+        version=__version__,
         help="Displays the current app version",
     )
 

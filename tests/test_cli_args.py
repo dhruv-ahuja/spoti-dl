@@ -2,6 +2,8 @@ import argparse
 
 import pytest
 
+from spotidl import __version__
+
 
 @pytest.fixture()
 def generate_parser():
@@ -14,6 +16,10 @@ def generate_parser():
 
 
 def test_version(capsys, generate_parser):
+    """
+    Confirms the application version.
+    """
+
     # mocking the parser object
     parser = generate_parser()
     parser.add_argument(
@@ -23,14 +29,16 @@ def test_version(capsys, generate_parser):
         version="1.0.4",
     )
 
+    # getting the current application version from the
+    current_version = __version__
+
     try:
         parser.parse_args(["-v"])
-        assert parser.parse_args().version == "1.0.3"
+        assert parser.parse_args().version == current_version
 
     except SystemExit:
         captured = capsys.readouterr()
-
-    assert captured.out == "1.0.4\n"
+        assert captured.out == f"{current_version}\n"
 
 
 def test_defaults(generate_parser):
