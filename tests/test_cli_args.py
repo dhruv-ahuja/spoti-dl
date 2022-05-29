@@ -124,6 +124,7 @@ def test_empty_link(generate_parser):
     Tests the applications' link argument by sending an empty link to the
     argument parser.
     """
+
     parser = generate_parser()
 
     expected_output = argparse.Namespace(link="")

@@ -4,9 +4,6 @@ spoti-dl(I had a better name but that was already taken on PyPi), is a song down
 
 The app currently supports downloading songs, albums and playlists. 
 
-I got the inspiration for the project from my friend Swapnil's [spotify-dl](https://github.com/SwapnilSoni1999/spotify-dl) app written in JavaScript. This seemed like the perfect pet project to make and consequently learn from :)
-
-
 # Setup
 
 Run ```pip install spoti-dl``` to install the app first and foremost.
