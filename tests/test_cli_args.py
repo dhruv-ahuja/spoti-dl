@@ -28,6 +28,11 @@ def generate_parser():
         parser.add_argument("-b", "--bitrate", default=" 320")
         parser.add_argument("-d", "--dir", default=" /dl")
 
+        # adding the link argument, it is the argument through which the user
+        # can access the download capabilties of the
+        # application
+        parser.add_argument("link")
+
         return parser
 
     return make_parser
@@ -61,6 +66,8 @@ def test_version(capsys, generate_parser):
         captured = capsys.readouterr()
         assert captured.out == f"{current_version}\n"
 
+    del parser
+
 
 def test_defaults_with_quiet(generate_parser):
     """
@@ -86,6 +93,8 @@ def test_defaults_with_quiet(generate_parser):
         # without an except block here, our tests will keep failing
         pass
 
+    del parser
+
 
 def test_defaults_without_quiet(generate_parser):
     """
@@ -107,26 +116,44 @@ def test_defaults_without_quiet(generate_parser):
     except SystemExit:
         pass
 
+    del parser
 
-# def test_link(generate_parser):
-#     parser = generate_parser()
 
-#     parser.add_argument("link")
+def test_empty_link(generate_parser):
+    """
+    Tests the applications' link argument by sending an empty link to the
+    argument parser.
+    """
+    parser = generate_parser()
 
-#     expected_output = argparse.Namespace(link="")
+    expected_output = argparse.Namespace(link="")
 
-#     try:
-#         assert parser.parse_args([]) == expected_output
+    try:
+        assert parser.parse_args([]) == expected_output
 
-#     except SystemExit:
-#         pass
+    except SystemExit:
+        pass
 
-#     song_link = "https://open.spotify.com/track/30AeH6saju8WPJo73cKZyH?\
-# si=99a24d08f4e44faf"
-#     expected_output = argparse.Namespace(link=song_link)
+    del parser
 
-#     try:
-#         assert parser.parse_args([song_link]) == expected_output
 
-#     except SystemExit:
-#         pass
+def test_valid_link(generate_parser):
+    """
+    Tests the application's link argument by sending a valid link to the
+    argument parser.
+    """
+
+    parser = generate_parser()
+    parser.add_argument("link")
+
+    song_link = "https://open.spotify.com/track/30AeH6saju8WPJo73cKZyH?\
+si=99a24d08f4e44faf"
+    expected_output = argparse.Namespace(link=song_link)
+
+    try:
+        assert parser.parse_args([song_link]) == expected_output
+
+    except SystemExit:
+        pass
+
+    del parser
