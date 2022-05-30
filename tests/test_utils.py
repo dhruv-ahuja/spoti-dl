@@ -1,42 +1,124 @@
-import pytest
-from dotenv.main import load_dotenv
-
 import os
 import platform
 import subprocess
 
-import spotidl.utils as package
-import spotidl.config as config
+import pytest
 
-load_dotenv()
+from spotidl import config, exceptions
+from spotidl import utils as package
 
 
-def test_check_env_vars():
-    # here, if the check_env_vars function runs without any problems
-    # , then that means that all env vars have a value
-    assert package.check_env_vars() is None
+@pytest.fixture()
+def env_vars():
+    """
+    Generates mock environment variables to be used for testing certain helper
+    functions.
+    """
+
+    def make_vars(id_: str = "foo", secret: str = "bar", uri: str = "baz") -> dict:
+        mock_vars = {
+            "id": id_,
+            "secret": secret,
+            "redirect_uri": uri,
+        }
+
+        return mock_vars
+
+    # by returning a function, we'll have the freedom to modify the dictionary
+    # according to our needs by defining the function parameters
+    return make_vars
+
+
+def test_valid_env_vars(env_vars):
+    """
+    Verifies whether the environment variable-checker function is working as
+    intended, by feeding it non-empty data.
+    """
+
+    # here, if the check_env_vars function runs without any problems then that
+    # means that all env vars have a value and that should be the case since
+    # we're feeding it the mock env_vars dictionary by calling the fixture
+    assert package.check_env_vars(env_vars()) is None
+
+
+def test_invalid_env_vars(env_vars):
+    """
+    Verifies whether the environment variable-checker function raises the
+    apt Exception when given empty data.
+    """
+    mock_env_vars = env_vars(id_="")
+    err_invalid_id = "SPOTIPY_CLIENT_ID not configured!"
+
+    with pytest.raises(exceptions.EnvVariablesError) as exc:
+        package.check_env_vars(mock_env_vars)
+
+    assert exc.value.message == err_invalid_id
+
+    mock_env_vars = env_vars(secret="")
+    err_invalid_secret = "SPOTIPY_CLIENT_SECRET not configured!"
+
+    with pytest.raises(exceptions.EnvVariablesError) as exc:
+        package.check_env_vars(mock_env_vars)
+
+    assert exc.value.message == err_invalid_secret
+
+    mock_env_vars = env_vars(uri="")
+    err_invalid_uri = "SPOTIPY_REDIRECT_URI not configured!"
+
+    with pytest.raises(exceptions.EnvVariablesError) as exc:
+        package.check_env_vars(mock_env_vars)
+
+    assert exc.value.message == err_invalid_uri
 
 
 @pytest.fixture()
 def make_test_dir(tmp_path):
-    d = tmp_path / "test"
-    d.mkdir()
+    """
+    Creates a mock test directory.
+    """
 
-    return d
+    directory = tmp_path / "test"
+    directory.mkdir()
+
+    return directory
 
 
 @pytest.fixture()
 def make_test_file(make_test_dir):
-    d = make_test_dir
-    f = d / "test.txt"
-    f.write_text("testing")
-    return f
+    """
+    Creates a mock test file.
+    """
+
+    directory = make_test_dir
+    file_ = directory / "test.txt"
+    # I believe writing some data to the file is necessary for its existence to
+    # be recognized by the os library's functions.
+    file_.write_text("testing")
+    return file_
 
 
-def test_make_dir(make_test_dir):
+def test_make_dir(make_test_dir, capsys):
+    """
+    Tests the directory-creator helper function.
+    """
+
     # make_dir returns True if dir exists or it creates a dir successfully
     assert package.make_dir(make_test_dir)
-    assert package.make_dir(make_test_dir)
+
+    err_making_dir = "Error when attempting to make directory: "
+
+    # set the exception to be underscore since checking for OSError with a
+    # direct comparison is much harder than what we're doing here
+    with pytest.raises(OSError) as _:
+        res = package.make_dir("")
+        # capturing the error message in its entirety with this
+        captured = capsys.readouterr()
+
+        raise OSError
+
+    assert captured.out == f"{err_making_dir} [Errno 2] No such file or directory: ''\n"
+    # assert not res since we should be getting a False return value
+    assert not res
 
 
 def test_check_dir(make_test_dir):
