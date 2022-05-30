@@ -54,6 +54,7 @@ def make_dir(path: str) -> bool:
 
     except OSError as exception:
         print("Error when attempting to make directory: ", exception)
+        return False
 
     else:
         return True

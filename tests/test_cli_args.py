@@ -9,7 +9,7 @@ from spotidl import __version__
 # functions; by returning a function that generates a parser, we can use
 #  this fixture for many functions
 @pytest.fixture()
-def parser():
+def parser() -> argparse.ArgumentParser:
     """
     Acts as the point from where test functions can retrieve the
     ArgumentParser mock object to conduct testing.
