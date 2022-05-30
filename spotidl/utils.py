@@ -4,30 +4,43 @@ import platform
 import re
 from urllib.request import urlretrieve
 
-import spotidl.config as config
-import spotidl.exceptions as exceptions
+from spotidl import config, exceptions
 
 
 default_save_dir = os.getcwd() + "/dl"
 
 
-def check_env_vars():
+def load_env_vars() -> dict:
     """
-    Run a barebones check to ensure that the three needed environment variables
-    are not blank.
+    Loads the environment variables into a dictionary.
     """
 
     client_id = os.getenv("SPOTIPY_CLIENT_ID")
     client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
     redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
 
-    if not client_id:
+    env_vars = {
+        "id": client_id,
+        "secret": client_secret,
+        "redirect_uri": redirect_uri,
+    }
+
+    return env_vars
+
+
+def check_env_vars(env_vars: dict):
+    """
+    Run a barebones check to ensure that the three needed environment variables
+    are not blank.
+    """
+
+    if not env_vars["id"]:
         raise exceptions.EnvVariablesError("SPOTIPY_CLIENT_ID not configured!")
 
-    if not client_secret:
+    if not env_vars["secret"]:
         raise exceptions.EnvVariablesError("SPOTIPY_CLIENT_SECRET not configured!")
 
-    if not redirect_uri:
+    if not env_vars["redirect_uri"]:
         raise exceptions.EnvVariablesError("SPOTIPY_REDIRECT_URI not configured!")
 
 

@@ -83,9 +83,11 @@ def prerun_checks(args: argparse.Namespace):
     if not utils.check_cli_args(args.codec, args.bitrate, args.link):
         raise exceptions.LinkError()
 
+    # loading env vars
+    env_vars = utils.load_env_vars()
     # checks to see whether required environment variables have been added
     # or not
-    utils.check_env_vars()
+    utils.check_env_vars(env_vars)
 
 
 def controller():
