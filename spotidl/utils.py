@@ -204,10 +204,10 @@ def check_ffmpeg_installed() -> bool:
 
     try:
         if os_platform == "Windows":
-            subprocess.run(["where", "ffmpeg"], check=True)
+            subprocess.check_call(["where", "ffmpeg"])
 
         else:
-            subprocess.run(["which", "ffmpeg"], check=True)
+            subprocess.check_call(["which", "ffmpeg"])
 
     # this is an error returned when the platform can't be recognized,
     # from what I've seen
