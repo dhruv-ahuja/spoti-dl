@@ -110,13 +110,11 @@ def make_test_file(make_test_dir):
     del file_
 
 
-def test_make_dir(make_test_dir, capsys):
+def test_make_invalid_dir(capsys):
     """
-    Tests the directory-creator helper function.
+    Tests the directory maker function by raising an Exception and verifiying
+    the output.
     """
-
-    # make_dir returns True if dir exists or it creates a dir successfully
-    assert package.make_dir(make_test_dir)
 
     err_making_dir = "Error when attempting to make directory: "
 
@@ -134,15 +132,55 @@ def test_make_dir(make_test_dir, capsys):
     assert not res
 
 
+def test_make_dir(make_test_dir):
+    """
+    Tests the directory-creator helper function.
+    """
+
+    # make_dir returns True if dir exists or it creates a dir successfully
+    dir_to_make = f"{make_test_dir}/1234/"
+    assert package.make_dir(dir_to_make)
+
+
+def test_check_dir_invalid(make_test_dir):
+    """
+    Tests the directory checker function with an invalid directory.
+    """
+
+    non_existent_dir = f"{make_test_dir}/1234/"
+    assert not package.check_dir(non_existent_dir)
+
+
 def test_check_dir(make_test_dir):
+    """
+    Tests the directory checker function with a valid directory.
+    """
+
     assert package.check_dir(make_test_dir)
 
 
+def test_check_file_invalid(make_test_dir):
+    """
+    Tests the file checker function with an invalid file.
+    """
+
+    non_existent_file = f"{make_test_dir}/blabla.txt"
+    assert not package.check_file(non_existent_file)
+
+
 def test_check_file(make_test_file):
+    """
+    Tests the file checker function with a valid file.
+    """
+
     assert package.check_file(make_test_file)
 
 
 def test_directory_maker(capsys, tmp_path):
+    """
+    Tests the directory maker function.
+    """
+
     dir_path = tmp_path / "test"
     package.directory_maker(dir_path)
 
@@ -197,6 +235,10 @@ si=5465fbd51d5640d8"
 
 
 def test_check_spotify_link(get_song_link):
+    """
+    Tests the Spotify link checker function.
+    """
+
     # we will need to pass on the regex patterns list ourselves
     assert not package.check_spotify_link(
         link="", patterns_list=config.spotify_link_patterns
@@ -209,6 +251,10 @@ def test_check_spotify_link(get_song_link):
 
 
 def test_make_song_title():
+    """
+    Tests the song maker function.
+    """
+
     artists = ["one", "two"]
     name = "song"
     delim = ", "
@@ -296,6 +342,10 @@ def test_check_cli_args(get_song_link):
 
 
 def test_get_link_type(get_song_link, get_album_link, get_playlist_link):
+    """
+    Tests the link getter function.
+    """
+
     assert package.get_link_type(get_song_link) == "track"
 
     assert package.get_link_type(get_album_link) == "album"
@@ -304,16 +354,28 @@ def test_get_link_type(get_song_link, get_album_link, get_playlist_link):
 
 
 def test_correct_name():
+    """
+    Tests the songs' name checker function.
+    """
+
     query = "/\\<>"
 
     assert package.correct_name(query) == "####"
 
 
 def test_get_playlist_id(get_playlist_link):
+    """
+    Tests the playlist ID getter function.
+    """
+
     assert package.get_playlist_id(get_playlist_link) == "5Uf0UoZMAsKBSMe3QNBFBz"
 
 
 def test_check_ffmpeg_installed():
+    """
+    Tests the function that checks for the existence of ffmpeg in the system.
+    """
+
     # we will have to check this here ourselves to be able to assert
     # since ffmpeg is a package which may or may not be on the user's system
     os_platform = platform.system()
@@ -322,10 +384,10 @@ def test_check_ffmpeg_installed():
     try:
         if os_platform == "Windows":
             subprocess.check_output(["where", "ffmpeg"])
+        else:
+            subprocess.check_output(["which", "ffmpeg"])
 
-        subprocess.check_output(["which", "ffmpeg"])
-
-    except Exception:
+    except FileNotFoundError:
         assert not check
 
     assert check
