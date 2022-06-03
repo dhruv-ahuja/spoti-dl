@@ -118,7 +118,8 @@ def download_song(ydl: YoutubeDL, link: str, count: int = 0) -> bool:
             # call the function again but increase the count figure
             download_song(ydl, link, count=count + 1)
 
-    return True
+        else:
+            return True
 
 
 def controller(user_params: dict, song: SpotifySong, file_name: str) -> bool:
