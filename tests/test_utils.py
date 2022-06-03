@@ -40,6 +40,9 @@ def test_valid_env_vars(env_vars):
     # we're feeding it the mock env_vars dictionary by calling the fixture
     assert package.check_env_vars(env_vars()) is None
 
+    # removing env_vars dict from the memory
+    del env_vars
+
 
 def test_invalid_env_vars(env_vars):
     """
@@ -70,6 +73,9 @@ def test_invalid_env_vars(env_vars):
 
     assert exc.value.message == err_invalid_uri
 
+    # removing env_vars dict from the memory
+    del env_vars
+
 
 @pytest.fixture()
 def make_test_dir(tmp_path):
@@ -80,7 +86,10 @@ def make_test_dir(tmp_path):
     directory = tmp_path / "test"
     directory.mkdir()
 
-    return directory
+    # yielding the directory and then regaining control when function execution
+    # ends will enable to us to remove it from the memory
+    yield directory
+    del directory
 
 
 @pytest.fixture()
@@ -94,7 +103,11 @@ def make_test_file(make_test_dir):
     # I believe writing some data to the file is necessary for its existence to
     # be recognized by the os library's functions.
     file_.write_text("testing")
-    return file_
+
+    # yielding the file and then regaining control when function execution ends
+    # will enable to us to remove it from the memory
+    yield file_
+    del file_
 
 
 def test_make_dir(make_test_dir, capsys):
@@ -143,20 +156,44 @@ def test_directory_maker(capsys, tmp_path):
 
 @pytest.fixture()
 def get_song_link():
-    return "https://open.spotify.com/track/4kgNvCA8bcbeMozbGHDULB?\
+    """
+    Returns a valid Spotify song link to be used when testing functions that
+    require it.
+    """
+
+    song = "https://open.spotify.com/track/4kgNvCA8bcbeMozbGHDULB?\
 si=35aba232e6c344ef"
+
+    yield song
+    del song
 
 
 @pytest.fixture()
 def get_album_link():
-    return "https://open.spotify.com/album/74EvGqq3t8JFRwscYjUI13?\
+    """
+    Returns a valid Spotify album link to be used when testing functions that
+    require it.
+    """
+
+    album = "https://open.spotify.com/album/74EvGqq3t8JFRwscYjUI13?\
 si=_W4OW5HsT96EPfjO6IwJBg"
+
+    yield album
+    del album
 
 
 @pytest.fixture()
 def get_playlist_link():
-    return "https://open.spotify.com/playlist/5Uf0UoZMAsKBSMe3QNBFBz?\
+    """
+    Returns a valid Spotify playlist link to be used when testing functions that
+    require it.
+    """
+
+    playlist = "https://open.spotify.com/playlist/5Uf0UoZMAsKBSMe3QNBFBz?\
 si=5465fbd51d5640d8"
+
+    yield playlist
+    del playlist
 
 
 def test_check_spotify_link(get_song_link):
@@ -180,14 +217,26 @@ def test_make_song_title():
     assert package.make_song_title(artists, name, delim) == expected_output
 
 
+def test_download_album_art_empty():
+    """
+    Tests the album art downloader function but feeds it an empty link.
+    """
+
+    assert package.download_album_art(path=".", link="", title="") == ""
+
+
 def test_download_album_art(make_test_dir):
+    """
+    Tests the album art downloader function.
+    """
+
     album_art_url = "https://i.scdn.co/image/ab67616d0000b273c91030650cb3fdf8c\
 75394f0"
     title = "test"
     path = str(make_test_dir)
 
     # album art images are stored in the "/album-art" folder
-    expected_output = path + "/album-art/test.jpeg"
+    expected_output = f"{path}/album-art/test.jpeg"
 
     assert (
         package.download_album_art(path=path, link=album_art_url, title=title)
@@ -197,23 +246,53 @@ def test_download_album_art(make_test_dir):
     assert os.path.isfile(expected_output)
 
 
-def test_check_cli_args(capsys, get_song_link):
+def test_check_cli_wrong_args(capsys, get_song_link):
+    """
+    Tests the CLI arguments verifier function with a variety of different
+    incorrect arguments.
+    """
+
     link = get_song_link
 
-    # first testing with correct input
-    assert package.check_cli_args("flac", "best", link)
-
+    # testing the response to invalid codec argument
     expected_output = "Invalid codec entered! Using default value.\n"
     package.check_cli_args("wrong_input", "320", link)
     captured = capsys.readouterr()
 
     assert captured.out == expected_output
 
+    # testing the response to invalid bitrate argument
     expected_output = "Invalid bitrate entered! Using default value.\n"
     package.check_cli_args("mp3", "wrong_input", link)
     captured = capsys.readouterr()
 
     assert captured.out == expected_output
+
+
+def test_check_cli_empty_link():
+    """
+    Tests the CLI arguments verifier function with an empty link.
+    """
+
+    err_empty_link = "Spotify link needed to proceed!"
+    with pytest.raises(exceptions.LinkError) as exc:
+        package.check_cli_args("flac", "best", "")
+
+    assert exc.value.message == err_empty_link
+
+
+def test_check_cli_args(get_song_link):
+    """
+    Tests the CLI arguments verifier function with a variety of different
+    correct arguments.
+    """
+
+    link = get_song_link
+
+    assert package.check_cli_args("flac", "best", link)
+    assert package.check_cli_args("flac", "32", link)
+    assert package.check_cli_args("mp3", "worst", link)
+    assert package.check_cli_args("mp3", "256", link)
 
 
 def test_get_link_type(get_song_link, get_album_link, get_playlist_link):
