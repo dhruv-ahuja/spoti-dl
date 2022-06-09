@@ -271,21 +271,22 @@ def test_download_album_art_empty():
     assert package.download_album_art(path=".", link="", title="") == ""
 
 
-def test_download_album_art():
+def test_download_album_art(make_test_dir):
     """
     Tests the album art downloader function.
     """
 
     album_art_url = "https://i.scdn.co/image/ab67616d0000b273c91030650cb3fdf8c\
 75394f0"
+    directory = make_test_dir
+    directory = str(directory)
     title = "test"
-    path = str(make_test_dir)
 
     # album art images are stored in the "/album-art" folder
-    expected_output = f"{path}/album-art/test.jpeg"
+    expected_output = f"{directory}/album-art/test.jpeg"
 
     assert (
-        package.download_album_art(path=path, link=album_art_url, title=title)
+        package.download_album_art(path=directory, link=album_art_url, title=title)
         == expected_output
     )
 
