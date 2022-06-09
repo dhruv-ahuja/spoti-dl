@@ -71,7 +71,7 @@ def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
         # exist in the audio source title
         if (
             song.name not in audio_source_title
-            or song.artists[0] not in audio_source_title
+            and song.artists[0] not in audio_source_title
         ):
             print("Couldn't find the apt audio source with that name, retrying...")
 

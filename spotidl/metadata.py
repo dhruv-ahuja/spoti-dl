@@ -62,22 +62,26 @@ def add_metadata_flac(file_name: str, song: SpotifySong, album_art_path: str):
         # if this error occurs, the vorbis comment block already exists
         meta.delete()
 
-    meta["title"] = song.name
-    meta["artist"] = "/".join(song.artists)
-    meta["album"] = song.album_name
-    meta["tracknumber"] = str(song.track_number)
-    meta["discnumber"] = str(song.disc_number)
+    meta["TITLE"] = song.name
+    meta["ARTIST"] = "/".join(song.artists)
+    meta["ALBUM"] = song.album_name
+    meta["TRACKNUMBER"] = str(song.track_number)
+    meta["DISCNUMBER"] = str(song.disc_number)
 
     # now, to write the album art to the file
     if album_art_path:
         pic = mutagen.flac.Picture()
 
-        with open(album_art_path, "rb") as pic:
-            pic.data = pic.read()
+        with open(album_art_path, "rb") as img:
+            pic.data = img.read()
+
+        pic.type = mutagen.id3.PictureType.COVER_FRONT
+        pic.mime = "image/jpeg"
+        pic.width = pic.height = 500
 
         meta.add_picture(pic)
 
-        meta.save()
+    meta.save()
 
 
 # setting default directory to be the current folder(represented as ".")
