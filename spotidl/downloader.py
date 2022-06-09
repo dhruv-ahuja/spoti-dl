@@ -64,9 +64,13 @@ def fetch_source(ydl: YoutubeDL, song: SpotifySong) -> YoutubeSong:
 
         # extracting the first entry from the nested dict
         yt_info = search["entries"][0]
+        print(yt_info["title"])
 
         # we are unable to find the song
-        if song.name not in yt_info["title"]:
+        if (
+            song.name not in yt_info["title"]
+            and song.artists[0] not in yt_info["title"]
+        ):
             print("Couldn't find the apt audio source with that name, retrying...")
 
             # retrying the search but with album name added
