@@ -77,7 +77,7 @@ def test_invalid_env_vars(env_vars):
     del env_vars
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture()
 def make_test_dir(tmp_path):
     """
     Creates a mock test directory.
@@ -92,7 +92,7 @@ def make_test_dir(tmp_path):
     del directory
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture()
 def make_test_file(make_test_dir):
     """
     Creates a mock test file.
@@ -132,7 +132,7 @@ def test_make_invalid_dir(capsys):
     assert not res
 
 
-def test_make_dir():
+def test_make_dir(make_test_dir):
     """
     Tests the directory-creator helper function.
     """
@@ -142,7 +142,7 @@ def test_make_dir():
     assert package.make_dir(dir_to_make)
 
 
-def test_check_dir_invalid():
+def test_check_dir_invalid(make_test_dir):
     """
     Tests the directory checker function with an invalid directory.
     """
@@ -151,7 +151,7 @@ def test_check_dir_invalid():
     assert not package.check_dir(non_existent_dir)
 
 
-def test_check_dir():
+def test_check_dir(make_test_dir):
     """
     Tests the directory checker function with a valid directory.
     """
@@ -159,7 +159,7 @@ def test_check_dir():
     assert package.check_dir(make_test_dir)
 
 
-def test_check_file_invalid():
+def test_check_file_invalid(make_test_dir):
     """
     Tests the file checker function with an invalid file.
     """
@@ -168,7 +168,7 @@ def test_check_file_invalid():
     assert not package.check_file(non_existent_file)
 
 
-def test_check_file():
+def test_check_file(make_test_file):
     """
     Tests the file checker function with a valid file.
     """
