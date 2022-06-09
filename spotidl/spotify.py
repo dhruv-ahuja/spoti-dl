@@ -7,9 +7,6 @@ from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
 
 
-# import spotidl.exceptions as exceptions
-# import spotidl.utils as utils
-
 from spotidl import exceptions, utils
 
 
