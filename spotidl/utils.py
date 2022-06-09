@@ -129,14 +129,14 @@ def download_album_art(
     full_path = path + folder
     directory_maker(full_path)
 
-    file = full_path + f"/{title}.{extension}"
+    file_ = full_path + f"/{title}.{extension}"
 
-    if not check_file(file):
+    if not check_file(file_):
         # urlretrieve downloads the resource from the given link and writes it
         # to the given file
-        urlretrieve(link, file)
+        urlretrieve(link, file_)
 
-    return file
+    return file_
 
 
 def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
