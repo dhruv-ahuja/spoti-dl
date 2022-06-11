@@ -1,3 +1,7 @@
+[![Downloads](https://pepy.tech/badge/spoti-dl)](https://pepy.tech/project/spoti-dl)
+[![Downloads](https://pepy.tech/badge/spoti-dl/month)](https://pepy.tech/project/spoti-dl)
+
+
 # Introduction
 
 spoti-dl(I had a better name but that was already taken on PyPi), is a song downloader app that accepts Spotify links, fetches individual song—and basic album—metadata from Spotify, downloads the song from Youtube. The metadata is then written onto the downloaded song file using the trusty Mutagen library, this includes the album/song cover art as well. 
