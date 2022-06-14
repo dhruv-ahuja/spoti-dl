@@ -7,6 +7,7 @@ import dotenv
 from spotidl import utils, spotify, downloader, config, exceptions, metadata
 from . import __version__
 
+
 # loading .env vars
 dotenv.load_dotenv()
 
@@ -66,7 +67,6 @@ def cli_args() -> argparse.Namespace:
         version=__version__,
         help="Displays the current app version",
     )
-
     return parser.parse_args()
 
 

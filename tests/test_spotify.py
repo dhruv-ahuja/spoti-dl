@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 import spotipy
 
@@ -135,7 +137,8 @@ def test_new_song(generate_new_song):
 
 @pytest.fixture()
 def generate_new_album_data():
-    album: list[package.SpotifySong] = []
+    album: List[package.SpotifySong] = []
+
     song = package.SpotifySong(
         name="Twilight (OAKK Remix)",
         artists=["An-Ten-Nae", "Morillo", "OAKK"],
@@ -145,6 +148,7 @@ def generate_new_album_data():
         cover_url="https://i.scdn.co/image/ab67616d0000b273c91030650cb3fdf8c\
 75394f0",
     )
+
     album.append(song)
 
     return song.album_name, album
