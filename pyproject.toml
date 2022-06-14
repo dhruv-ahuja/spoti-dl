@@ -18,6 +18,7 @@ yt-dlp = "^2022.5.18"
 python-dotenv = "^0.19.2"
 pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
+pylint = "^2.14.1"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^21.12b0", allow-prereleases = true}
