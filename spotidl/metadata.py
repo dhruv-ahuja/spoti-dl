@@ -105,4 +105,4 @@ def controller(file_name: str, song: SpotifySong, codec: str, directory: str = "
     elif codec == "mp3":
         add_metadata_mp3(file_name, song, album_art_path)
 
-    print("\nFinished writing metadata!")
+    print("\nFinished writing metadata!\n")
