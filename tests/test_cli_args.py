@@ -26,7 +26,7 @@ def parser() -> argparse.ArgumentParser:
     argparser.add_argument("-c", "--codec", default=" mp3")
     argparser.add_argument("-b", "--bitrate", default=" 320")
     argparser.add_argument("-d", "--dir", default=" /dl")
-    argparser.add_argument("-v", "--version", action="version", version="1.0.4")
+    argparser.add_argument("-v", "--version", action="version", version=__version__)
 
     # adding the link argument, it is the argument through which the user
     # can access the download capabilties of the application
@@ -79,14 +79,10 @@ def test_defaults_with_quiet(parser):
 
     # the Namespace class stores the attributes added to the CLI application,
     # allowing us to mock the expected behaviour easily
-    expected_output = argparse.Namespace(
-        quiet=True, codec=" mp3", bitrate=" 320", dir=" /dl"
-    )
+    expected_output = argparse.Namespace(quiet=True, codec=" mp3", bitrate=" 320", dir=" /dl")
 
     try:
-        assert (
-            parser.parse_args(["-q", "-c mp3", "-b 320", "-d /dl"]) == expected_output
-        )
+        assert parser.parse_args(["-q", "-c mp3", "-b 320", "-d /dl"]) == expected_output
     except SystemExit:
         # adding a 'pass' here since the argparse module runs,
         # parses all arguments and then calls `sys.exit()`.
@@ -102,9 +98,7 @@ def test_defaults_without_quiet(parser):
 
     # checking another variant where we don't modify the quiet param at all
     # and the rest remain the same
-    expected_output = argparse.Namespace(
-        quiet=False, codec=" mp3", bitrate=" 320", dir=" /dl"
-    )
+    expected_output = argparse.Namespace(quiet=False, codec=" mp3", bitrate=" 320", dir=" /dl")
 
     try:
         assert parser.parse_args([]) == expected_output
