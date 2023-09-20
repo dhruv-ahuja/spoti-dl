@@ -10,27 +10,36 @@ repository = "https://github.com/good-times-ahead/spoti-dl/"
 packages = [
     {include = "spotidl"}
 ]
+# TODO: add more classifiers
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.8,<3.12"
 spotipy = "^2.19.0"
 python-dotenv = "^0.19.2"
-pytest = "7.2.0"
-pytest-cov = "^3.0.0"
-pylint = "^2.14.1"
-certifi = "^2023.7.22"
 requests = "^2.31.0"
 yt-dlp = "^2023.7.6"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^21.12b0", allow-prereleases = true}
-pylint = "^2.13.9"
 pyfakefs = "^4.5.6"
+pytest = "7.2.0"
 pytest-cov = "^3.0.0"
+pylint = "^2.14.1"
+certifi = "^2023.7.22"
+maturin = "^1.2.3"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+# might not need poetry as a strict requirement
+requires = ["poetry-core>=1.0.0", "maturin>=1.0,<2.0"]
+build-backend = "maturin"
 
 [tool.poetry.scripts]
 spotidl = "spotidl.main:cli"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]

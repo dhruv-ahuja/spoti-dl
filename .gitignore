@@ -1,8 +1,10 @@
 .vscode/
-#testing folder making capabilities
+.DS_Store
 dl/
 *.mp3
 *.jpeg
+
+/target
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -133,3 +135,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
