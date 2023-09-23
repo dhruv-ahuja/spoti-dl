@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spoti-dl"
-version = "1.0.8"
+version = "2.0.0"
 description = "spotidl: download songs, albums and playlists using Spotify links"
 authors = ["Dhruv"]
 license = "MIT"
@@ -35,7 +35,7 @@ maturin = "^1.2.3"
 
 [build-system]
 # might not need poetry as a strict requirement
-requires = ["poetry-core>=1.0.0", "maturin>=1.0,<2.0"]
+requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
 [tool.poetry.scripts]
