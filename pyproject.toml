@@ -23,6 +23,7 @@ spotipy = "^2.19.0"
 python-dotenv = "^0.19.2"
 requests = "^2.31.0"
 yt-dlp = "^2023.7.6"
+mutagen = "^1.47.0"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^21.12b0", allow-prereleases = true}
