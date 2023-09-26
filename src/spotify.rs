@@ -19,7 +19,6 @@ pub enum LinkType {
     Track,
     Album,
     Playlist,
-    Episode,
 }
 
 impl FromStr for LinkType {
@@ -31,7 +30,6 @@ impl FromStr for LinkType {
             "track" => Ok(Track),
             "album" => Ok(Album),
             "playlist" => Ok(Playlist),
-            "episode" => Ok(Episode),
             _ => Err(()),
         }
     }

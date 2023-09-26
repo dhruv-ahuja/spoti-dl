@@ -37,7 +37,7 @@ pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
 }
 
 pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
-    let re = Regex::new(r"/(track|playlist|album|episode)/([^?/]+)").unwrap();
+    let re = Regex::new(r"/(track|playlist|album)/([^?/]+)").unwrap();
 
     let Some(captures) = re.captures(link) else {
         return None
