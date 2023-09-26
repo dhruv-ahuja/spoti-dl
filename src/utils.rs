@@ -1,3 +1,5 @@
+use crate::spotify::LinkType;
+
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -34,15 +36,19 @@ pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
     format!("{} - {} audio", artists.join(", "), song_name)
 }
 
-pub fn parse_link(link: &str) -> Option<String> {
+pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
     let re = Regex::new(r"/(track|playlist|album|episode)/([^?/]+)").unwrap();
 
     let Some(captures) = re.captures(link) else {
         return None
     };
-    match captures.get(2) {
-        None => None,
-        Some(needle) => return Some(needle.as_str().into()),
+
+    match (captures.get(1), captures.get(2)) {
+        (Some(link_type), Some(spotify_id)) => Some((
+            link_type.as_str().parse().unwrap(),
+            spotify_id.as_str().to_string(),
+        )),
+        _ => None,
     }
 }
 

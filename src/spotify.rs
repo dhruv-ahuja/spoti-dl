@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use rspotify::model::TrackId;
 use rspotify::prelude::*;
 use rspotify::AuthCodeSpotify;
@@ -10,6 +12,29 @@ pub struct SpotifySong {
     pub disc_number: i32,
     pub track_number: u32,
     pub cover_url: Option<String>,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum LinkType {
+    Track,
+    Album,
+    Playlist,
+    Episode,
+}
+
+impl FromStr for LinkType {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use LinkType::*;
+
+        match s {
+            "track" => Ok(Track),
+            "album" => Ok(Album),
+            "playlist" => Ok(Playlist),
+            "episode" => Ok(Episode),
+            _ => Err(()),
+        }
+    }
 }
 
 pub fn generate_client(token: String) -> AuthCodeSpotify {

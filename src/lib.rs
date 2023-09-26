@@ -34,7 +34,7 @@ fn handle_song_download(
     bitrate: String,
 ) -> PyResult<&PyAny> {
     pyo3_asyncio::tokio::future_into_py(py, async move {
-        let Some(spotify_id) = utils::parse_link(&link) else {
+        let Some((link_type,spotify_id)) = utils::parse_link(&link) else {
             println!("Invalid Spotify link type entered!"); 
             return Ok(())
         };
