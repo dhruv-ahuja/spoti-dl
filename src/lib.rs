@@ -1,14 +1,12 @@
+mod downloader;
 mod metadata;
 mod spotify;
 mod utils;
 
-use std::{
-    collections::HashSet,
-    path::{Path, PathBuf},
-};
+use std::collections::HashSet;
+use std::path::{Path, PathBuf};
 
 use pyo3::prelude::*;
-use youtube_dl::YoutubeDl;
 
 /// A Python module implemented in Rust.
 #[pymodule]
@@ -18,7 +16,7 @@ fn spotidl_rs(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 
 #[derive(Debug)]
-struct CliArgs {
+pub struct CliArgs {
     download_dir: PathBuf,
     codec: metadata::Codec,
     bitrate: metadata::Bitrate,
@@ -72,7 +70,7 @@ fn handle_song_download(
         let mut file_path = args.download_dir.to_path_buf();
         file_path.push(&file_name);
 
-        if download_song(&file_path, &song, &args).await {
+        if downloader::download_song(&file_path, &song, &args).await {
             let album_art_file = format!("{}.jpeg", &song.album_name);
             album_art_dir.push(album_art_file);
 
@@ -82,37 +80,4 @@ fn handle_song_download(
 
         Ok(())
     })
-}
-
-async fn download_song(file_path: &Path, song: &spotify::SpotifySong, args: &CliArgs) -> bool {
-    let file_output_format = format!("{}/{}.%(ext)s", &args.download_dir.display(), &song.name);
-
-    if file_path.exists() {
-        println!("{} already exists, skipping download", &song.name);
-        return false;
-    }
-
-    let query = utils::generate_youtube_query(&song.name, &song.artists);
-    let search_options = youtube_dl::SearchOptions::youtube(query);
-
-    let mut yt_client = YoutubeDl::search_for(&search_options);
-    println!("Starting {} song download", song.name);
-
-    let codec = args.codec.to_string();
-    let bitrate = args.bitrate.to_string();
-
-    if let Err(err) = yt_client
-        .extract_audio(true)
-        .output_template(file_output_format)
-        .extra_arg("--audio-format")
-        .extra_arg(codec)
-        .extra_arg("--audio-quality")
-        .extra_arg(bitrate)
-        .download_to_async("./")
-        .await
-    {
-        println!("Error downloading {} song: {err}", &song.name);
-        return false;
-    }
-    true
 }
