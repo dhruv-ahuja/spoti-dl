@@ -1,12 +1,8 @@
 use std::collections::HashSet;
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use regex::Regex;
-
-pub fn path_exists(file_path: &str) -> bool {
-    Path::new(&file_path).exists()
-}
 
 /// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given path is a file
 pub fn remove_illegal_path_characters(
@@ -23,12 +19,15 @@ pub fn remove_illegal_path_characters(
         .collect()
 }
 
-pub fn make_download_directories(download_dir: &str) -> std::io::Result<()> {
-    let album_art_dir = format!("{}/album-art", download_dir);
-    if !path_exists(&album_art_dir) {
-        std::fs::create_dir_all(album_art_dir)?
+pub fn make_download_directories(download_dir: &Path) -> std::io::Result<PathBuf> {
+    let mut album_art_dir: PathBuf = download_dir.to_owned();
+    album_art_dir.push("album-art");
+
+    if !album_art_dir.exists() {
+        std::fs::create_dir_all(&album_art_dir)?
     }
-    Ok(())
+
+    Ok(album_art_dir)
 }
 
 pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
@@ -47,8 +46,8 @@ pub fn parse_link(link: &str) -> Option<String> {
     }
 }
 
-pub async fn download_album_art(link: String, album_art_path: &str) {
-    if path_exists(album_art_path) {
+pub async fn download_album_art(link: String, album_art_path: &Path) {
+    if album_art_path.exists() {
         return;
     }
 

@@ -2,12 +2,13 @@ mod metadata;
 mod spotify;
 mod utils;
 
-use std::collections::HashSet;
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
 
 use pyo3::prelude::*;
 use youtube_dl::YoutubeDl;
-
-use utils::path_exists;
 
 /// A Python module implemented in Rust.
 #[pymodule]
@@ -18,7 +19,7 @@ fn spotidl_rs(_py: Python, m: &PyModule) -> PyResult<()> {
 
 #[derive(Debug)]
 struct CliArgs {
-    download_dir: String,
+    download_dir: PathBuf,
     codec: metadata::Codec,
     bitrate: metadata::Bitrate,
 }
@@ -47,40 +48,46 @@ fn handle_song_download(
 
         let download_dir =
             utils::remove_illegal_path_characters(&illegal_path_chars, &download_dir, false);
+        let download_dir = Path::new(&download_dir).to_owned();
 
         let args = CliArgs {
             download_dir,
-            codec: codec.as_str().parse().unwrap(),
-            bitrate: bitrate.as_str().parse().unwrap(),
+            codec: codec.parse().unwrap(), // TODO: replace with proper error message on invalid input
+            bitrate: bitrate.parse().unwrap(),
         };
 
-        if let Err(err) = utils::make_download_directories(&args.download_dir) {
-            println!("error creating download directories: {err}");
-            return Ok(());
+        let mut album_art_dir = match utils::make_download_directories(&args.download_dir) {
+            Err(err) => {
+                println!("error creating download directories: {err}");
+                return Ok(());
+            }
+            Ok(dir) => dir,
         };
 
         let song = spotify::get_song_details(token, spotify_id).await;
         let corrected_song_name =
             utils::remove_illegal_path_characters(&illegal_path_chars, &song.name, true);
 
-        let file_path = format!("{}/{}.{}", &args.download_dir, corrected_song_name, &codec);
+        let file_name = format!("{}.{}", corrected_song_name, &codec);
+        let mut file_path = args.download_dir.to_path_buf();
+        file_path.push(&file_name);
 
         if download_song(&file_path, &song, &args).await {
-            let album_art_path =
-                format!("{}/album-art/{}.jpeg", &args.download_dir, &song.album_name);
+            let album_art_file = format!("{}.jpeg", &song.album_name);
+            album_art_dir.push(album_art_file);
 
-            utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_path).await;
-            metadata::add_metadata(&file_path, &album_art_path, &song)
+            utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_dir).await;
+            metadata::add_metadata(&file_path, &album_art_dir, &song)
         }
 
         Ok(())
     })
 }
 
-async fn download_song(file_path: &str, song: &spotify::SpotifySong, args: &CliArgs) -> bool {
-    let file_output_format = format!("{}/{}.%(ext)s", &args.download_dir, &song.name);
+async fn download_song(file_path: &Path, song: &spotify::SpotifySong, args: &CliArgs) -> bool {
+    let file_output_format = format!("{}/{}.%(ext)s", &args.download_dir.display(), &song.name);
 
-    if path_exists(file_path) {
+    if file_path.exists() {
         println!("{} already exists, skipping download", &song.name);
         return false;
     }
@@ -91,8 +98,8 @@ async fn download_song(file_path: &str, song: &spotify::SpotifySong, args: &CliA
     let mut yt_client = YoutubeDl::search_for(&search_options);
     println!("Starting {} song download", song.name);
 
-    let codec = &args.codec.to_string();
-    let bitrate = &args.bitrate.to_string();
+    let codec = args.codec.to_string();
+    let bitrate = args.bitrate.to_string();
 
     if let Err(err) = yt_client
         .extract_audio(true)

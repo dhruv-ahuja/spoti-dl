@@ -3,6 +3,7 @@ use crate::spotify;
 use std::fmt;
 use std::fs::File;
 use std::io::BufReader;
+use std::path::PathBuf;
 use std::str::FromStr;
 
 use lofty::{Accessor, Picture, Tag, TagExt, TaggedFileExt};
@@ -68,7 +69,7 @@ impl fmt::Display for Bitrate {
         match self {
             Bitrate::Worst => write!(f, "worst"),
             Bitrate::Worse => write!(f, "worse"),
-            Bitrate::Poor => write!(f, "poort"),
+            Bitrate::Poor => write!(f, "poor"),
             Bitrate::Low => write!(f, "low"),
             Bitrate::Medium => write!(f, "medium"),
             Bitrate::Good => write!(f, "good"),
@@ -78,7 +79,7 @@ impl fmt::Display for Bitrate {
     }
 }
 
-pub fn add_metadata(file_path: &str, album_art_path: &str, song: &spotify::SpotifySong) {
+pub fn add_metadata(file_path: &PathBuf, album_art_path: &PathBuf, song: &spotify::SpotifySong) {
     println!("adding metadata for {}", song.name);
     let mut tagged_file = lofty::Probe::open(file_path).unwrap().read().unwrap();
 
