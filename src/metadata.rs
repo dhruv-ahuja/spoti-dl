@@ -1,14 +1,85 @@
-use crate::{spotify, utils};
+use crate::spotify;
 
+use std::fmt;
 use std::fs::File;
 use std::io::BufReader;
+use std::str::FromStr;
 
 use lofty::{Accessor, Picture, Tag, TagExt, TaggedFileExt};
 
-// TODO: maybe separate out the album art download function as well
-// TODO: add flac support
-// TODO: implement block_on tasks for this functions IO operations: lofty file read-write, picture operations
-pub async fn add_metadata(download_dir: &str, file_path: &str, song: &spotify::SpotifySong) {
+#[derive(Debug, PartialEq)]
+pub enum Codec {
+    MP3,
+    Flac,
+}
+
+impl FromStr for Codec {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "mp3" => Ok(Codec::MP3),
+            "flac" => Ok(Codec::Flac),
+            _ => Err(()),
+        }
+    }
+}
+
+impl fmt::Display for Codec {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Codec::MP3 => write!(f, "mp3"),
+            Codec::Flac => write!(f, "flac"),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Bitrate {
+    Worst,
+    Worse = 32,
+    Poor = 96,
+    Low = 128,
+    Medium = 192,
+    Good = 256,
+    High = 320,
+    Best,
+}
+
+impl FromStr for Bitrate {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "worst" => Ok(Bitrate::Worst),
+            "32" => Ok(Bitrate::Worse),
+            "96" => Ok(Bitrate::Poor),
+            "128" => Ok(Bitrate::Low),
+            "192" => Ok(Bitrate::Medium),
+            "256" => Ok(Bitrate::Good),
+            "320" => Ok(Bitrate::High),
+            "best" => Ok(Bitrate::Best),
+            _ => Err(()),
+        }
+    }
+}
+
+impl fmt::Display for Bitrate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Bitrate::Worst => write!(f, "worst"),
+            Bitrate::Worse => write!(f, "worse"),
+            Bitrate::Poor => write!(f, "poort"),
+            Bitrate::Low => write!(f, "low"),
+            Bitrate::Medium => write!(f, "medium"),
+            Bitrate::Good => write!(f, "good"),
+            Bitrate::High => write!(f, "high"),
+            Bitrate::Best => write!(f, "best"),
+        }
+    }
+}
+
+pub fn add_metadata(file_path: &str, album_art_path: &str, song: &spotify::SpotifySong) {
+    println!("adding metadata for {}", song.name);
     let mut tagged_file = lofty::Probe::open(file_path).unwrap().read().unwrap();
 
     let tag = match tagged_file.primary_tag_mut() {
@@ -19,6 +90,7 @@ pub async fn add_metadata(download_dir: &str, file_path: &str, song: &spotify::S
             } else {
                 // create, add and return a new tag
                 let tag_type = tagged_file.primary_tag_type();
+                println!("using tag type: {:?}", &tag_type);
 
                 tagged_file.insert_tag(Tag::new(tag_type));
                 tagged_file.primary_tag_mut().unwrap()
@@ -33,15 +105,14 @@ pub async fn add_metadata(download_dir: &str, file_path: &str, song: &spotify::S
     tag.set_disk(song.disc_number as u32);
     tag.set_track(song.track_number);
 
-    let album_art_path = format!("{}/album-art/{}.jpeg", download_dir, &song.album_name);
-    utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_path).await;
-
     let album_art = File::open(album_art_path).unwrap();
     let mut reader = BufReader::new(album_art);
 
     let mut picture = Picture::from_reader(&mut reader).unwrap();
     picture.set_pic_type(lofty::PictureType::CoverFront);
-    tag.push_picture(picture);
 
+    tag.push_picture(picture);
     tag.save_to_path(file_path).unwrap();
+
+    println!("successfully added metadata for {}", song.name);
 }

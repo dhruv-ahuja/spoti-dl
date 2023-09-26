@@ -19,8 +19,8 @@ fn spotidl_rs(_py: Python, m: &PyModule) -> PyResult<()> {
 #[derive(Debug)]
 struct CliArgs {
     download_dir: String,
-    codec: String,
-    bitrate: String,
+    codec: metadata::Codec,
+    bitrate: metadata::Bitrate,
 }
 
 /// Handles end-to-end flow for a song download: fetches song information from Spotify, prepares the song's source,
@@ -47,10 +47,11 @@ fn handle_song_download(
 
         let download_dir =
             utils::remove_illegal_path_characters(&illegal_path_chars, &download_dir, false);
+
         let args = CliArgs {
             download_dir,
-            codec,
-            bitrate,
+            codec: codec.as_str().parse().unwrap(),
+            bitrate: bitrate.as_str().parse().unwrap(),
         };
 
         if let Err(err) = utils::make_download_directories(&args.download_dir) {
@@ -65,7 +66,11 @@ fn handle_song_download(
         let file_path = format!("{}/{}.{}", &args.download_dir, corrected_song_name, &codec);
 
         if download_song(&file_path, &song, &args).await {
-            metadata::add_metadata(&args.download_dir, &file_path, &song).await
+            let album_art_path =
+                format!("{}/album-art/{}.jpeg", &args.download_dir, &song.album_name);
+
+            utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_path).await;
+            metadata::add_metadata(&file_path, &album_art_path, &song)
         }
 
         Ok(())
@@ -84,15 +89,18 @@ async fn download_song(file_path: &str, song: &spotify::SpotifySong, args: &CliA
     let search_options = youtube_dl::SearchOptions::youtube(query);
 
     let mut yt_client = YoutubeDl::search_for(&search_options);
-    println!("Starting {} song download", &song.name);
+    println!("Starting {} song download", song.name);
+
+    let codec = &args.codec.to_string();
+    let bitrate = &args.bitrate.to_string();
 
     if let Err(err) = yt_client
         .extract_audio(true)
         .output_template(file_output_format)
         .extra_arg("--audio-format")
-        .extra_arg(&args.codec)
+        .extra_arg(codec)
         .extra_arg("--audio-quality")
-        .extra_arg(&args.bitrate)
+        .extra_arg(bitrate)
         .download_to_async("./")
         .await
     {
