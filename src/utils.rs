@@ -8,16 +8,17 @@ pub fn path_exists(file_path: &str) -> bool {
     Path::new(&file_path).exists()
 }
 
-/// Create a new direcotry path where illegal characters are replaced with "#"
-pub fn correct_directory_name(illegal_path_chars: &HashSet<char>, directory: String) -> String {
-    directory
-        .chars()
-        .map(|c| {
-            if illegal_path_chars.contains(&c) {
-                '#'
-            } else {
-                c
-            }
+/// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given path is a file
+pub fn remove_illegal_path_characters(
+    illegal_path_chars: &HashSet<char>,
+    path: &str,
+    is_file: bool,
+) -> String {
+    path.chars()
+        .map(|c| match (is_file, c) {
+            (true, c) if illegal_path_chars.contains(&c) || c == '/' => '#',
+            (false, c) if illegal_path_chars.contains(&c) => '#',
+            (_, c) => c,
         })
         .collect()
 }

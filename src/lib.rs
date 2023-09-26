@@ -2,12 +2,12 @@ mod metadata;
 mod spotify;
 mod utils;
 
-use utils::path_exists;
-
 use std::collections::HashSet;
 
 use pyo3::prelude::*;
 use youtube_dl::YoutubeDl;
+
+use utils::path_exists;
 
 /// A Python module implemented in Rust.
 #[pymodule]
@@ -45,7 +45,8 @@ fn handle_song_download(
             .cloned()
             .collect();
 
-        let download_dir = utils::correct_directory_name(&illegal_path_chars, download_dir);
+        let download_dir =
+            utils::remove_illegal_path_characters(&illegal_path_chars, &download_dir, false);
         let args = CliArgs {
             download_dir,
             codec,
@@ -57,9 +58,11 @@ fn handle_song_download(
             return Ok(());
         };
 
-        // todo: correct song name too
         let song = spotify::get_song_details(token, spotify_id).await;
-        let file_path = format!("{}/{}.{}", &args.download_dir, &song.name, &args.codec);
+        let corrected_song_name =
+            utils::remove_illegal_path_characters(&illegal_path_chars, &song.name, true);
+
+        let file_path = format!("{}/{}.{}", &args.download_dir, corrected_song_name, &codec);
 
         if download_song(&file_path, &song, &args).await {
             metadata::add_metadata(&args.download_dir, &file_path, &song).await
