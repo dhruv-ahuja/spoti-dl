@@ -1,10 +1,9 @@
 use crate::spotify;
 
-use std::fmt;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::PathBuf;
 use std::str::FromStr;
+use std::{fmt, path::Path};
 
 use lofty::{Accessor, Picture, Tag, TagExt, TaggedFileExt};
 
@@ -79,15 +78,18 @@ impl fmt::Display for Bitrate {
     }
 }
 
-pub fn add_metadata(
-    file_path: &PathBuf,
-    album_art_path: &PathBuf,
-    simple_song: &spotify::SimpleSong,
-    album_name: &str,
-) {
+pub fn add_metadata<P, S>(
+    file_path: P,
+    album_art_path: P,
+    simple_song: spotify::SimpleSong,
+    album_name: S,
+) where
+    P: AsRef<Path>,
+    S: Into<String>,
+{
     println!("adding metadata for {}", simple_song.name);
 
-    let mut tagged_file = lofty::Probe::open(file_path).unwrap().read().unwrap();
+    let mut tagged_file = lofty::Probe::open(&file_path).unwrap().read().unwrap();
 
     let tag = match tagged_file.primary_tag_mut() {
         Some(primary_tag) => primary_tag,
@@ -107,7 +109,7 @@ pub fn add_metadata(
     let artists = simple_song.artists.join(", ");
     tag.set_artist(artists);
     tag.set_title(simple_song.name.clone());
-    tag.set_album(album_name.to_string());
+    tag.set_album(album_name.into());
     tag.set_disk(simple_song.disc_number as u32);
     tag.set_track(simple_song.track_number);
 

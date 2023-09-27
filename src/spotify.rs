@@ -26,7 +26,7 @@ impl FromStr for LinkType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SimpleSong {
     pub name: String,
     pub artists: Vec<String>,
