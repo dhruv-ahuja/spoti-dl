@@ -79,8 +79,13 @@ impl fmt::Display for Bitrate {
     }
 }
 
-pub fn add_metadata(file_path: &PathBuf, album_art_path: &PathBuf, song: &spotify::SpotifySong) {
-    println!("adding metadata for {}", song.name);
+pub fn add_metadata(
+    file_path: &PathBuf,
+    album_art_path: &PathBuf,
+    simple_song: &spotify::SimpleSong,
+    album_name: &str,
+) {
+    println!("adding metadata for {}", simple_song.name);
     let mut tagged_file = lofty::Probe::open(file_path).unwrap().read().unwrap();
 
     let tag = match tagged_file.primary_tag_mut() {
@@ -99,12 +104,12 @@ pub fn add_metadata(file_path: &PathBuf, album_art_path: &PathBuf, song: &spotif
         }
     };
 
-    let artists = song.artists.join(", ");
+    let artists = simple_song.artists.join(", ");
     tag.set_artist(artists);
-    tag.set_title(song.name.clone());
-    tag.set_album(song.album_name.clone());
-    tag.set_disk(song.disc_number as u32);
-    tag.set_track(song.track_number);
+    tag.set_title(simple_song.name.clone());
+    tag.set_album(album_name.to_string());
+    tag.set_disk(simple_song.disc_number as u32);
+    tag.set_track(simple_song.track_number);
 
     let album_art = File::open(album_art_path).unwrap();
     let mut reader = BufReader::new(album_art);
@@ -115,5 +120,5 @@ pub fn add_metadata(file_path: &PathBuf, album_art_path: &PathBuf, song: &spotif
     tag.push_picture(picture);
     tag.save_to_path(file_path).unwrap();
 
-    println!("successfully added metadata for {}", song.name);
+    println!("successfully added metadata for {}", simple_song.name);
 }

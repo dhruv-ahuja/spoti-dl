@@ -1,18 +1,9 @@
 use std::str::FromStr;
 
+use rspotify::model::AlbumId;
 use rspotify::model::TrackId;
 use rspotify::prelude::*;
 use rspotify::AuthCodeSpotify;
-
-#[derive(Debug)]
-pub struct SpotifySong {
-    pub name: String,
-    pub artists: Vec<String>,
-    pub album_name: String,
-    pub disc_number: i32,
-    pub track_number: u32,
-    pub cover_url: Option<String>,
-}
 
 #[derive(Debug, PartialEq)]
 pub enum LinkType {
@@ -33,6 +24,21 @@ impl FromStr for LinkType {
             _ => Err(()),
         }
     }
+}
+
+#[derive(Debug)]
+pub struct SimpleSong {
+    pub name: String,
+    pub artists: Vec<String>,
+    pub disc_number: i32,
+    pub track_number: u32,
+}
+
+#[derive(Debug)]
+pub struct SpotifySong {
+    pub simple_song: SimpleSong,
+    pub album_name: String,
+    pub cover_url: Option<String>,
 }
 
 pub fn generate_client(token: String) -> AuthCodeSpotify {
@@ -58,12 +64,16 @@ pub async fn get_song_details(token: String, spotify_id: String) -> SpotifySong 
         .map(|artist| artist.name.clone())
         .collect();
 
-    SpotifySong {
+    let simple_song = SimpleSong {
         name: track.name,
         artists,
-        album_name: track.album.name,
         disc_number: track.disc_number,
         track_number: track.track_number,
+    };
+
+    SpotifySong {
+        simple_song,
+        album_name: track.album.name,
         cover_url,
     }
 }

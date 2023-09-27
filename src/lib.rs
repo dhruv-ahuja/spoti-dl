@@ -7,6 +7,7 @@ use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
 use pyo3::prelude::*;
+use spotify::LinkType;
 
 /// A Python module implemented in Rust.
 #[pymodule]
@@ -54,6 +55,11 @@ fn handle_song_download(
             bitrate: bitrate.parse().unwrap(),
         };
 
+        // playlists can have tracks/episodes from different sources
+        if link_type == LinkType::Playlist {
+            process_playlist_download()
+        }
+
         let mut album_art_dir = match utils::make_download_directories(&args.download_dir) {
             Err(err) => {
                 println!("error creating download directories: {err}");
@@ -63,21 +69,40 @@ fn handle_song_download(
         };
 
         let song = spotify::get_song_details(token, spotify_id).await;
-        let corrected_song_name =
-            utils::remove_illegal_path_characters(&illegal_path_chars, &song.name, true);
+        let corrected_song_name = utils::remove_illegal_path_characters(
+            &illegal_path_chars,
+            &song.simple_song.name,
+            true,
+        );
 
         let file_name = format!("{}.{}", corrected_song_name, &codec);
         let mut file_path = args.download_dir.to_path_buf();
         file_path.push(&file_name);
 
-        if downloader::download_song(&file_path, &song, &args).await {
+        if downloader::download_song(
+            &file_path,
+            &corrected_song_name,
+            &song.simple_song.artists,
+            &args,
+        )
+        .await
+        {
             let album_art_file = format!("{}.jpeg", &song.album_name);
             album_art_dir.push(album_art_file);
 
             utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_dir).await;
-            metadata::add_metadata(&file_path, &album_art_dir, &song)
+            metadata::add_metadata(
+                &file_path,
+                &album_art_dir,
+                &song.simple_song,
+                &song.album_name,
+            )
         }
 
         Ok(())
     })
+}
+
+fn process_playlist_download() {
+    todo!()
 }
