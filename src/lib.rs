@@ -6,6 +6,7 @@ mod utils;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
+use lazy_static::lazy_static;
 use pyo3::prelude::*;
 use spotify::LinkType;
 
@@ -14,6 +15,14 @@ use spotify::LinkType;
 fn spotidl_rs(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(handle_song_download, m)?)?;
     Ok(())
+}
+
+lazy_static! {
+    pub static ref ILLEGAL_PATH_CHARS: HashSet<char> =
+        ['\\', '?', '%', '*', ':', '|', '"', '<', '>', '.']
+            .iter()
+            .cloned()
+            .collect();
 }
 
 #[derive(Debug)]
@@ -40,13 +49,8 @@ fn handle_song_download(
             return Ok(())
         };
 
-        let illegal_path_chars: HashSet<char> = ['\\', '?', '%', '*', ':', '|', '"', '<', '>', '.']
-            .iter()
-            .cloned()
-            .collect();
-
         let download_dir =
-            utils::remove_illegal_path_characters(&illegal_path_chars, &download_dir, false);
+            utils::remove_illegal_path_characters(&ILLEGAL_PATH_CHARS, &download_dir, false);
         let download_dir = Path::new(&download_dir).to_owned();
 
         let args = CliArgs {
@@ -70,13 +74,13 @@ fn handle_song_download(
 
         if link_type == LinkType::Album {
             let album = spotify::get_album_details(token, spotify_id).await;
-            downloader::download_album(album, &illegal_path_chars, &args, &codec).await;
+            downloader::download_album(album, &ILLEGAL_PATH_CHARS, args, codec.clone()).await;
             return Ok(());
         }
 
         let song = spotify::get_song_details(token, spotify_id).await;
         let corrected_song_name = utils::remove_illegal_path_characters(
-            &illegal_path_chars,
+            &ILLEGAL_PATH_CHARS,
             &song.simple_song.name,
             true,
         );
@@ -97,12 +101,7 @@ fn handle_song_download(
             album_art_dir.push(album_art_file);
 
             utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_dir).await;
-            metadata::add_metadata(
-                &file_path,
-                &album_art_dir,
-                &song.simple_song,
-                &song.album_name,
-            )
+            metadata::add_metadata(file_path, album_art_dir, song.simple_song, song.album_name)
         }
 
         Ok(())
