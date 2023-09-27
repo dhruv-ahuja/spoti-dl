@@ -68,6 +68,12 @@ fn handle_song_download(
             Ok(dir) => dir,
         };
 
+        if link_type == LinkType::Album {
+            let album = spotify::get_album_details(token, spotify_id).await;
+            downloader::download_album(album, &illegal_path_chars, &args, &codec).await;
+            return Ok(());
+        }
+
         let song = spotify::get_song_details(token, spotify_id).await;
         let corrected_song_name = utils::remove_illegal_path_characters(
             &illegal_path_chars,

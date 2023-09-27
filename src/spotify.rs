@@ -41,6 +41,13 @@ pub struct SpotifySong {
     pub cover_url: Option<String>,
 }
 
+#[derive(Debug)]
+pub struct SpotifyAlbum {
+    pub name: String,
+    pub songs: Vec<SimpleSong>,
+    pub cover_url: Option<String>,
+}
+
 pub fn generate_client(token: String) -> AuthCodeSpotify {
     let access_token = rspotify::Token {
         access_token: token,
@@ -74,6 +81,38 @@ pub async fn get_song_details(token: String, spotify_id: String) -> SpotifySong 
     SpotifySong {
         simple_song,
         album_name: track.album.name,
+        cover_url,
+    }
+}
+
+pub async fn get_album_details(token: String, spotify_id: String) -> SpotifyAlbum {
+    let mut spotify = generate_client(token);
+    spotify.config.token_refreshing = false;
+
+    let album_id = AlbumId::from_id(spotify_id).unwrap();
+    let album = spotify.album(album_id, None).await.unwrap();
+
+    let cover_url = album.images.first().map(|image| image.url.clone());
+    let mut songs = Vec::with_capacity(album.tracks.total as usize);
+
+    // todo: check whether we can optimize fetching the artists -- O(n*m) + extra cloning
+    for track in album.tracks.items {
+        let song = SimpleSong {
+            name: track.name,
+            artists: track
+                .artists
+                .iter()
+                .map(|artist| artist.name.clone())
+                .collect(),
+            disc_number: track.disc_number,
+            track_number: track.track_number,
+        };
+        songs.push(song)
+    }
+
+    SpotifyAlbum {
+        name: album.name,
+        songs,
         cover_url,
     }
 }

@@ -86,6 +86,7 @@ pub fn add_metadata(
     album_name: &str,
 ) {
     println!("adding metadata for {}", simple_song.name);
+
     let mut tagged_file = lofty::Probe::open(file_path).unwrap().read().unwrap();
 
     let tag = match tagged_file.primary_tag_mut() {
@@ -96,7 +97,6 @@ pub fn add_metadata(
             } else {
                 // create, add and return a new tag
                 let tag_type = tagged_file.primary_tag_type();
-                println!("using tag type: {:?}", &tag_type);
 
                 tagged_file.insert_tag(Tag::new(tag_type));
                 tagged_file.primary_tag_mut().unwrap()
