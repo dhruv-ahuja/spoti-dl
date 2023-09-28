@@ -67,11 +67,11 @@ fn process_downloads(
         match link_type {
             LinkType::Track => {
                 let song = spotify::get_song_details(token, spotify_id).await;
-                downloader::process_song_download(song, &ILLEGAL_PATH_CHARS, args, codec).await;
+                downloader::process_song_download(song, &ILLEGAL_PATH_CHARS, args).await;
             }
             LinkType::Album => {
                 let album = spotify::get_album_details(token, spotify_id).await;
-                downloader::process_album_download(album, &ILLEGAL_PATH_CHARS, args, codec).await;
+                downloader::process_album_download(album, &ILLEGAL_PATH_CHARS, args).await;
             }
             _ => process_playlist_download(),
         }

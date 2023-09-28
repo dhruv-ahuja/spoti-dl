@@ -56,7 +56,6 @@ async fn download_multiple_songs(
     mut file_path: PathBuf,
     illegal_path_chars: &HashSet<char>,
     args: Arc<CliArgs>,
-    codec: String,
     album_art_dir: Arc<PathBuf>,
     album_name: Arc<String>,
     songs: Vec<SimpleSong>,
@@ -66,7 +65,7 @@ async fn download_multiple_songs(
         let corrected_song_name =
             utils::remove_illegal_path_characters(illegal_path_chars, &song.name, true);
 
-        let file_name = format!("{}.{}", corrected_song_name, &codec);
+        let file_name = format!("{}.{}", corrected_song_name, args.codec);
         file_path.push(&file_name);
 
         let now = Instant::now();
@@ -99,7 +98,6 @@ pub async fn process_song_download(
     song: SpotifySong,
     illegal_path_chars: &'static HashSet<char>,
     args: CliArgs,
-    codec: String,
 ) {
     let corrected_song_name =
         utils::remove_illegal_path_characters(illegal_path_chars, &song.simple_song.name, true);
@@ -112,7 +110,7 @@ pub async fn process_song_download(
         Ok(dir) => dir,
     };
 
-    let file_name = format!("{}.{}", corrected_song_name, &codec);
+    let file_name = format!("{}.{}", corrected_song_name, args.codec);
     let mut file_path = args.download_dir.clone();
 
     file_path.push(&file_name);
@@ -130,7 +128,6 @@ pub async fn process_album_download(
     album: SpotifyAlbum,
     illegal_path_chars: &'static HashSet<char>,
     args: CliArgs,
-    codec: String,
 ) {
     let mut file_path = args.download_dir.to_path_buf();
     file_path.push(&album.name);
@@ -165,7 +162,6 @@ pub async fn process_album_download(
                 file_path.clone(),
                 illegal_path_chars,
                 args.clone(),
-                codec.clone(),
                 album_art_dir.clone(),
                 album_name.clone(),
                 chunk.to_vec(),
