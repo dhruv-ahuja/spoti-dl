@@ -1,10 +1,13 @@
+use crate::spotify::{SimpleSong, SpotifyAlbum};
 use crate::CliArgs;
-use crate::{metadata, spotify, utils};
-
-use youtube_dl::YoutubeDl;
+use crate::{metadata, utils};
 
 use std::collections::HashSet;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::time::Instant;
+
+use youtube_dl::YoutubeDl;
 
 pub async fn download_song(
     file_path: &Path,
@@ -48,11 +51,54 @@ pub async fn download_song(
     true
 }
 
-pub async fn download_album(
-    album: spotify::SpotifyAlbum,
+async fn download_multiple_songs(
+    mut file_path: PathBuf,
     illegal_path_chars: &HashSet<char>,
-    args: &CliArgs,
-    codec: &str,
+    args: Arc<CliArgs>,
+    codec: String,
+    album_art_dir: Arc<PathBuf>,
+    album_name: Arc<String>,
+    songs: Vec<SimpleSong>,
+) {
+    println!("{:?}", &songs);
+    for song in songs {
+        let corrected_song_name =
+            utils::remove_illegal_path_characters(illegal_path_chars, &song.name, true);
+
+        let file_name = format!("{}.{}", corrected_song_name, &codec);
+        file_path.push(&file_name);
+
+        let now = Instant::now();
+        if download_song(&file_path, &corrected_song_name, &song.artists, &args).await {
+            println!("time to download: {:?}", now.elapsed());
+            let now = Instant::now();
+
+            tokio::task::block_in_place(|| {
+                let album_art_dir = album_art_dir.clone();
+                println!(
+                    "adding metadata for {} AT PATH {}",
+                    &song.name,
+                    file_path.display()
+                );
+                metadata::add_metadata(
+                    file_path.clone(),
+                    album_art_dir.to_path_buf(),
+                    song,
+                    album_name.clone().to_string(),
+                )
+            });
+            println!("time to write metadata: {:?}", now.elapsed());
+            // remove the current song name from the path for subsequent songs
+            file_path.pop();
+        }
+    }
+}
+
+pub async fn download_album(
+    album: SpotifyAlbum,
+    illegal_path_chars: &'static HashSet<char>,
+    args: CliArgs,
+    codec: String,
 ) {
     let mut file_path = args.download_dir.to_path_buf();
     file_path.push(&album.name);
@@ -65,27 +111,39 @@ pub async fn download_album(
         Ok(dir) => dir,
     };
 
-    // downloading album art first as all songs will share the same album art
     let album_art_file = format!("{}.jpeg", &album.name);
     album_art_dir.push(album_art_file);
 
     utils::download_album_art(album.cover_url.clone().unwrap(), &album_art_dir).await;
-
     println!("\nstarting album {} download", &album.name);
 
-    for song in album.songs {
-        let mut file_path = file_path.clone();
+    let parallel_tasks_count = 10;
+    let songs_per_task = (album.songs.len() + parallel_tasks_count - 1) / parallel_tasks_count;
+    println!("{songs_per_task}, {}", album.songs.len());
 
-        let corrected_song_name =
-            utils::remove_illegal_path_characters(illegal_path_chars, &song.name, true);
+    let args = Arc::new(args);
+    let album_art_dir = Arc::new(album_art_dir);
+    let album_name = Arc::new(album.name);
 
-        let file_name = format!("{}.{}", corrected_song_name, &codec);
-        file_path.push(&file_name);
+    let handles = album
+        .songs
+        .chunks(songs_per_task)
+        .map(|chunk| {
+            tokio::spawn(download_multiple_songs(
+                file_path.clone(),
+                illegal_path_chars,
+                args.clone(),
+                codec.clone(),
+                album_art_dir.clone(),
+                album_name.clone(),
+                chunk.to_vec(),
+            ))
+        })
+        .collect::<Vec<_>>();
 
-        if download_song(&file_path, &corrected_song_name, &song.artists, args).await {
-            metadata::add_metadata(&file_path, &album_art_dir, &song, &album.name)
-        }
+    for handle in handles {
+        handle.await.unwrap();
     }
-    println!("\nFinished downloading {} album", &album.name);
+
+    println!("\nFinished downloading {} album", &album_name);
 }
-//
