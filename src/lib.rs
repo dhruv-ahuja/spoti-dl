@@ -32,6 +32,20 @@ pub struct CliArgs {
     bitrate: metadata::Bitrate,
 }
 
+impl CliArgs {
+    fn new(download_dir: String, codec: String, bitrate: String) -> Self {
+        let corrected_download_dir =
+            utils::remove_illegal_path_characters(&ILLEGAL_PATH_CHARS, &download_dir, false);
+        let download_dir = Path::new(&corrected_download_dir).to_owned();
+
+        CliArgs {
+            download_dir,
+            codec: codec.parse().unwrap(), // TODO: replace with proper error message on invalid input
+            bitrate: bitrate.parse().unwrap(),
+        }
+    }
+}
+
 /// Processes end-to-end flow for processing song, album and playlist downloads by validating and parsing user input
 /// and calling apt functions to process the steps relating to the downloads
 #[pyfunction]
@@ -48,21 +62,7 @@ fn process_downloads(
             println!("Invalid Spotify link type entered!"); 
             return Ok(())
         };
-
-        let download_dir =
-            utils::remove_illegal_path_characters(&ILLEGAL_PATH_CHARS, &download_dir, false);
-        let download_dir = Path::new(&download_dir).to_owned();
-
-        let args = CliArgs {
-            download_dir,
-            codec: codec.parse().unwrap(), // TODO: replace with proper error message on invalid input
-            bitrate: bitrate.parse().unwrap(),
-        };
-
-        // playlists can have tracks/episodes from different sources
-        if link_type == LinkType::Playlist {
-            process_playlist_download()
-        }
+        let args = CliArgs::new(download_dir, codec, bitrate);
 
         match link_type {
             LinkType::Track => {
@@ -73,7 +73,7 @@ fn process_downloads(
                 let album = spotify::get_album_details(token, spotify_id).await;
                 downloader::process_album_download(album, &ILLEGAL_PATH_CHARS, args, codec).await;
             }
-            _ => (),
+            _ => process_playlist_download(),
         }
 
         Ok(())
