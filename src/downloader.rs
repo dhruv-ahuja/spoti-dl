@@ -1,6 +1,7 @@
-use crate::spotify::{SimpleSong, SpotifyAlbum};
+use crate::metadata;
+use crate::spotify::{SimpleSong, SpotifyAlbum, SpotifySong};
+use crate::utils;
 use crate::CliArgs;
-use crate::{metadata, utils};
 
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -94,7 +95,38 @@ async fn download_multiple_songs(
     }
 }
 
-pub async fn download_album(
+pub async fn process_song_download(
+    song: SpotifySong,
+    illegal_path_chars: &'static HashSet<char>,
+    args: CliArgs,
+    codec: String,
+) {
+    let corrected_song_name =
+        utils::remove_illegal_path_characters(illegal_path_chars, &song.simple_song.name, true);
+
+    let mut album_art_dir = match utils::make_download_directories(&args.download_dir) {
+        Err(err) => {
+            println!("error creating download directories: {err}");
+            return;
+        }
+        Ok(dir) => dir,
+    };
+
+    let file_name = format!("{}.{}", corrected_song_name, &codec);
+    let mut file_path = args.download_dir.clone();
+
+    file_path.push(&file_name);
+    let artists = &song.simple_song.artists;
+
+    if download_song(&file_path, &corrected_song_name, artists, &args).await {
+        let album_art_file = format!("{}.jpeg", &song.album_name);
+        album_art_dir.push(album_art_file);
+
+        utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_dir).await;
+        metadata::add_metadata(file_path, album_art_dir, song.simple_song, song.album_name)
+    }
+}
+pub async fn process_album_download(
     album: SpotifyAlbum,
     illegal_path_chars: &'static HashSet<char>,
     args: CliArgs,

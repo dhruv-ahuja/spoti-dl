@@ -13,7 +13,7 @@ use spotify::LinkType;
 /// A Python module implemented in Rust.
 #[pymodule]
 fn spotidl_rs(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(handle_song_download, m)?)?;
+    m.add_function(wrap_pyfunction!(process_downloads, m)?)?;
     Ok(())
 }
 
@@ -32,10 +32,10 @@ pub struct CliArgs {
     bitrate: metadata::Bitrate,
 }
 
-/// Handles end-to-end flow for a song download: fetches song information from Spotify, prepares the song's source,
-/// downloads it and writes song metadata.
+/// Processes end-to-end flow for processing song, album and playlist downloads by validating and parsing user input
+/// and calling apt functions to process the steps relating to the downloads
 #[pyfunction]
-fn handle_song_download(
+fn process_downloads(
     py: Python<'_>,
     token: String,
     link: String,
@@ -64,44 +64,16 @@ fn handle_song_download(
             process_playlist_download()
         }
 
-        let mut album_art_dir = match utils::make_download_directories(&args.download_dir) {
-            Err(err) => {
-                println!("error creating download directories: {err}");
-                return Ok(());
+        match link_type {
+            LinkType::Track => {
+                let song = spotify::get_song_details(token, spotify_id).await;
+                downloader::process_song_download(song, &ILLEGAL_PATH_CHARS, args, codec).await;
             }
-            Ok(dir) => dir,
-        };
-
-        if link_type == LinkType::Album {
-            let album = spotify::get_album_details(token, spotify_id).await;
-            downloader::download_album(album, &ILLEGAL_PATH_CHARS, args, codec.clone()).await;
-            return Ok(());
-        }
-
-        let song = spotify::get_song_details(token, spotify_id).await;
-        let corrected_song_name = utils::remove_illegal_path_characters(
-            &ILLEGAL_PATH_CHARS,
-            &song.simple_song.name,
-            true,
-        );
-
-        let file_name = format!("{}.{}", corrected_song_name, &codec);
-        let mut file_path = args.download_dir.to_path_buf();
-        file_path.push(&file_name);
-
-        if downloader::download_song(
-            &file_path,
-            &corrected_song_name,
-            &song.simple_song.artists,
-            &args,
-        )
-        .await
-        {
-            let album_art_file = format!("{}.jpeg", &song.album_name);
-            album_art_dir.push(album_art_file);
-
-            utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_dir).await;
-            metadata::add_metadata(file_path, album_art_dir, song.simple_song, song.album_name)
+            LinkType::Album => {
+                let album = spotify::get_album_details(token, spotify_id).await;
+                downloader::process_album_download(album, &ILLEGAL_PATH_CHARS, args, codec).await;
+            }
+            _ => (),
         }
 
         Ok(())
