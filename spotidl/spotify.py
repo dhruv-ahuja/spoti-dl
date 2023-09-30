@@ -1,23 +1,32 @@
 from typing import List
 from dataclasses import dataclass, field
-
+import re
 
 import spotipy
 from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
-
+import spotidl_rs
 
 from spotidl import exceptions, utils
 
 
-# initializing the spotify api connection
-# the OAuth object automatically reads valid env. variables so we don't need to
-# manually assign them using `os.environ.get(<env_var name>)`
-try:
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth())
+# initializing the spotify api connection; the OAuth object automatically reads env vars for us
 
-except spotipy.oauth2.SpotifyOauthError as ex:
-    raise exceptions.EnvVariablesError(ex)
+
+def get_spotify_client() -> spotipy.Spotify:
+    try:
+        client = spotipy.Spotify(auth_manager=SpotifyOAuth())
+
+    except spotipy.oauth2.SpotifyOauthError as ex:
+        raise exceptions.EnvVariablesError(ex)
+
+    return client
+
+
+def get_spotify_token(client: spotipy.Spotify) -> spotipy.SpotifyOAuth:
+    auth_manager: SpotifyOAuth = client.auth_manager
+    token = auth_manager.get_access_token(None, as_dict=False, check_cache=True)
+    return token
 
 
 # defining structure for the song data we are going to get
@@ -53,16 +62,8 @@ def get_song_data(link: str) -> SpotifySong:
         # still unsure whether this is the correct approach
         raise exceptions.NoDataReceivedError(exception)
 
-    else:
-        # there can be multiple results,
-        # iterating over the list and extracting data
-        artists = []
-        for artist in query["artists"]:
-            artists.append(artist["name"])
-
-        song = new_song(query, type_="song")
-
-        return song
+    song = new_song(query, type_="song")
+    return song
 
 
 # this will serve as the common point for all entry types
@@ -81,8 +82,7 @@ def new_song(query: dict, type_: str, **album_details) -> SpotifySong:
 
     if type_ == "song":
         album_name = utils.correct_name(query["album"]["name"])
-        # "song" refers to the case where the user enters a song link; we need
-        # to fetch data for just a single song
+
         song = SpotifySong(
             name=name,
             artists=artists,

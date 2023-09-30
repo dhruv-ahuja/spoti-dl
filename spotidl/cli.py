@@ -3,9 +3,9 @@ import os
 
 import dotenv
 
-
 from spotidl import utils, spotify, downloader, config, exceptions, metadata
 from . import __version__
+from spotidl_rs import process_downloads
 
 
 # loading .env vars
@@ -90,14 +90,18 @@ def prerun_checks(args: argparse.Namespace):
     utils.check_env_vars(env_vars)
 
 
-def controller():
+async def controller():
     """
     Controls the flow of the program execution.
     """
 
+    # main()
+    import time
+
     args = cli_args()
     prerun_checks(args)
 
+    start = time.time()
     # i believe getting the link type should be separated from just checking
     # the validity of the link and the audio-related args like codec and bitrate
     # that are covered in the prerun_checks func
@@ -119,15 +123,23 @@ def controller():
         "dir": args.dir,
     }
 
-    # replacing match-case with if else for comaptibility's sake
-    if link_type == "track":
-        song_download_controller(args.link, user_params)
+    # if link_type == "track":
+    #     song_download_controller(args.link, user_params)
 
-    elif link_type == "album":
-        album_download_controller(args.link, user_params)
+    # elif link_type == "album":
+    #     album_download_controller(args.link, user_params)
 
-    elif link_type == "playlist":
-        playlist_download_controller(args.link, user_params)
+    # elif link_type == "playlist":
+    #     playlist_download_controller(args.link, user_params)
+
+    # print("python time taken:", time.time() - start)
+
+    client = spotify.get_spotify_client()
+    token = spotify.get_spotify_token(client)
+
+    st = time.time()
+    await process_downloads(token, args.link, args.dir, args.codec, args.bitrate)
+    print("rust time taken:", time.time() - st)
 
 
 def song_download_controller(link: str, user_params: dict):
@@ -149,9 +161,7 @@ def song_download_controller(link: str, user_params: dict):
 
     if is_downloaded:
         # write metadata to the downloaded file
-        metadata.controller(
-            file_name, song, codec=user_params["codec"], directory=user_params["dir"]
-        )
+        metadata.controller(file_name, song, codec=user_params["codec"], directory=user_params["dir"])
 
 
 def album_download_controller(link: str, user_params: dict):

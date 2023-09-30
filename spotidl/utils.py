@@ -90,7 +90,7 @@ def directory_maker(path: str):
             print(f"Successfully created '{dir_name}' directory.")
 
 
-def check_spotify_link(link: str, patterns_list: list) -> bool:
+def check_spotify_link(link: str, pattern: re.Pattern) -> bool:
     """
     Handles all checks needed to vet user-entered Spotify links.
     """
@@ -98,9 +98,8 @@ def check_spotify_link(link: str, patterns_list: list) -> bool:
     is_match = False
 
     # patterns_list contains a list of regex patterns for Spotify URLs
-    for pattern in patterns_list:
-        if re.search(pattern=pattern, string=link):
-            is_match = True
+    if re.search(pattern, string=link):
+        is_match = True
 
     return is_match
 
@@ -157,10 +156,11 @@ def check_cli_args(codec: str, bitrate: str, link: str) -> bool:
     # if someone enters "" for example, after typing spotidl, it counts as an
     # arg for the parser but not for us
     if not link:
-        raise exceptions.LinkError("Spotify link needed to proceed!")
+        raise exceptions.LinkError("Empty Spotify link!")
 
+    # TODO: separate this check
     # check whether the provided link is authentic
-    is_match = check_spotify_link(link, config.spotify_link_patterns)
+    is_match = check_spotify_link(link, config.spotify_link_pattern)
 
     return is_match
 
