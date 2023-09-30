@@ -11,6 +11,8 @@ use lofty::{Accessor, Picture, Tag, TagExt, TaggedFileExt};
 pub enum Codec {
     MP3,
     Flac,
+    M4A,
+    Opus,
 }
 
 impl FromStr for Codec {
@@ -19,6 +21,8 @@ impl FromStr for Codec {
         match s {
             "mp3" => Ok(Codec::MP3),
             "flac" => Ok(Codec::Flac),
+            "m4a" => Ok(Codec::M4A),
+            "opus" => Ok(Codec::Opus),
             _ => Err(()),
         }
     }
@@ -29,6 +33,8 @@ impl fmt::Display for Codec {
         match self {
             Codec::MP3 => write!(f, "mp3"),
             Codec::Flac => write!(f, "flac"),
+            Codec::M4A => write!(f, "m4a"),
+            Codec::Opus => write!(f, "opus"),
         }
     }
 }
