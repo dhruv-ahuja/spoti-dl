@@ -57,12 +57,9 @@ pub fn generate_client(token: String) -> AuthCodeSpotify {
     rspotify::AuthCodeSpotify::from_token(access_token)
 }
 
-pub async fn get_song_details(token: String, spotify_id: String) -> SpotifySong {
-    let mut spotify = generate_client(token);
-    spotify.config.token_refreshing = false;
-
+pub async fn get_song_details(spotify_id: String, spotify_client: AuthCodeSpotify) -> SpotifySong {
     let track_id = TrackId::from_id(spotify_id).unwrap();
-    let track = spotify.track(track_id, None).await.unwrap();
+    let track = spotify_client.track(track_id, None).await.unwrap();
 
     let cover_url = track.album.images.first().map(|image| image.url.clone());
     let artists = track
@@ -85,17 +82,16 @@ pub async fn get_song_details(token: String, spotify_id: String) -> SpotifySong 
     }
 }
 
-pub async fn get_album_details(token: String, spotify_id: String) -> SpotifyAlbum {
-    let mut spotify = generate_client(token);
-    spotify.config.token_refreshing = false;
-
+pub async fn get_album_details(
+    spotify_id: String,
+    spotify_client: AuthCodeSpotify,
+) -> SpotifyAlbum {
     let album_id = AlbumId::from_id(spotify_id).unwrap();
-    let album = spotify.album(album_id, None).await.unwrap();
+    let album = spotify_client.album(album_id, None).await.unwrap();
 
     let cover_url = album.images.first().map(|image| image.url.clone());
     let mut songs = Vec::with_capacity(album.tracks.total as usize);
 
-    // todo: check whether we can optimize fetching the artists -- O(n*m) + extra cloning
     for track in album.tracks.items {
         let song = SimpleSong {
             name: track.name,

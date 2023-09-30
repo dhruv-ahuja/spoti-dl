@@ -64,13 +64,16 @@ fn process_downloads(
         };
         let args = CliArgs::new(download_dir, codec, bitrate);
 
+        let mut spotify_client = spotify::generate_client(token);
+        spotify_client.config.token_refreshing = false;
+
         match link_type {
             LinkType::Track => {
-                let song = spotify::get_song_details(token, spotify_id).await;
+                let song = spotify::get_song_details(spotify_id, spotify_client).await;
                 downloader::process_song_download(song, &ILLEGAL_PATH_CHARS, args).await;
             }
             LinkType::Album => {
-                let album = spotify::get_album_details(token, spotify_id).await;
+                let album = spotify::get_album_details(spotify_id, spotify_client).await;
                 downloader::process_album_download(album, &ILLEGAL_PATH_CHARS, args).await;
             }
             _ => process_playlist_download(),
