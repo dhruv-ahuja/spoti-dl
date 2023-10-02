@@ -1,9 +1,8 @@
 use crate::spotify;
 
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::PathBuf;
 use std::str::FromStr;
 use std::{fmt, path::Path};
 
