@@ -76,13 +76,24 @@ fn process_downloads(
                 let album = spotify::get_album_details(spotify_id, spotify_client).await;
                 downloader::process_album_download(album, &ILLEGAL_PATH_CHARS, args).await;
             }
-            _ => process_playlist_download(),
+            LinkType::Playlist => {
+                let playlist = spotify::get_playlist_details(
+                    &spotify_client,
+                    &spotify_id,
+                    &ILLEGAL_PATH_CHARS,
+                )
+                .await;
+                let _ = downloader::process_playlist_download(
+                    spotify_id,
+                    spotify_client,
+                    playlist,
+                    &ILLEGAL_PATH_CHARS,
+                    args,
+                )
+                .await;
+            }
         }
 
         Ok(())
     })
-}
-
-fn process_playlist_download() {
-    todo!()
 }

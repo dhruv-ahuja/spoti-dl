@@ -1,7 +1,9 @@
 use crate::spotify;
 
+use std::fmt::{Debug, Display};
 use std::fs::File;
 use std::io::BufReader;
+use std::path::PathBuf;
 use std::str::FromStr;
 use std::{fmt, path::Path};
 
@@ -90,12 +92,23 @@ pub fn add_metadata<P, S>(
     simple_song: spotify::SimpleSong,
     album_name: S,
 ) where
-    P: AsRef<Path>,
+    P: AsRef<Path> + Debug,
     S: Into<String>,
 {
-    println!("adding metadata for {}", simple_song.name);
-
-    let mut tagged_file = lofty::Probe::open(&file_path).unwrap().read().unwrap();
+    let mut tagged_file = match lofty::Probe::open(&file_path) {
+        Err(err) => {
+            println!("error opening song file {:?} => {}", file_path, err);
+            return;
+        }
+        Ok(file) => match file.read() {
+            Err(err) => {
+                println!("error reading song file {:?} => {}", file_path, err);
+                return;
+            }
+            Ok(tf) => tf,
+        },
+    };
+    // let mut tagged_file = lofty::Probe::open(&file_path).unwrap().read().unwrap();
 
     let tag = match tagged_file.primary_tag_mut() {
         Some(primary_tag) => primary_tag,
@@ -119,6 +132,7 @@ pub fn add_metadata<P, S>(
     tag.set_disk(simple_song.disc_number as u32);
     tag.set_track(simple_song.track_number);
 
+    println!("{:?}", &album_art_path);
     let album_art = File::open(album_art_path).unwrap();
     let mut reader = BufReader::new(album_art);
 
@@ -127,6 +141,4 @@ pub fn add_metadata<P, S>(
 
     tag.push_picture(picture);
     tag.save_to_path(file_path).unwrap();
-
-    println!("successfully added metadata for {}", simple_song.name);
 }

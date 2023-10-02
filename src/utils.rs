@@ -9,10 +9,10 @@ use regex::Regex;
 /// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given path is a file
 pub fn remove_illegal_path_characters(
     illegal_path_chars: &HashSet<char>,
-    path: &str,
+    name: &str,
     is_file: bool,
 ) -> String {
-    path.chars()
+    name.chars()
         .map(|c| match (is_file, c) {
             (true, c) if illegal_path_chars.contains(&c) || c == '/' => '#',
             (false, c) if illegal_path_chars.contains(&c) => '#',
