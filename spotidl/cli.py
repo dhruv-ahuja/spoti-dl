@@ -12,9 +12,9 @@ from spotidl_rs import process_downloads
 dotenv.load_dotenv()
 
 
-def cli_args() -> argparse.Namespace:
+def fetch_cli_args() -> argparse.Namespace:
     """
-    Contains and parses all command line arguments for the application.
+    Fetch all command-line arguments defined for the application.
     """
 
     parser = argparse.ArgumentParser(
@@ -23,7 +23,6 @@ def cli_args() -> argparse.Namespace:
     )
     parser.add_argument("link", help="Spotify song link to download")
 
-    # important argument(s)
     parser.add_argument(
         "-d",
         "--dir",
@@ -31,9 +30,7 @@ def cli_args() -> argparse.Namespace:
         help="Save directory(is created if doesn't exist)",
     )
 
-    # audio-related arguments
-    # quiet is a 'stored' argument, means we don't have to enter anything
-    # after calling "-q/--quiet", it defaults to True if called else False
+    # quiet is a 'stored' argument, defaults to True if passed else False
     parser.add_argument(
         "-q",
         "--quiet",
@@ -55,68 +52,40 @@ def cli_args() -> argparse.Namespace:
         help=f"Audio quality of the file. List of available qualities: {config.audio_bitrates}",
     )
 
-    # misc. arguments
-    # tells the app version by reading it from the poetry toml file
+    # returns the app version defined in the poetry.toml file
+    # this 'action' value helps fetch the latest version automatically; helpful for tests
     parser.add_argument(
         "-v",
         "--version",
         action="version",
-        # setting the version action's code will allow us to use this argument
-        # during testing directly, instead of having to manually update the
-        # tests each time
         version=__version__,
         help="Displays the current app version",
     )
+
     return parser.parse_args()
 
 
 def prerun_checks(args: argparse.Namespace):
     """
-    Performs all the necessary pre-run checks.
+    Performs all pre-run checks to ensure that the app is configured properly and the input is valid.
     """
 
-    # we can't download and convert songs using the yt-dlp library w/o ffmpeg
     if not utils.check_ffmpeg_installed():
         raise exceptions.FFmpegNotInstalledError()
 
-    #  perform necessary cli-argument validity checks
-    if not utils.check_cli_args(args.codec, args.bitrate, args.link):
-        raise exceptions.LinkError()
-
-    # loading env vars
     env_vars = utils.load_env_vars()
-    # checks to see whether required environment variables have been added
-    # or not
     utils.check_env_vars(env_vars)
 
 
 async def controller():
     """
-    Controls the flow of the program execution.
+    Executes the main application flow by preparing the spotify client and extracting its active token.
+    Calls and awaits the rust entrypoint function, passing the token and other input values required for the
+    full download flow.
     """
 
-    args = cli_args()
+    args = fetch_cli_args()
     prerun_checks(args)
-    # i believe getting the link type should be separated from just checking
-    # the validity of the link and the audio-related args like codec and bitrate
-    # that are covered in the prerun_checks func
-    link_type = utils.get_link_type(args.link)
-
-    if not link_type in config.spotify_link_types:
-        raise exceptions.LinkError("Invalid Spotify link type entered!")
-
-    # make the specified dir. if it doesn't exist and open it to store files
-    utils.directory_maker(args.dir)
-    os.chdir(args.dir)
-
-    # grouping all youtube-dl required arguments together before passing them
-    # as the controller func parameters
-    user_params = {
-        "codec": args.codec,
-        "quality": args.bitrate,
-        "quiet": args.quiet,
-        "dir": args.dir,
-    }
 
     client = spotify.get_spotify_client()
     token = spotify.get_spotify_token(client)
