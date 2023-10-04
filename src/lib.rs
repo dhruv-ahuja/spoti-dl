@@ -30,10 +30,11 @@ pub struct CliArgs {
     download_dir: PathBuf,
     codec: metadata::Codec,
     bitrate: metadata::Bitrate,
+    parallel_downloads: u32,
 }
 
 impl CliArgs {
-    fn new(download_dir: String, codec: String, bitrate: String) -> Self {
+    fn new(download_dir: String, codec: String, bitrate: String, parallel_downloads: u32) -> Self {
         let corrected_download_dir =
             utils::remove_illegal_path_characters(&ILLEGAL_PATH_CHARS, &download_dir, false);
         let download_dir = Path::new(&corrected_download_dir).to_owned();
@@ -42,6 +43,7 @@ impl CliArgs {
             download_dir,
             codec: codec.parse().unwrap(), // TODO: replace with proper error message on invalid input
             bitrate: bitrate.parse().unwrap(),
+            parallel_downloads,
         }
     }
 }
@@ -56,13 +58,19 @@ fn process_downloads(
     download_dir: String,
     codec: String,
     bitrate: String,
+    parallel_downloads: String,
 ) -> PyResult<&PyAny> {
     pyo3_asyncio::tokio::future_into_py(py, async move {
         let Some((link_type,spotify_id)) = utils::parse_link(&link) else {
             println!("Invalid Spotify link type entered!"); 
             return Ok(())
         };
-        let args = CliArgs::new(download_dir, codec, bitrate);
+        let Some(parallel_downloads) = utils::parse_parallel_downloads_input(parallel_downloads) else {
+            println!("Please provide a number between 1-50 for parallel_downloads.");
+            return Ok(())
+        };
+
+        let args = CliArgs::new(download_dir, codec, bitrate, parallel_downloads);
 
         let mut spotify_client = spotify::generate_client(token);
         spotify_client.config.token_refreshing = false;

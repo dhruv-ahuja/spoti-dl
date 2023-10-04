@@ -76,7 +76,6 @@ async fn download_album_songs(
 
             tokio::task::block_in_place(|| {
                 let album_art_dir = album_art_dir.clone();
-                println!("{}", album_art_dir.display());
                 metadata::add_metadata(
                     file_path.clone(),
                     album_art_dir.to_path_buf(),
@@ -216,7 +215,12 @@ pub async fn process_album_download(
     utils::download_album_art(album.cover_url.clone().unwrap(), &album_art_dir).await;
     println!("\nstarting album {} download", &album.name);
 
-    let parallel_tasks_count = 5;
+    let parallel_tasks_count: usize = if album.songs.len() >= args.parallel_downloads as usize {
+        args.parallel_downloads as usize
+    } else {
+        album.songs.len()
+    };
+
     let songs_per_task = (album.songs.len() + parallel_tasks_count - 1) / parallel_tasks_count;
     println!("{songs_per_task}, {}", album.songs.len());
 
@@ -272,10 +276,12 @@ pub async fn process_playlist_download(
         Ok(dir) => dir,
     };
 
-    // process album art download with each song; fetch playlist and songs' data
-    // while total_songs - (offset + 100) > 100 fetch and process downloads
     let mut offset = 0;
-    let parallel_tasks_count = 5;
+    let parallel_tasks_count: usize = if total_songs >= args.parallel_downloads {
+        args.parallel_downloads as usize
+    } else {
+        total_songs as usize
+    };
 
     let args = Arc::new(args);
     let mut song_details = playlist.songs;

@@ -19,13 +19,30 @@ def fetch_cli_args() -> argparse.Namespace:
         prog="spotidl",
         description="spotidl: download songs, albums and playlists using Spotify links",
     )
-    parser.add_argument("link", help="Spotify song link to download")
-
+    parser.add_argument("link", help="Spotify song/album/playlist link to download")
     parser.add_argument(
         "-d",
         "--dir",
         default=utils.default_save_dir,
-        help="Save directory(is created if doesn't exist)",
+        help="Save directory (created if doesn't exist)",
+    )
+    parser.add_argument(
+        "-c",
+        "--codec",
+        default="mp3",
+        help=f"Audio format to download file as. List of available formats: {config.audio_formats}",
+    )
+    parser.add_argument(
+        "-b",
+        "--bitrate",
+        default="320",
+        help=f"Audio quality of the file. List of available qualities: {config.audio_bitrates}",
+    )
+    parser.add_argument(
+        "-p",
+        "--parallel-downloads",
+        default="5",
+        help="Maximum number of parallel song downloads. Limit: 1-100. Default: 5",
     )
 
     # quiet is a 'stored' argument, defaults to True if passed else False
@@ -36,21 +53,7 @@ def fetch_cli_args() -> argparse.Namespace:
         help="Makes the downloader non-verbose/quiet",
     )
 
-    parser.add_argument(
-        "-c",
-        "--codec",
-        default="mp3",
-        help=f"Audio format to download file as. List of available formats: {config.audio_formats}",
-    )
-
-    parser.add_argument(
-        "-b",
-        "--bitrate",
-        default="320",
-        help=f"Audio quality of the file. List of available qualities: {config.audio_bitrates}",
-    )
-
-    # returns the app version defined in the poetry.toml file
+    # returns the app version as in the poetry.toml file
     # this 'action' value helps fetch the latest version automatically; helpful for tests
     parser.add_argument(
         "-v",
@@ -88,4 +91,4 @@ async def controller():
     client = spotify.get_spotify_client()
     token = spotify.get_spotify_token(client)
 
-    await process_downloads(token, args.link, args.dir, args.codec, args.bitrate)
+    await process_downloads(token, args.link, args.dir, args.codec, args.bitrate, args.parallel_downloads)

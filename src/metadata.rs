@@ -131,7 +131,6 @@ pub fn add_metadata<P, S>(
     tag.set_disk(simple_song.disc_number as u32);
     tag.set_track(simple_song.track_number);
 
-    println!("{:?}", &album_art_path);
     let album_art = File::open(album_art_path).unwrap();
     let mut reader = BufReader::new(album_art);
 

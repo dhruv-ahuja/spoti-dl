@@ -6,6 +6,19 @@ use std::path::{Path, PathBuf};
 
 use regex::Regex;
 
+pub fn parse_parallel_downloads_input(input: String) -> Option<u32> {
+    let parallel_downloads = match input.parse() {
+        Err(_) => return None,
+        Ok(v) => {
+            if !(1..=50).contains(&v) {
+                return None;
+            }
+            v
+        }
+    };
+    Some(parallel_downloads)
+}
+
 /// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given path is a file
 pub fn remove_illegal_path_characters(
     illegal_path_chars: &HashSet<char>,
