@@ -19,23 +19,17 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-spotipy = "^2.19.0"
 python-dotenv = "^0.19.2"
-requests = "^2.31.0"
-yt-dlp = "^2023.7.6"
-mutagen = "^1.47.0"
+maturin = "^1.2.3"
+spotipy = "^2.23.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
 pyfakefs = "^4.5.6"
 pytest = "7.2.0"
 pytest-cov = "^3.0.0"
-pylint = "^2.14.1"
-certifi = "^2023.7.22"
-maturin = "^1.2.3"
 
 [build-system]
-# might not need poetry as a strict requirement
 requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
