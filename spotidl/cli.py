@@ -1,14 +1,12 @@
 import argparse
-import os
 
 import dotenv
 
-from spotidl import utils, spotify, downloader, config, exceptions, metadata
+from spotidl import utils, spotify, config, exceptions
 from . import __version__
 from spotidl_rs import process_downloads
 
 
-# loading .env vars
 dotenv.load_dotenv()
 
 
@@ -91,81 +89,3 @@ async def controller():
     token = spotify.get_spotify_token(client)
 
     await process_downloads(token, args.link, args.dir, args.codec, args.bitrate)
-
-
-def song_download_controller(link: str, user_params: dict):
-    """
-    Handles the control flow for the process to download an individual song.
-    """
-
-    # gets the SpotifySong dataclass object to be used for everything else in the func
-    song = spotify.get_song_data(link)
-
-    # create the file name to be used when writing metadata
-    file_name = f"{utils.make_song_title(song.artists, song.name, ', ')}.\
-{user_params['codec']}"
-
-    # use the youtube controller to download the song
-    # we also send the filename here since the download controller checks
-    # to ensure that the song hasn't been downloaded before.
-    is_downloaded = downloader.controller(user_params, song, file_name)
-
-    if is_downloaded:
-        # write metadata to the downloaded file
-        metadata.controller(file_name, song, codec=user_params["codec"], directory=user_params["dir"])
-
-
-def album_download_controller(link: str, user_params: dict):
-    """
-    Handles the control flow for the process to download a complete album.
-    """
-
-    # get album information
-    album_name, songs = spotify.get_album_data(link)
-    save_dir = "./" + album_name
-
-    # make a directory to store the album
-    utils.directory_maker(save_dir)
-    os.chdir(save_dir)
-
-    print(f"Starting '{album_name}' album download...\n")
-
-    for song in songs:
-        file_name = f"{utils.make_song_title(song.artists, song.name, ', ')}.\
-{user_params['codec']}"
-
-        is_downloaded = downloader.controller(user_params, song, file_name)
-
-        if is_downloaded:
-            # write metadata to the downloaded file
-            metadata.controller(file_name, song, codec=user_params["codec"])
-
-    print(f"\nDownload for album '{album_name}' completed. Enjoy!")
-
-
-def playlist_download_controller(link: str, user_params: dict):
-    """
-    Handles the control flow for the process to download a complete playlist.
-    """
-
-    # get playlist information
-    playlist_name, songs = spotify.get_playlist_data(link)
-    save_dir = "./" + playlist_name
-
-    # make a directory to store the playlist
-    utils.directory_maker(save_dir)
-    os.chdir(save_dir)
-
-    print(f"Starting '{playlist_name}' playlist download...\n")
-
-    for song in songs:
-        file_name = f"{utils.make_song_title(song.artists, song.name, delim=', ')}.\
-{user_params['codec']}"
-
-        is_downloaded = downloader.controller(user_params, song, file_name)
-
-        if is_downloaded:
-            # write metadata to the downloaded file
-            metadata.controller(file_name, song, codec=user_params["codec"])
-
-    print(f"\nDownload for playlist '{playlist_name}' completed. Enjoy!")
