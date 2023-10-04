@@ -95,13 +95,8 @@ async def controller():
     Controls the flow of the program execution.
     """
 
-    # main()
-    import time
-
     args = cli_args()
     prerun_checks(args)
-
-    start = time.time()
     # i believe getting the link type should be separated from just checking
     # the validity of the link and the audio-related args like codec and bitrate
     # that are covered in the prerun_checks func
@@ -123,23 +118,10 @@ async def controller():
         "dir": args.dir,
     }
 
-    # if link_type == "track":
-    #     song_download_controller(args.link, user_params)
-
-    # elif link_type == "album":
-    #     album_download_controller(args.link, user_params)
-
-    # elif link_type == "playlist":
-    #     playlist_download_controller(args.link, user_params)
-
-    # print("python time taken:", time.time() - start)
-
     client = spotify.get_spotify_client()
     token = spotify.get_spotify_token(client)
 
-    st = time.time()
     await process_downloads(token, args.link, args.dir, args.codec, args.bitrate)
-    print("rust time taken:", time.time() - st)
 
 
 def song_download_controller(link: str, user_params: dict):

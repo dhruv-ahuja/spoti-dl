@@ -1,12 +1,10 @@
-from spotidl.cli import controller
-
-# from spotidl.spotify import get_track_details, wrapper
 import asyncio
+
+from spotidl.cli import controller
 
 
 async def cli():
-    print("awaiting...")
-    v = await controller()
+    await controller()
 
 
 if __name__ == "__main__":

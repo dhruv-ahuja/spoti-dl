@@ -243,7 +243,7 @@ pub async fn process_album_download(
         handle.await.unwrap();
     }
 
-    println!("\nFinished downloading {} album", &album_name);
+    println!("\nDownload for album {} completed, enjoy!", &album_name);
 }
 
 pub async fn process_playlist_download(
@@ -326,5 +326,10 @@ pub async fn process_playlist_download(
 
         offset += 100;
     }
+
+    println!(
+        "\nDownload for playlist {} completed, enjoy!",
+        &playlist.name
+    );
     Ok(())
 }
