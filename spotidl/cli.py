@@ -2,8 +2,8 @@ import argparse
 
 import dotenv
 
-from spotidl import utils, spotify, config, exceptions
 from . import __version__
+from spotidl import utils, config, spotify, exceptions
 from spotidl_rs import process_downloads
 
 
@@ -85,6 +85,7 @@ async def controller():
     full download flow.
     """
 
+    utils.initialize_logger()
     args = fetch_cli_args()
     prerun_checks(args)
 

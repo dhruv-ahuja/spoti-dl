@@ -1,13 +1,24 @@
 import os
 import subprocess
 import platform
-import re
-from urllib.request import urlretrieve
+import pathlib
+import logging
 
-from spotidl import config, exceptions
+
+from spotidl import exceptions
 
 
 default_save_dir = os.getcwd() + "/dl"
+
+
+def initialize_logger():
+    home_dir = os.path.expanduser("~")
+    log_path = pathlib.Path(home_dir).joinpath("spotidl.log")
+
+    datetime_format = "%m/%d/%Y %I:%M:%S %p"
+    log_format = "%(asctime)s | %(levelname)s: %(message)s"
+
+    logging.basicConfig(filename=log_path, level=logging.INFO, format=log_format, datefmt=datetime_format)
 
 
 def load_env_vars() -> dict:

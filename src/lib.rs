@@ -61,6 +61,8 @@ fn process_downloads(
     parallel_downloads: String,
 ) -> PyResult<&PyAny> {
     pyo3_asyncio::tokio::future_into_py(py, async move {
+        pyo3_log::init();
+
         let Some((link_type,spotify_id)) = utils::parse_link(&link) else {
             println!("Invalid Spotify link type entered!"); 
             return Ok(())
