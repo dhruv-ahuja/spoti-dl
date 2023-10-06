@@ -1,4 +1,6 @@
+use crate::metadata::{Bitrate, Codec};
 use crate::spotify::LinkType;
+use crate::utils;
 
 use std::collections::HashSet;
 use std::io::Write;
@@ -6,7 +8,7 @@ use std::path::{Path, PathBuf};
 
 use regex::Regex;
 
-pub fn parse_parallel_downloads_input(input: String) -> Option<u32> {
+pub fn parse_parallel_downloads_input(input: &str) -> Option<u32> {
     let parallel_downloads = match input.parse() {
         Err(_) => return None,
         Ok(v) => {
@@ -53,15 +55,22 @@ pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
     let re = Regex::new(r"/(track|playlist|album)/([^?/]+)").unwrap();
 
     let Some(captures) = re.captures(link) else {
+        println!("Invalid Spotify link type entered!"); 
+        log::info!("invalid spotify link entered: {link}");
         return None
     };
 
+    // capture the link's first and second parts according to the matched pattern
     match (captures.get(1), captures.get(2)) {
         (Some(link_type), Some(spotify_id)) => Some((
             link_type.as_str().parse().unwrap(),
             spotify_id.as_str().to_string(),
         )),
-        _ => None,
+        _ => {
+            println!("Invalid Spotify link type entered!");
+            log::info!("invalid spotify link entered: {link}");
+            None
+        }
     }
 }
 
