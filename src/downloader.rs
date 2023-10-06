@@ -1,6 +1,6 @@
 use crate::spotify::{SimpleSong, SpotifyAlbum, SpotifyPlaylist, SpotifySong};
+use crate::types::CliArgs;
 use crate::utils::{self, download_album_art, remove_illegal_path_characters};
-use crate::CliArgs;
 use crate::{metadata, spotify};
 
 use std::collections::HashSet;
@@ -16,7 +16,7 @@ pub async fn download_song(
     file_path: &Path,
     song_name: &str,
     artists: &[String],
-    args: &CliArgs,
+    cli_args: &CliArgs,
 ) -> bool {
     let file_output_format = format!(
         "{}/{}.%(ext)s",
@@ -34,8 +34,8 @@ pub async fn download_song(
     let mut yt_client = YoutubeDl::search_for(&search_options);
     println!("\nStarting {} song download", song_name);
 
-    let codec = args.codec.to_string();
-    let bitrate = args.bitrate.to_string();
+    let codec = cli_args.codec.to_string();
+    let bitrate = cli_args.bitrate.to_string();
 
     if let Err(err) = yt_client
         .extract_audio(true)
@@ -57,7 +57,7 @@ pub async fn download_song(
 async fn download_album_songs(
     mut file_path: PathBuf,
     illegal_path_chars: &HashSet<char>,
-    args: Arc<CliArgs>,
+    cli_args: Arc<CliArgs>,
     album_art_dir: Arc<PathBuf>,
     album_name: Arc<String>,
     songs: Vec<SimpleSong>,
@@ -66,11 +66,11 @@ async fn download_album_songs(
         let corrected_song_name =
             remove_illegal_path_characters(illegal_path_chars, &song.name, true);
 
-        let file_name = format!("{}.{}", corrected_song_name, args.codec);
+        let file_name = format!("{}.{}", corrected_song_name, cli_args.codec);
         file_path.push(&file_name);
 
         let now = Instant::now();
-        if download_song(&file_path, &corrected_song_name, &song.artists, &args).await {
+        if download_song(&file_path, &corrected_song_name, &song.artists, &cli_args).await {
             println!("time to download: {:?}", now.elapsed());
             let now = Instant::now();
 
@@ -128,20 +128,20 @@ async fn download_album_covers(
 }
 async fn download_playlist_songs(
     mut file_path: PathBuf,
-    args: Arc<CliArgs>,
+    cli_args: Arc<CliArgs>,
     album_art_dir: PathBuf,
     song_details: Vec<SpotifySong>,
 ) {
     for item in song_details {
         let song_name = item.simple_song.name.clone();
-        let file_name = format!("{}.{}", &song_name, args.codec);
+        let file_name = format!("{}.{}", &song_name, cli_args.codec);
         file_path.push(&file_name);
 
         let album_art_file = format!("{}.jpeg", &item.album_name);
         let mut cover_dir = album_art_dir.clone();
         cover_dir.push(album_art_file);
 
-        if download_song(&file_path, &song_name, &item.simple_song.artists, &args).await {
+        if download_song(&file_path, &song_name, &item.simple_song.artists, &cli_args).await {
             tokio::task::block_in_place(|| {
                 println!(
                     "adding metadata for {} AT PATH {}",
@@ -165,12 +165,12 @@ async fn download_playlist_songs(
 pub async fn process_song_download(
     song: SpotifySong,
     illegal_path_chars: &'static HashSet<char>,
-    args: CliArgs,
+    cli_args: CliArgs,
 ) {
     let corrected_song_name =
         remove_illegal_path_characters(illegal_path_chars, &song.simple_song.name, true);
 
-    let mut album_art_dir = match utils::make_download_directories(&args.download_dir) {
+    let mut album_art_dir = match utils::make_download_directories(&cli_args.download_dir) {
         Err(err) => {
             println!("error creating download directories: {err}");
             return;
@@ -178,13 +178,13 @@ pub async fn process_song_download(
         Ok(dir) => dir,
     };
 
-    let file_name = format!("{}.{}", corrected_song_name, args.codec);
-    let mut file_path = args.download_dir.clone();
+    let file_name = format!("{}.{}", corrected_song_name, cli_args.codec);
+    let mut file_path = cli_args.download_dir.clone();
 
     file_path.push(&file_name);
     let artists = &song.simple_song.artists;
 
-    if download_song(&file_path, &corrected_song_name, artists, &args).await {
+    if download_song(&file_path, &corrected_song_name, artists, &cli_args).await {
         let album_art_file = format!("{}.jpeg", &song.album_name);
         album_art_dir.push(album_art_file);
 
@@ -196,9 +196,9 @@ pub async fn process_song_download(
 pub async fn process_album_download(
     album: SpotifyAlbum,
     illegal_path_chars: &'static HashSet<char>,
-    args: CliArgs,
+    cli_args: CliArgs,
 ) {
-    let mut file_path = args.download_dir.clone();
+    let mut file_path = cli_args.download_dir.clone();
     file_path.push(&album.name);
 
     let mut album_art_dir = match utils::make_download_directories(&file_path) {
@@ -215,8 +215,8 @@ pub async fn process_album_download(
     utils::download_album_art(album.cover_url.clone().unwrap(), &album_art_dir).await;
     println!("\nstarting album {} download", &album.name);
 
-    let parallel_tasks_count: usize = if album.songs.len() >= args.parallel_downloads as usize {
-        args.parallel_downloads as usize
+    let parallel_tasks_count: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
+        cli_args.parallel_downloads as usize
     } else {
         album.songs.len()
     };
@@ -224,7 +224,7 @@ pub async fn process_album_download(
     let songs_per_task = (album.songs.len() + parallel_tasks_count - 1) / parallel_tasks_count;
     println!("{songs_per_task}, {}", album.songs.len());
 
-    let args = Arc::new(args);
+    let cli_args = Arc::new(cli_args);
     let album_art_dir = Arc::new(album_art_dir);
     let album_name = Arc::new(album.name);
 
@@ -235,7 +235,7 @@ pub async fn process_album_download(
             tokio::spawn(download_album_songs(
                 file_path.clone(),
                 illegal_path_chars,
-                args.clone(),
+                cli_args.clone(),
                 album_art_dir.clone(),
                 album_name.clone(),
                 chunk.to_vec(),
@@ -255,7 +255,7 @@ pub async fn process_playlist_download(
     spotify_client: AuthCodeSpotify,
     playlist: SpotifyPlaylist,
     illegal_path_chars: &'static HashSet<char>,
-    args: CliArgs,
+    cli_args: CliArgs,
 ) -> Result<()> {
     color_eyre::install()?;
 
@@ -265,7 +265,7 @@ pub async fn process_playlist_download(
         return Ok(());
     }
 
-    let mut file_path = args.download_dir.clone();
+    let mut file_path = cli_args.download_dir.clone();
     file_path.push(&playlist.name);
 
     let album_art_dir = match utils::make_download_directories(&file_path) {
@@ -277,13 +277,13 @@ pub async fn process_playlist_download(
     };
 
     let mut offset = 0;
-    let parallel_tasks_count: usize = if total_songs >= args.parallel_downloads {
-        args.parallel_downloads as usize
+    let parallel_tasks_count: usize = if total_songs >= cli_args.parallel_downloads {
+        cli_args.parallel_downloads as usize
     } else {
         total_songs as usize
     };
 
-    let args = Arc::new(args);
+    let cli_args = Arc::new(cli_args);
     let mut song_details = playlist.songs;
 
     while total_songs > offset {
@@ -319,7 +319,7 @@ pub async fn process_playlist_download(
             .map(|chunk| {
                 tokio::spawn(download_playlist_songs(
                     file_path.clone(),
-                    args.clone(),
+                    cli_args.clone(),
                     album_art_dir.clone(),
                     chunk.to_vec(),
                 ))

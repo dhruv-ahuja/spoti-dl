@@ -1,5 +1,6 @@
 use crate::metadata::{Bitrate, Codec};
 use crate::spotify::LinkType;
+use crate::types::CliArgs;
 use crate::utils;
 
 use std::collections::HashSet;
@@ -7,6 +8,46 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use regex::Regex;
+
+/// Parses, validates and returns arguments passed to the application; prints out apt messages to the user if it fails
+pub fn parse_cli_arguments(
+    download_dir_str: String,
+    codec_str: String,
+    bitrate_str: String,
+    parallel_downloads: String,
+    illegal_path_chars: &HashSet<char>,
+) -> Option<CliArgs> {
+    let corrected_download_dir =
+        utils::remove_illegal_path_characters(illegal_path_chars, &download_dir_str, false);
+    let download_dir = Path::new(&corrected_download_dir).to_owned();
+
+    let parallel_downloads = utils::parse_parallel_downloads_input(&parallel_downloads)?;
+
+    let codec = match codec_str.parse::<Codec>() {
+        Err(_) => {
+            println!("Please pass a valid codec!");
+            log::error!("invalid codec passed: {codec_str}");
+            return None;
+        }
+        Ok(v) => v,
+    };
+
+    let bitrate = match bitrate_str.parse::<Bitrate>() {
+        Err(_) => {
+            println!("Please pass a valid bitrate!");
+            log::error!("invalid codec passed: {bitrate_str}");
+            return None;
+        }
+        Ok(v) => v,
+    };
+
+    Some(CliArgs {
+        download_dir,
+        codec,
+        bitrate,
+        parallel_downloads,
+    })
+}
 
 pub fn parse_parallel_downloads_input(input: &str) -> Option<u32> {
     let parallel_downloads = match input.parse() {
