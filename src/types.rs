@@ -4,8 +4,8 @@ use crate::metadata;
 
 #[derive(Debug)]
 pub struct CliArgs {
-    download_dir: PathBuf,
-    codec: metadata::Codec,
-    bitrate: metadata::Bitrate,
-    parallel_downloads: u32,
+    pub download_dir: PathBuf,
+    pub codec: metadata::Codec,
+    pub bitrate: metadata::Bitrate,
+    pub parallel_downloads: u32,
 }
