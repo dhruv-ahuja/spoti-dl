@@ -35,7 +35,7 @@ fn process_downloads(
     download_dir_str: String,
     codec_str: String,
     bitrate_str: String,
-    parallel_downloads: String,
+    parallel_downloads_str: String,
 ) -> PyResult<&PyAny> {
     pyo3_asyncio::tokio::future_into_py(py, async move {
         pyo3_log::init();
@@ -43,7 +43,7 @@ fn process_downloads(
         let Some((link_type,spotify_id)) = utils::parse_link(&link) else {
             return Ok(())
         };
-        let Some(cli_args) = utils::parse_cli_arguments(download_dir_str, codec_str, bitrate_str, parallel_downloads, &ILLEGAL_PATH_CHARS) else {
+        let Some(cli_args) = utils::parse_cli_arguments(download_dir_str, codec_str, bitrate_str, parallel_downloads_str, &ILLEGAL_PATH_CHARS) else {
             return Ok(())
         };
 

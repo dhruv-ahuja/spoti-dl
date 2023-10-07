@@ -14,14 +14,22 @@ pub fn parse_cli_arguments(
     download_dir_str: String,
     codec_str: String,
     bitrate_str: String,
-    parallel_downloads: String,
+    parallel_downloads_str: String,
     illegal_path_chars: &HashSet<char>,
 ) -> Option<CliArgs> {
     let corrected_download_dir =
         utils::remove_illegal_path_characters(illegal_path_chars, &download_dir_str, false);
     let download_dir = Path::new(&corrected_download_dir).to_owned();
 
-    let parallel_downloads = utils::parse_parallel_downloads_input(&parallel_downloads)?;
+    let parallel_downloads = match parallel_downloads_str.parse() {
+        Err(_) => return None,
+        Ok(v) => {
+            if !(1..=50).contains(&v) {
+                return None;
+            }
+            v
+        }
+    };
 
     let codec = match codec_str.parse::<Codec>() {
         Err(_) => {
@@ -47,19 +55,6 @@ pub fn parse_cli_arguments(
         bitrate,
         parallel_downloads,
     })
-}
-
-pub fn parse_parallel_downloads_input(input: &str) -> Option<u32> {
-    let parallel_downloads = match input.parse() {
-        Err(_) => return None,
-        Ok(v) => {
-            if !(1..=50).contains(&v) {
-                return None;
-            }
-            v
-        }
-    };
-    Some(parallel_downloads)
 }
 
 /// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given path is a file
