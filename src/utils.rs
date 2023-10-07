@@ -99,10 +99,22 @@ pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
 
 /// Parses the link type and the Spotify item ID from the input Spotify link
 pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
-    let re = Regex::new(r"/(track|playlist|album)/([^?/]+)").unwrap();
+    let invalid_link_msg = "Invalid Spotify link type entered!";
+    let internal_error_msg =
+        "Something went wrong! Please share the log file (located at ~/.spotidl.log) on the \
+    spoti-dl Github repo (https://github.com/dhruv-ahuja/spoti-dl)";
+
+    let re = match Regex::new(r"/(track|playlist|album)/([^?/]+)") {
+        Err(err) => {
+            println!("{internal_error_msg}");
+            log::error!("error initializing spotify URL regex pattern: {err}");
+            return None;
+        }
+        Ok(v) => v,
+    };
 
     let Some(captures) = re.captures(link) else {
-        println!("Invalid Spotify link type entered!"); 
+        println!("{invalid_link_msg}"); 
         log::error!("invalid spotify link entered: {link}");
         return None
     };
@@ -110,11 +122,18 @@ pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
     // capture the link's first and second parts according to the matched pattern
     match (captures.get(1), captures.get(2)) {
         (Some(link_type), Some(spotify_id)) => Some((
-            link_type.as_str().parse().unwrap(),
+            match link_type.as_str().parse() {
+                Err(_) => {
+                    println!("{internal_error_msg}");
+                    log::error!("error parsing {} link's type as LinkType value:", link);
+                    return None;
+                }
+                Ok(v) => v,
+            },
             spotify_id.as_str().to_string(),
         )),
         _ => {
-            println!("Invalid Spotify link type entered!");
+            println!("{invalid_link_msg}");
             log::error!("invalid spotify link entered: {link}");
             None
         }
