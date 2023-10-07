@@ -92,16 +92,18 @@ pub fn create_download_directories(download_dir: &Path) -> Option<PathBuf> {
     Some(album_art_dir)
 }
 
+/// Generates the search query to fetch song audio stream from Youtube
 pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
     format!("{} - {} audio", artists.join(", "), song_name)
 }
 
+/// Parses the link type and the Spotify item ID from the input Spotify link
 pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
     let re = Regex::new(r"/(track|playlist|album)/([^?/]+)").unwrap();
 
     let Some(captures) = re.captures(link) else {
         println!("Invalid Spotify link type entered!"); 
-        log::info!("invalid spotify link entered: {link}");
+        log::error!("invalid spotify link entered: {link}");
         return None
     };
 
@@ -113,20 +115,24 @@ pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
         )),
         _ => {
             println!("Invalid Spotify link type entered!");
-            log::info!("invalid spotify link entered: {link}");
+            log::error!("invalid spotify link entered: {link}");
             None
         }
     }
 }
 
-pub async fn download_album_art(link: String, album_art_path: &Path) {
-    if album_art_path.exists() {
-        return;
+// Downloads an album art image and writes its data to the target path; the path contains the file name
+pub async fn download_album_art(
+    link: String,
+    album_art_path: &Path,
+) -> Result<(), Box<dyn std::error::Error>> {
+    if !album_art_path.exists() {
+        let response = reqwest::get(link).await?;
+        let image_data = response.bytes().await?;
+
+        let mut image = std::fs::File::create(album_art_path)?;
+        image.write_all(&image_data)?;
     }
 
-    let response = reqwest::get(link).await.unwrap();
-    let image_data = response.bytes().await.unwrap();
-
-    let mut image = std::fs::File::create(album_art_path).unwrap();
-    image.write_all(&image_data).unwrap();
+    Ok(())
 }
