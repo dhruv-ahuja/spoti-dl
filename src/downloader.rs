@@ -112,10 +112,13 @@ async fn download_album_covers(
 
         let handle = tokio::spawn(async move {
             for (album_name, cover_url) in chunk {
-                let album_art_file = format!("{}.jpeg", album_name);
+                let album_art_file = format!("{}.jpeg", &album_name);
                 cover_dir.push(album_art_file);
 
-                download_album_art(cover_url.to_string(), &cover_dir).await;
+                if let Err(err) = download_album_art(cover_url.to_string(), &cover_dir).await {
+                    println!("Unable to download {album_name}'s album art!");
+                    log::error!("error downloading {album_name}'s album art: {err}");
+                };
                 cover_dir.pop();
             }
         });
@@ -171,7 +174,7 @@ pub async fn process_song_download(
         remove_illegal_path_characters(illegal_path_chars, &song.simple_song.name, true);
 
     let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
-        return; 
+        return;
     };
 
     let file_name = format!("{}.{}", corrected_song_name, cli_args.codec);
@@ -184,7 +187,10 @@ pub async fn process_song_download(
         let album_art_file = format!("{}.jpeg", &song.album_name);
         album_art_dir.push(album_art_file);
 
-        utils::download_album_art(song.cover_url.clone().unwrap(), &album_art_dir).await;
+        if let Err(err) = download_album_art(song.cover_url.unwrap(), &album_art_dir).await {
+            println!("Unable to download {}'s album art!", song.album_name);
+            log::error!("error downloading {}'s album art: {err}", song.album_name);
+        };
         metadata::add_metadata(file_path, album_art_dir, song.simple_song, song.album_name)
     }
 }
@@ -198,12 +204,17 @@ pub async fn process_album_download(
     file_path.push(&album.name);
 
     let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
-        return; 
+        return;
     };
     let album_art_file = format!("{}.jpeg", &album.name);
     album_art_dir.push(album_art_file);
 
-    utils::download_album_art(album.cover_url.clone().unwrap(), &album_art_dir).await;
+    if let Err(err) =
+        utils::download_album_art(album.cover_url.clone().unwrap(), &album_art_dir).await
+    {
+        println!("Unable to download {}'s album art!", album.name);
+        log::error!("error downloading {}'s album art: {err}", album.name);
+    };
     println!("\nstarting album {} download", &album.name);
 
     let parallel_tasks_count: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
@@ -260,7 +271,7 @@ pub async fn process_playlist_download(
     file_path.push(&playlist.name);
 
     let Some( album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
-        return Ok(()); 
+        return Ok(());
     };
 
     let mut offset = 0;
