@@ -170,12 +170,8 @@ pub async fn process_song_download(
     let corrected_song_name =
         remove_illegal_path_characters(illegal_path_chars, &song.simple_song.name, true);
 
-    let mut album_art_dir = match utils::make_download_directories(&cli_args.download_dir) {
-        Err(err) => {
-            println!("error creating download directories: {err}");
-            return;
-        }
-        Ok(dir) => dir,
+    let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
+        return; 
     };
 
     let file_name = format!("{}.{}", corrected_song_name, cli_args.codec);
@@ -201,14 +197,9 @@ pub async fn process_album_download(
     let mut file_path = cli_args.download_dir.clone();
     file_path.push(&album.name);
 
-    let mut album_art_dir = match utils::make_download_directories(&file_path) {
-        Err(err) => {
-            println!("error creating download directories: {err}");
-            return;
-        }
-        Ok(dir) => dir,
+    let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
+        return; 
     };
-
     let album_art_file = format!("{}.jpeg", &album.name);
     album_art_dir.push(album_art_file);
 
@@ -268,12 +259,8 @@ pub async fn process_playlist_download(
     let mut file_path = cli_args.download_dir.clone();
     file_path.push(&playlist.name);
 
-    let album_art_dir = match utils::make_download_directories(&file_path) {
-        Err(err) => {
-            println!("error creating download directories: {err}");
-            return Ok(());
-        }
-        Ok(dir) => dir,
+    let Some( album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
+        return Ok(()); 
     };
 
     let mut offset = 0;

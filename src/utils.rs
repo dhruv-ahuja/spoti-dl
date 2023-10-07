@@ -72,15 +72,24 @@ pub fn remove_illegal_path_characters(
         .collect()
 }
 
-pub fn make_download_directories(download_dir: &Path) -> std::io::Result<PathBuf> {
+/// Creates the album-art and its parent download directory given the download directory's path
+pub fn create_download_directories(download_dir: &Path) -> Option<PathBuf> {
     let mut album_art_dir: PathBuf = download_dir.to_owned();
     album_art_dir.push("album-art");
 
     if !album_art_dir.exists() {
-        std::fs::create_dir_all(&album_art_dir)?
+        if let Err(err) = std::fs::create_dir_all(&album_art_dir) {
+            println!("Unable to create the download directories, please check your input path and try again!");
+            log::error!(
+                "invalid download directory passed: {:?}; error: {:?}",
+                download_dir.display(),
+                err
+            );
+            return None;
+        }
     }
 
-    Ok(album_art_dir)
+    Some(album_art_dir)
 }
 
 pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
