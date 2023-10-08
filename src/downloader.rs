@@ -3,7 +3,6 @@ use crate::types::CliArgs;
 use crate::utils::{self, download_album_art, remove_illegal_path_characters};
 use crate::{metadata, spotify};
 
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
@@ -56,15 +55,13 @@ pub async fn download_song(
 
 async fn download_album_songs(
     mut file_path: PathBuf,
-    illegal_path_chars: &HashSet<char>,
     cli_args: Arc<CliArgs>,
     album_art_dir: Arc<PathBuf>,
     album_name: Arc<String>,
     songs: Vec<SimpleSong>,
 ) {
     for song in songs {
-        let corrected_song_name =
-            remove_illegal_path_characters(illegal_path_chars, &song.name, true);
+        let corrected_song_name = remove_illegal_path_characters(&song.name, true);
 
         let file_name = format!("{}.{}", corrected_song_name, cli_args.codec);
         file_path.push(&file_name);
@@ -165,13 +162,8 @@ async fn download_playlist_songs(
     }
 }
 
-pub async fn process_song_download(
-    song: SpotifySong,
-    illegal_path_chars: &'static HashSet<char>,
-    cli_args: CliArgs,
-) {
-    let corrected_song_name =
-        remove_illegal_path_characters(illegal_path_chars, &song.simple_song.name, true);
+pub async fn process_song_download(song: SpotifySong, cli_args: CliArgs) {
+    let corrected_song_name = remove_illegal_path_characters(&song.simple_song.name, true);
 
     let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
         return;
@@ -195,11 +187,7 @@ pub async fn process_song_download(
     }
 }
 
-pub async fn process_album_download(
-    album: SpotifyAlbum,
-    illegal_path_chars: &'static HashSet<char>,
-    cli_args: CliArgs,
-) {
+pub async fn process_album_download(album: SpotifyAlbum, cli_args: CliArgs) {
     let mut file_path = cli_args.download_dir.clone();
     file_path.push(&album.name);
 
@@ -236,7 +224,6 @@ pub async fn process_album_download(
         .map(|chunk| {
             tokio::spawn(download_album_songs(
                 file_path.clone(),
-                illegal_path_chars,
                 cli_args.clone(),
                 album_art_dir.clone(),
                 album_name.clone(),
@@ -256,7 +243,6 @@ pub async fn process_playlist_download(
     spotify_id: String,
     spotify_client: AuthCodeSpotify,
     playlist: SpotifyPlaylist,
-    illegal_path_chars: &'static HashSet<char>,
     cli_args: CliArgs,
 ) -> Result<()> {
     color_eyre::install()?;
@@ -286,13 +272,7 @@ pub async fn process_playlist_download(
 
     while total_songs > offset {
         if offset > 0 {
-            song_details = spotify::get_playlist_songs(
-                &spotify_client,
-                &spotify_id,
-                offset,
-                illegal_path_chars,
-            )
-            .await;
+            song_details = spotify::get_playlist_songs(&spotify_client, &spotify_id, offset).await;
         }
 
         if song_details.is_empty() {

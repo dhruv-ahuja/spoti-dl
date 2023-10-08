@@ -126,10 +126,7 @@ pub async fn get_album_details(
     }
 }
 
-pub fn filter_playlist_items(
-    items: Vec<PlaylistItem>,
-    illegal_path_chars: &std::collections::HashSet<char>,
-) -> Vec<SpotifySong> {
+pub fn filter_playlist_items(items: Vec<PlaylistItem>) -> Vec<SpotifySong> {
     let mut songs = Vec::with_capacity(items.len());
     for item in items {
         let Some(track) = item.track else {
@@ -144,10 +141,8 @@ pub fn filter_playlist_items(
             }
         }
 
-        let corrected_song_name =
-            remove_illegal_path_characters(illegal_path_chars, &song_track.name, true);
-        let corrected_album_name =
-            remove_illegal_path_characters(illegal_path_chars, &song_track.album.name, true);
+        let corrected_song_name = remove_illegal_path_characters(&song_track.name, true);
+        let corrected_album_name = remove_illegal_path_characters(&song_track.album.name, true);
 
         let simple_song = SimpleSong {
             name: corrected_song_name,
@@ -179,7 +174,6 @@ pub fn filter_playlist_items(
 pub async fn get_playlist_details(
     spotify_client: &AuthCodeSpotify,
     spotify_id: &str,
-    illegal_path_chars: &std::collections::HashSet<char>,
 ) -> SpotifyPlaylist {
     let playlist_id = PlaylistId::from_id(spotify_id).unwrap();
     let playlist = spotify_client
@@ -188,7 +182,7 @@ pub async fn get_playlist_details(
         .unwrap();
 
     let total_songs = playlist.tracks.total;
-    let songs = filter_playlist_items(playlist.tracks.items, illegal_path_chars);
+    let songs = filter_playlist_items(playlist.tracks.items);
 
     SpotifyPlaylist {
         name: playlist.name,
@@ -201,7 +195,6 @@ pub async fn get_playlist_songs(
     spotify_client: &AuthCodeSpotify,
     spotify_id: &str,
     offset: u32,
-    illegal_path_chars: &std::collections::HashSet<char>,
 ) -> Vec<SpotifySong> {
     let playlist_id = PlaylistId::from_id(spotify_id).unwrap();
     let playlist_items = spotify_client
@@ -209,7 +202,7 @@ pub async fn get_playlist_songs(
         .await
         .unwrap();
 
-    filter_playlist_items(playlist_items.items, illegal_path_chars)
+    filter_playlist_items(playlist_items.items)
 }
 
 pub fn get_unique_cover_urls(songs: &Vec<SpotifySong>) -> HashMap<String, String> {

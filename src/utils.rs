@@ -1,9 +1,8 @@
 use crate::metadata::{Bitrate, Codec};
 use crate::spotify::LinkType;
-use crate::types::{CliArgs, INTERNAL_ERROR_MSG};
+use crate::types::{CliArgs, ILLEGAL_PATH_CHARS, INTERNAL_ERROR_MSG};
 use crate::utils;
 
-use std::collections::HashSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
@@ -16,10 +15,8 @@ pub fn parse_cli_arguments(
     codec_str: String,
     bitrate_str: String,
     parallel_downloads_str: String,
-    illegal_path_chars: &HashSet<char>,
 ) -> Option<CliArgs> {
-    let corrected_download_dir =
-        utils::remove_illegal_path_characters(illegal_path_chars, &download_dir_str, false);
+    let corrected_download_dir = utils::remove_illegal_path_characters(&download_dir_str, false);
     let download_dir = Path::new(&corrected_download_dir).to_owned();
 
     let parallel_downloads = match parallel_downloads_str.parse() {
@@ -59,15 +56,11 @@ pub fn parse_cli_arguments(
 }
 
 /// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given path is a file
-pub fn remove_illegal_path_characters(
-    illegal_path_chars: &HashSet<char>,
-    name: &str,
-    is_file: bool,
-) -> String {
+pub fn remove_illegal_path_characters(name: &str, is_file: bool) -> String {
     name.chars()
         .map(|c| match (is_file, c) {
-            (true, c) if illegal_path_chars.contains(&c) || c == '/' => '#',
-            (false, c) if illegal_path_chars.contains(&c) => '#',
+            (true, c) if ILLEGAL_PATH_CHARS.contains(&c) || c == '/' => '#',
+            (false, c) if ILLEGAL_PATH_CHARS.contains(&c) => '#',
             (_, c) => c,
         })
         .collect()
