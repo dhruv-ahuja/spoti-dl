@@ -1,13 +1,13 @@
 use crate::spotify::{SimpleSong, SpotifyAlbum, SpotifyPlaylist, SpotifySong};
-use crate::types::CliArgs;
+use crate::types::{CliArgs, INTERNAL_ERROR_MSG};
 use crate::utils::{self, download_album_art, remove_illegal_path_characters};
 use crate::{metadata, spotify};
 
+use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use std::time::Instant;
 
-use color_eyre::eyre::Result;
+use log::error;
 use rspotify::AuthCodeSpotify;
 use youtube_dl::YoutubeDl;
 
@@ -17,11 +17,19 @@ pub async fn download_song(
     artists: &[String],
     cli_args: &CliArgs,
 ) -> bool {
-    let file_output_format = format!(
-        "{}/{}.%(ext)s",
-        file_path.parent().unwrap().display(),
-        song_name
-    );
+    let parent_dir_display = match file_path.parent() {
+        None => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!(
+                "no parent found for file path {:?} during download",
+                file_path.display()
+            );
+            return false;
+        }
+        Some(v) => v.display(),
+    };
+    let file_output_format = format!("{}/{}.%(ext)s", parent_dir_display, song_name);
+
     if file_path.exists() {
         println!("\n{} already exists, skipping download", song_name);
         return false;
@@ -46,9 +54,11 @@ pub async fn download_song(
         .download_to_async("./")
         .await
     {
-        println!("Error downloading {} song: {err}", song_name);
+        println!("Unable to download {} song!", &song_name);
+        error!("error {err} downloading {song_name} song");
         return false;
     }
+
     println!("{} downloaded", song_name);
     true
 }
@@ -66,11 +76,7 @@ async fn download_album_songs(
         let file_name = format!("{}.{}", corrected_song_name, cli_args.codec);
         file_path.push(&file_name);
 
-        let now = Instant::now();
         if download_song(&file_path, &corrected_song_name, &song.artists, &cli_args).await {
-            println!("time to download: {:?}", now.elapsed());
-            let now = Instant::now();
-
             tokio::task::block_in_place(|| {
                 let album_art_dir = album_art_dir.clone();
                 metadata::add_metadata(
@@ -80,7 +86,7 @@ async fn download_album_songs(
                     album_name.clone().to_string(),
                 )
             });
-            println!("time to write metadata: {:?}", now.elapsed());
+
             // remove the current song name from the path for subsequent songs
             file_path.pop();
         }
@@ -91,7 +97,7 @@ async fn download_album_covers(
     unique_covers: Vec<(String, String)>,
     album_art_dir: PathBuf,
     parallel_tasks_count: usize,
-) {
+) -> Result<(), Box<dyn Error>> {
     let mut chunks = Vec::with_capacity(parallel_tasks_count);
     for _ in 0..parallel_tasks_count {
         chunks.push(Vec::new())
@@ -114,7 +120,7 @@ async fn download_album_covers(
 
                 if let Err(err) = download_album_art(cover_url.to_string(), &cover_dir).await {
                     println!("Unable to download {album_name}'s album art!");
-                    log::error!("error downloading {album_name}'s album art: {err}");
+                    error!("error downloading {album_name}'s album art: {err}");
                 };
                 cover_dir.pop();
             }
@@ -123,8 +129,9 @@ async fn download_album_covers(
     }
 
     for handle in handles {
-        handle.await.unwrap()
+        handle.await?
     }
+    Ok(())
 }
 async fn download_playlist_songs(
     mut file_path: PathBuf,
@@ -181,18 +188,21 @@ pub async fn process_song_download(song: SpotifySong, cli_args: CliArgs) {
 
         if let Err(err) = download_album_art(song.cover_url.unwrap(), &album_art_dir).await {
             println!("Unable to download {}'s album art!", song.album_name);
-            log::error!("error downloading {}'s album art: {err}", song.album_name);
+            error!("error downloading {}'s album art: {err}", song.album_name);
         };
         metadata::add_metadata(file_path, album_art_dir, song.simple_song, song.album_name)
     }
 }
 
-pub async fn process_album_download(album: SpotifyAlbum, cli_args: CliArgs) {
+pub async fn process_album_download(
+    album: SpotifyAlbum,
+    cli_args: CliArgs,
+) -> Result<(), Box<dyn Error>> {
     let mut file_path = cli_args.download_dir.clone();
     file_path.push(&album.name);
 
     let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
-        return;
+        return Ok(());
     };
     let album_art_file = format!("{}.jpeg", &album.name);
     album_art_dir.push(album_art_file);
@@ -201,7 +211,7 @@ pub async fn process_album_download(album: SpotifyAlbum, cli_args: CliArgs) {
         utils::download_album_art(album.cover_url.clone().unwrap(), &album_art_dir).await
     {
         println!("Unable to download {}'s album art!", album.name);
-        log::error!("error downloading {}'s album art: {err}", album.name);
+        error!("error downloading {}'s album art: {err}", album.name);
     };
     println!("\nstarting album {} download", &album.name);
 
@@ -212,7 +222,6 @@ pub async fn process_album_download(album: SpotifyAlbum, cli_args: CliArgs) {
     };
 
     let songs_per_task = (album.songs.len() + parallel_tasks_count - 1) / parallel_tasks_count;
-    println!("{songs_per_task}, {}", album.songs.len());
 
     let cli_args = Arc::new(cli_args);
     let album_art_dir = Arc::new(album_art_dir);
@@ -233,10 +242,11 @@ pub async fn process_album_download(album: SpotifyAlbum, cli_args: CliArgs) {
         .collect::<Vec<_>>();
 
     for handle in handles {
-        handle.await.unwrap();
+        handle.await?;
     }
 
     println!("\nDownload for album {} completed, enjoy!", &album_name);
+    Ok(())
 }
 
 pub async fn process_playlist_download(
@@ -244,9 +254,7 @@ pub async fn process_playlist_download(
     spotify_client: AuthCodeSpotify,
     playlist: SpotifyPlaylist,
     cli_args: CliArgs,
-) -> Result<()> {
-    color_eyre::install()?;
-
+) -> Result<(), Box<dyn Error>> {
     let total_songs = playlist.total_songs;
     if total_songs == 0 || playlist.songs.is_empty() {
         println!("no songs to download in the playlist!");
@@ -290,7 +298,12 @@ pub async fn process_playlist_download(
         let unique_covers_map = spotify::get_unique_cover_urls(&song_details);
         let unique_covers: Vec<_> = unique_covers_map.into_iter().collect();
 
-        download_album_covers(unique_covers, album_art_dir.clone(), parallel_tasks_count).await;
+        if let Err(err) =
+            download_album_covers(unique_covers, album_art_dir.clone(), parallel_tasks_count).await
+        {
+            error!("error in tokio thread when downloading album covers, propogating!");
+            return Err(err);
+        };
 
         let handles = song_details
             .chunks(songs_per_task)
@@ -305,7 +318,10 @@ pub async fn process_playlist_download(
             .collect::<Vec<_>>();
 
         for handle in handles {
-            handle.await.unwrap();
+            if let Err(err) = handle.await {
+                error!("error in tokio thread when downloading songs, propogating!");
+                return Err(err.into());
+            };
         }
 
         offset += 100;

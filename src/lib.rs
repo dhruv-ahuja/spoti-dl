@@ -4,6 +4,7 @@ mod spotify;
 mod types;
 mod utils;
 
+use log::error;
 use pyo3::prelude::*;
 use spotify::LinkType;
 
@@ -46,17 +47,24 @@ fn process_downloads(
             }
             LinkType::Album => {
                 let album = spotify::get_album_details(spotify_id, spotify_client).await;
-                downloader::process_album_download(album, cli_args).await;
+                if let Err(err) = downloader::process_album_download(album, cli_args).await {
+                    println!("{}", types::INTERNAL_ERROR_MSG);
+                    error!("error when downloading album: {err}");
+                };
             }
             LinkType::Playlist => {
                 let playlist = spotify::get_playlist_details(&spotify_client, &spotify_id).await;
-                let _ = downloader::process_playlist_download(
+                if let Err(err) = downloader::process_playlist_download(
                     spotify_id,
                     spotify_client,
                     playlist,
                     cli_args,
                 )
-                .await;
+                .await
+                {
+                    println!("{}", types::INTERNAL_ERROR_MSG);
+                    error!("error when downloading playlist: {err}");
+                };
             }
         }
 
