@@ -14,7 +14,7 @@ pub struct CliArgs {
 }
 
 pub const INTERNAL_ERROR_MSG: &str =
-    "Something went wrong! Please share the log file (located at ~/.spotidl.log) on the \
+    "Something went wrong! If issue persists, please share the log file (located at ~/.spotidl.log) on the \
 spoti-dl Github repo (https://github.com/dhruv-ahuja/spoti-dl)";
 
 lazy_static! {
