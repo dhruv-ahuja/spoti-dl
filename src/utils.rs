@@ -1,6 +1,5 @@
-use crate::metadata::{Bitrate, Codec};
 use crate::spotify::LinkType;
-use crate::types::{CliArgs, ILLEGAL_PATH_CHARS, INTERNAL_ERROR_MSG};
+use crate::types::{Bitrate, CliArgs, Codec, ILLEGAL_PATH_CHARS, INTERNAL_ERROR_MSG};
 use crate::utils;
 
 use std::io::Write;
