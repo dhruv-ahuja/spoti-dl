@@ -213,7 +213,7 @@ pub fn get_unique_cover_urls(songs: &Vec<SpotifySong>) -> HashMap<String, String
             continue;
         };
 
-        let album_name = song.album_name.clone();
+        let album_name = remove_illegal_path_characters(&song.album_name, true);
         let cover_url = match song.cover_url.clone() {
             None => continue,
             Some(v) => v,

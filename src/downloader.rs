@@ -150,12 +150,6 @@ async fn download_playlist_songs(
 
         if download_song(&file_path, &song_name, &item.simple_song.artists, &cli_args).await {
             tokio::task::block_in_place(|| {
-                println!(
-                    "adding metadata for {} AT PATH {}",
-                    &item.simple_song.name,
-                    file_path.display()
-                );
-
                 metadata::add_metadata(
                     file_path.clone(),
                     cover_dir.to_path_buf(),
@@ -171,6 +165,7 @@ async fn download_playlist_songs(
 
 pub async fn process_song_download(song: SpotifySong, cli_args: CliArgs) {
     let corrected_song_name = remove_illegal_path_characters(&song.simple_song.name, true);
+    let corrected_album_name = remove_illegal_path_characters(&song.album_name, true);
 
     let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
         return;
@@ -183,7 +178,7 @@ pub async fn process_song_download(song: SpotifySong, cli_args: CliArgs) {
     let artists = &song.simple_song.artists;
 
     if download_song(&file_path, &corrected_song_name, artists, &cli_args).await {
-        let album_art_file = format!("{}.jpeg", &song.album_name);
+        let album_art_file = format!("{}.jpeg", &corrected_album_name);
         album_art_dir.push(album_art_file);
 
         if let Err(err) = download_album_art(song.cover_url.unwrap(), &album_art_dir).await {
@@ -198,13 +193,15 @@ pub async fn process_album_download(
     album: SpotifyAlbum,
     cli_args: CliArgs,
 ) -> Result<(), Box<dyn Error>> {
+    let corrected_album_name = remove_illegal_path_characters(&album.name, true);
     let mut file_path = cli_args.download_dir.clone();
     file_path.push(&album.name);
 
     let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
         return Ok(());
     };
-    let album_art_file = format!("{}.jpeg", &album.name);
+
+    let album_art_file = format!("{}.jpeg", &corrected_album_name);
     album_art_dir.push(album_art_file);
 
     if let Err(err) =
@@ -289,11 +286,6 @@ pub async fn process_playlist_download(
         }
 
         let songs_per_task = (song_details.len() + parallel_tasks_count - 1) / parallel_tasks_count;
-        println!(
-            "songs per task: {}, total len: {}",
-            songs_per_task,
-            song_details.len()
-        );
 
         let unique_covers_map = spotify::get_unique_cover_urls(&song_details);
         let unique_covers: Vec<_> = unique_covers_map.into_iter().collect();

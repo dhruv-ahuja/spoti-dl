@@ -57,10 +57,12 @@ pub fn parse_cli_arguments(
 /// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given path is a file
 pub fn remove_illegal_path_characters(name: &str, is_file: bool) -> String {
     name.chars()
-        .map(|c| match (is_file, c) {
-            (true, c) if ILLEGAL_PATH_CHARS.contains(&c) || c == '/' => '#',
-            (false, c) if ILLEGAL_PATH_CHARS.contains(&c) => '#',
-            (_, c) => c,
+        .filter(|c| {
+            if is_file {
+                !ILLEGAL_PATH_CHARS.contains(c) && *c != '/'
+            } else {
+                !ILLEGAL_PATH_CHARS.contains(c)
+            }
         })
         .collect()
 }
