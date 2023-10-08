@@ -1,12 +1,13 @@
 use crate::metadata::{Bitrate, Codec};
 use crate::spotify::LinkType;
-use crate::types::CliArgs;
+use crate::types::{CliArgs, INTERNAL_ERROR_MSG};
 use crate::utils;
 
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
+use log::error;
 use regex::Regex;
 
 /// Parses, validates and returns arguments passed to the application; prints out apt messages to the user if it fails
@@ -34,7 +35,7 @@ pub fn parse_cli_arguments(
     let codec = match codec_str.parse::<Codec>() {
         Err(_) => {
             println!("Please pass a valid codec!");
-            log::error!("invalid codec passed: {codec_str}");
+            error!("invalid codec passed: {codec_str}");
             return None;
         }
         Ok(v) => v,
@@ -43,7 +44,7 @@ pub fn parse_cli_arguments(
     let bitrate = match bitrate_str.parse::<Bitrate>() {
         Err(_) => {
             println!("Please pass a valid bitrate!");
-            log::error!("invalid codec passed: {bitrate_str}");
+            error!("invalid codec passed: {bitrate_str}");
             return None;
         }
         Ok(v) => v,
@@ -80,7 +81,7 @@ pub fn create_download_directories(download_dir: &Path) -> Option<PathBuf> {
     if !album_art_dir.exists() {
         if let Err(err) = std::fs::create_dir_all(&album_art_dir) {
             println!("Unable to create the download directories, please check your input path and try again!");
-            log::error!(
+            error!(
                 "invalid download directory passed: {:?}; error: {:?}",
                 download_dir.display(),
                 err
@@ -100,22 +101,19 @@ pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
 /// Parses the link type and the Spotify item ID from the input Spotify link
 pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
     let invalid_link_msg = "Invalid Spotify link type entered!";
-    let internal_error_msg =
-        "Something went wrong! Please share the log file (located at ~/.spotidl.log) on the \
-    spoti-dl Github repo (https://github.com/dhruv-ahuja/spoti-dl)";
 
     let re = match Regex::new(r"/(track|playlist|album)/([^?/]+)") {
         Err(err) => {
-            println!("{internal_error_msg}");
-            log::error!("error initializing spotify URL regex pattern: {err}");
+            println!("{INTERNAL_ERROR_MSG}");
+            error!("error initializing spotify URL regex pattern: {err}");
             return None;
         }
         Ok(v) => v,
     };
 
     let Some(captures) = re.captures(link) else {
-        println!("{invalid_link_msg}"); 
-        log::error!("invalid spotify link entered: {link}");
+        println!("{INTERNAL_ERROR_MSG}");
+        error!("invalid spotify link entered: {link}");
         return None
     };
 
@@ -124,8 +122,8 @@ pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
         (Some(link_type), Some(spotify_id)) => Some((
             match link_type.as_str().parse() {
                 Err(_) => {
-                    println!("{internal_error_msg}");
-                    log::error!("error parsing {} link's type as LinkType value:", link);
+                    println!("{INTERNAL_ERROR_MSG}");
+                    error!("error parsing {} link's type as LinkType value:", link);
                     return None;
                 }
                 Ok(v) => v,
@@ -134,7 +132,7 @@ pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
         )),
         _ => {
             println!("{invalid_link_msg}");
-            log::error!("invalid spotify link entered: {link}");
+            error!("invalid spotify link entered: {link}");
             None
         }
     }
