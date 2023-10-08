@@ -7,6 +7,7 @@ use std::str::FromStr;
 use std::{fmt, path::Path};
 
 use lofty::{Accessor, Picture, Tag, TagExt, TaggedFileExt};
+use log::error;
 
 #[derive(Debug, PartialEq)]
 pub enum Codec {
@@ -85,6 +86,7 @@ impl fmt::Display for Bitrate {
     }
 }
 
+/// Adds metadata for the downloaded song given its path and requisite metadata information
 pub fn add_metadata<P, S>(
     file_path: P,
     album_art_path: P,
@@ -94,20 +96,29 @@ pub fn add_metadata<P, S>(
     P: AsRef<Path> + Debug,
     S: Into<String>,
 {
+    let error_msg = format!("Unable to write metadata for {} song!", simple_song.name);
+
     let mut tagged_file = match lofty::Probe::open(&file_path) {
         Err(err) => {
-            println!("error opening song file {:?} => {}", file_path, err);
+            println!("{error_msg}");
+            error!(
+                "error {} opening song file {:?} for writing metadata",
+                err, file_path
+            );
             return;
         }
         Ok(file) => match file.read() {
             Err(err) => {
-                println!("error reading song file {:?} => {}", file_path, err);
+                println!("{error_msg}");
+                error!(
+                    "error {} reading song file {:?} for writing metadata",
+                    err, file_path
+                );
                 return;
             }
             Ok(tf) => tf,
         },
     };
-    // let mut tagged_file = lofty::Probe::open(&file_path).unwrap().read().unwrap();
 
     let tag = match tagged_file.primary_tag_mut() {
         Some(primary_tag) => primary_tag,
@@ -119,7 +130,15 @@ pub fn add_metadata<P, S>(
                 let tag_type = tagged_file.primary_tag_type();
 
                 tagged_file.insert_tag(Tag::new(tag_type));
-                tagged_file.primary_tag_mut().unwrap()
+
+                match tagged_file.primary_tag_mut() {
+                    None => {
+                        println!("{error_msg}");
+                        error!("unable to add metadata tag to song file {:?}", file_path);
+                        return;
+                    }
+                    Some(v) => v,
+                }
             }
         }
     };
@@ -131,12 +150,33 @@ pub fn add_metadata<P, S>(
     tag.set_disk(simple_song.disc_number as u32);
     tag.set_track(simple_song.track_number);
 
-    let album_art = File::open(album_art_path).unwrap();
+    let album_art = match File::open(&album_art_path) {
+        Err(err) => {
+            println!("{error_msg}");
+            error!("error {} reading album art file {:?}", err, album_art_path);
+            return;
+        }
+        Ok(v) => v,
+    };
     let mut reader = BufReader::new(album_art);
 
-    let mut picture = Picture::from_reader(&mut reader).unwrap();
-    picture.set_pic_type(lofty::PictureType::CoverFront);
+    let mut picture = match Picture::from_reader(&mut reader) {
+        Err(err) => {
+            println!("{error_msg}");
+            error!("error {} reading album art file {:?}", err, album_art_path);
+            return;
+        }
+        Ok(v) => v,
+    };
 
+    picture.set_pic_type(lofty::PictureType::CoverFront);
     tag.push_picture(picture);
-    tag.save_to_path(file_path).unwrap();
+
+    if let Err(err) = tag.save_to_path(file_path) {
+        println!("{error_msg}");
+        error!(
+            "error {} saving file {:?} after writing metadata",
+            err, album_art_path
+        );
+    }
 }
