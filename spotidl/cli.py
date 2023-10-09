@@ -1,4 +1,5 @@
 import argparse
+import logging
 
 import dotenv
 
@@ -65,7 +66,7 @@ async def controller():
     full download flow.
     """
 
-    utils.initialize_logger()
+    utils.initialize_logger(config.LOG_FILE, config.LOG_MESSAGE_FORMAT, config.LOG_DATETIME_FORMAT, logging.WARN)
     args = fetch_cli_args()
 
     env_vars = utils.load_env_vars()

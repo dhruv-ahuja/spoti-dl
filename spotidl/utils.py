@@ -4,20 +4,19 @@ import platform
 import pathlib
 import logging
 
-from spotidl.config import ENV_VARS_ERROR
-
 
 default_save_dir = os.getcwd() + "/dl"
 
 
-def initialize_logger():
+def initialize_logger(log_file: str, msg_format: str, datetime_format: str, log_level: int):
+    """
+    Initializes an app-wide logger, for use in the Rust code, with the given configuration values.
+    """
+
     home_dir = os.path.expanduser("~")
-    log_path = pathlib.Path(home_dir).joinpath("spotidl.log")
+    log_path = pathlib.Path(home_dir).joinpath(log_file)
 
-    datetime_format = "%m/%d/%Y %I:%M:%S %p"
-    log_format = "%(asctime)s | %(levelname)s: %(message)s"
-
-    logging.basicConfig(filename=log_path, level=logging.WARN, format=log_format, datefmt=datetime_format)
+    logging.basicConfig(filename=log_path, level=log_level, format=msg_format, datefmt=datetime_format)
 
 
 def load_env_vars() -> dict:
