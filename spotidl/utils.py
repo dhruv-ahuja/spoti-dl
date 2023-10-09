@@ -38,14 +38,13 @@ def load_env_vars() -> dict:
     return env_vars
 
 
-def check_env_vars(env_vars: dict):
+def check_env_vars(env_vars: dict) -> bool:
     """
     Run a barebones check to ensure that the three needed environment variables
     are not blank.
     """
 
-    if not all([env_vars.get("id"), env_vars.get("secret"), env_vars.get("redirect_uri")]):
-        print(ENV_VARS_ERROR)
+    return all([env_vars.get("id"), env_vars.get("secret"), env_vars.get("redirect_uri")])
 
 
 def check_ffmpeg_installed() -> bool:

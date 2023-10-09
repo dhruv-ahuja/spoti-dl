@@ -69,7 +69,9 @@ async def controller():
     args = fetch_cli_args()
 
     env_vars = utils.load_env_vars()
-    utils.check_env_vars(env_vars)
+    if not utils.check_env_vars(env_vars):
+        print(config.ENV_VARS_ERROR)
+        return
 
     if not utils.check_ffmpeg_installed():
         print("Please install ffmpeg before continuing!")
