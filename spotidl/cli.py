@@ -67,6 +67,7 @@ async def controller():
 
     if not utils.check_ffmpeg_installed():
         print("Please install ffmpeg before continuing!")
+        return
 
     env_vars = utils.load_env_vars()
     utils.check_env_vars(env_vars)

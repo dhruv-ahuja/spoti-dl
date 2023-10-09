@@ -61,14 +61,11 @@ def check_ffmpeg_installed() -> bool:
     """
 
     os_platform = platform.system()
+    command = "where" if os_platform == "Windows" else "which"
 
     try:
-        if os_platform == "Windows":
-            subprocess.check_call(["where", "ffmpeg"])
-        else:
-            subprocess.check_call(["which", "ffmpeg"])
+        output = subprocess.run([command, "ffmpeg"], stdout=subprocess.PIPE)
+        return output.returncode == 0
 
-    # occurs if the commands are run on the wrong platforms
-    except FileNotFoundError:
+    except Exception:
         return False
-    return True
