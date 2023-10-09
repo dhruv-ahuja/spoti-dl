@@ -181,10 +181,12 @@ pub async fn process_song_download(song: SpotifySong, cli_args: CliArgs) {
         let album_art_file = format!("{}.jpeg", &corrected_album_name);
         album_art_dir.push(album_art_file);
 
-        if let Err(err) = download_album_art(song.cover_url.unwrap(), &album_art_dir).await {
-            println!("Unable to download {}'s album art!", song.album_name);
-            error!("error downloading {}'s album art: {err}", song.album_name);
-        };
+        if let Some(cover_url) = song.cover_url {
+            if let Err(err) = download_album_art(cover_url, &album_art_dir).await {
+                println!("Unable to download {}'s album art!", song.album_name);
+                error!("error downloading {}'s album art: {err}", song.album_name);
+            };
+        }
         metadata::add_metadata(file_path, album_art_dir, song.simple_song, song.album_name)
     }
 }
@@ -204,12 +206,12 @@ pub async fn process_album_download(
     let album_art_file = format!("{}.jpeg", &corrected_album_name);
     album_art_dir.push(album_art_file);
 
-    if let Err(err) =
-        utils::download_album_art(album.cover_url.clone().unwrap(), &album_art_dir).await
-    {
-        println!("Unable to download {}'s album art!", album.name);
-        error!("error downloading {}'s album art: {err}", album.name);
-    };
+    if let Some(cover_url) = album.cover_url {
+        if let Err(err) = download_album_art(cover_url, &album_art_dir).await {
+            println!("Unable to download {}'s album art!", album.name);
+            error!("error downloading {}'s album art: {err}", album.name);
+        };
+    }
     println!("\nstarting album {} download", &album.name);
 
     let parallel_tasks_count: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
