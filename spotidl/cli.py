@@ -66,18 +66,6 @@ def fetch_cli_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def prerun_checks(args: argparse.Namespace):
-    """
-    Performs all pre-run checks to ensure that the app is configured properly and the input is valid.
-    """
-
-    if not utils.check_ffmpeg_installed():
-        raise exceptions.FFmpegNotInstalledError()
-
-    env_vars = utils.load_env_vars()
-    utils.check_env_vars(env_vars)
-
-
 async def controller():
     """
     Executes the main application flow by preparing the spotify client and extracting its active token.
@@ -85,9 +73,14 @@ async def controller():
     full download flow.
     """
 
+    if not utils.check_ffmpeg_installed():
+        print("Please install ffmpeg before continuing!")
+
+    env_vars = utils.load_env_vars()
+    utils.check_env_vars(env_vars)
+
     utils.initialize_logger()
     args = fetch_cli_args()
-    prerun_checks(args)
 
     client = spotify.get_spotify_client()
     token = spotify.get_spotify_token(client)
