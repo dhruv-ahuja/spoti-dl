@@ -133,6 +133,7 @@ async fn download_album_covers(
     }
     Ok(())
 }
+
 async fn download_playlist_songs(
     mut file_path: PathBuf,
     cli_args: Arc<CliArgs>,
@@ -212,7 +213,7 @@ pub async fn process_album_download(
             error!("error downloading {}'s album art: {err}", album.name);
         };
     }
-    println!("\nstarting album {} download", &album.name);
+    println!("\nstarting album {} download", album.name);
 
     let parallel_tasks_count: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
         cli_args.parallel_downloads as usize
@@ -244,7 +245,7 @@ pub async fn process_album_download(
         handle.await?;
     }
 
-    println!("\nDownload for album {} completed, enjoy!", &album_name);
+    println!("\nDownload for album {} completed, enjoy!", album_name);
     Ok(())
 }
 
@@ -276,6 +277,11 @@ pub async fn process_playlist_download(
 
     let cli_args = Arc::new(cli_args);
     let mut song_details = playlist.songs;
+
+    println!(
+        "\nstarting playlist {} download. Any podcast episodes in the playlist will be skipped!",
+        playlist.name
+    );
 
     while total_songs > offset {
         if offset > 0 {
