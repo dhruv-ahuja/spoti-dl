@@ -18,7 +18,7 @@ def initialize_logger():
     datetime_format = "%m/%d/%Y %I:%M:%S %p"
     log_format = "%(asctime)s | %(levelname)s: %(message)s"
 
-    logging.basicConfig(filename=log_path, level=logging.INFO, format=log_format, datefmt=datetime_format)
+    logging.basicConfig(filename=log_path, level=logging.WARN, format=log_format, datefmt=datetime_format)
 
 
 def load_env_vars() -> dict:
