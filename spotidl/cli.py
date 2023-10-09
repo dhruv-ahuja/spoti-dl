@@ -65,15 +65,15 @@ async def controller():
     full download flow.
     """
 
-    if not utils.check_ffmpeg_installed():
-        print("Please install ffmpeg before continuing!")
-        return
+    utils.initialize_logger()
+    args = fetch_cli_args()
 
     env_vars = utils.load_env_vars()
     utils.check_env_vars(env_vars)
 
-    utils.initialize_logger()
-    args = fetch_cli_args()
+    if not utils.check_ffmpeg_installed():
+        print("Please install ffmpeg before continuing!")
+        return
 
     client = spotify.get_spotify_client()
     token = spotify.get_spotify_token(client)
