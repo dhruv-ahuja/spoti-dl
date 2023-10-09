@@ -42,18 +42,24 @@ fn process_downloads(
 
         match link_type {
             LinkType::Track => {
-                let song = spotify::get_song_details(spotify_id, spotify_client).await;
+                let Some(song) = spotify::get_song_details(spotify_id, spotify_client).await else {
+                    return Ok(()); 
+                };
                 downloader::process_song_download(song, cli_args).await;
             }
             LinkType::Album => {
-                let album = spotify::get_album_details(spotify_id, spotify_client).await;
+                let Some(album) = spotify::get_album_details(spotify_id, spotify_client).await else {
+                    return Ok(());
+                };
                 if let Err(err) = downloader::process_album_download(album, cli_args).await {
                     println!("{}", types::INTERNAL_ERROR_MSG);
                     error!("error when downloading album: {err}");
                 };
             }
             LinkType::Playlist => {
-                let playlist = spotify::get_playlist_details(&spotify_client, &spotify_id).await;
+                let Some(playlist) = spotify::get_playlist_details(&spotify_client, &spotify_id).await else {
+                    return Ok(());
+                };
                 if let Err(err) = downloader::process_playlist_download(
                     spotify_id,
                     spotify_client,

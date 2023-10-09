@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use log::error;
 use rspotify::model::AlbumId;
 use rspotify::model::PlayableItem;
 use rspotify::model::PlaylistId;
@@ -9,6 +10,7 @@ use rspotify::model::TrackId;
 use rspotify::prelude::*;
 use rspotify::AuthCodeSpotify;
 
+use crate::types::INTERNAL_ERROR_MSG;
 use crate::utils::remove_illegal_path_characters;
 
 #[derive(Debug, PartialEq)]
@@ -70,9 +72,26 @@ pub fn generate_client(token: String) -> AuthCodeSpotify {
     rspotify::AuthCodeSpotify::from_token(access_token)
 }
 
-pub async fn get_song_details(spotify_id: String, spotify_client: AuthCodeSpotify) -> SpotifySong {
-    let track_id = TrackId::from_id(spotify_id).unwrap();
-    let track = spotify_client.track(track_id, None).await.unwrap();
+pub async fn get_song_details(
+    spotify_id: String,
+    spotify_client: AuthCodeSpotify,
+) -> Option<SpotifySong> {
+    let track_id = match TrackId::from_id(&spotify_id) {
+        Err(err) => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!("error {err} extracting track id {spotify_id}");
+            return None;
+        }
+        Ok(v) => v,
+    };
+    let track = match spotify_client.track(track_id, None).await {
+        Err(err) => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!("error {err} fetching track details with id {spotify_id}");
+            return None;
+        }
+        Ok(v) => v,
+    };
 
     let cover_url = track.album.images.first().map(|image| image.url.clone());
     let artists = track
@@ -88,19 +107,33 @@ pub async fn get_song_details(spotify_id: String, spotify_client: AuthCodeSpotif
         track_number: track.track_number,
     };
 
-    SpotifySong {
+    Some(SpotifySong {
         simple_song,
         album_name: track.album.name,
         cover_url,
-    }
+    })
 }
 
 pub async fn get_album_details(
     spotify_id: String,
     spotify_client: AuthCodeSpotify,
-) -> SpotifyAlbum {
-    let album_id = AlbumId::from_id(spotify_id).unwrap();
-    let album = spotify_client.album(album_id, None).await.unwrap();
+) -> Option<SpotifyAlbum> {
+    let album_id = match AlbumId::from_id(&spotify_id) {
+        Err(err) => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!("error {err} extracting album id {spotify_id}");
+            return None;
+        }
+        Ok(v) => v,
+    };
+    let album = match spotify_client.album(album_id, None).await {
+        Err(err) => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!("error {err} fetching album details with id {spotify_id}");
+            return None;
+        }
+        Ok(v) => v,
+    };
 
     let cover_url = album.images.first().map(|image| image.url.clone());
     let mut songs = Vec::with_capacity(album.tracks.total as usize);
@@ -119,11 +152,11 @@ pub async fn get_album_details(
         songs.push(song)
     }
 
-    SpotifyAlbum {
+    Some(SpotifyAlbum {
         name: album.name,
         songs,
         cover_url,
-    }
+    })
 }
 
 pub fn filter_playlist_items(items: Vec<PlaylistItem>) -> Vec<SpotifySong> {
@@ -174,35 +207,63 @@ pub fn filter_playlist_items(items: Vec<PlaylistItem>) -> Vec<SpotifySong> {
 pub async fn get_playlist_details(
     spotify_client: &AuthCodeSpotify,
     spotify_id: &str,
-) -> SpotifyPlaylist {
-    let playlist_id = PlaylistId::from_id(spotify_id).unwrap();
-    let playlist = spotify_client
-        .playlist(playlist_id, None, None)
-        .await
-        .unwrap();
+) -> Option<SpotifyPlaylist> {
+    let playlist_id = match PlaylistId::from_id(spotify_id) {
+        Err(err) => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!("error {err} extracting playlist id {spotify_id}");
+            return None;
+        }
+        Ok(v) => v,
+    };
+    let playlist = match spotify_client.playlist(playlist_id, None, None).await {
+        Err(err) => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!("error {err} fetching playlist details with id {spotify_id}");
+            return None;
+        }
+        Ok(v) => v,
+    };
 
     let total_songs = playlist.tracks.total;
     let songs = filter_playlist_items(playlist.tracks.items);
 
-    SpotifyPlaylist {
+    Some(SpotifyPlaylist {
         name: playlist.name,
         total_songs,
         songs,
-    }
+    })
 }
 
 pub async fn get_playlist_songs(
     spotify_client: &AuthCodeSpotify,
     spotify_id: &str,
     offset: u32,
-) -> Vec<SpotifySong> {
-    let playlist_id = PlaylistId::from_id(spotify_id).unwrap();
-    let playlist_items = spotify_client
+) -> Option<Vec<SpotifySong>> {
+    let playlist_id = match PlaylistId::from_id(spotify_id) {
+        Err(err) => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!("error {err} extracting playlist id {spotify_id}");
+            return None;
+        }
+        Ok(v) => v,
+    };
+    let playlist_items = match spotify_client
         .playlist_items_manual(playlist_id, None, None, Some(100), Some(offset))
         .await
-        .unwrap();
+    {
+        Err(err) => {
+            println!("{INTERNAL_ERROR_MSG}");
+            error!(
+                "error {err} fetching playlist items with id {spotify_id}\
+                \noffset {offset}"
+            );
+            return None;
+        }
+        Ok(v) => v,
+    };
 
-    filter_playlist_items(playlist_items.items)
+    Some(filter_playlist_items(playlist_items.items))
 }
 
 pub fn get_unique_cover_urls(songs: &Vec<SpotifySong>) -> HashMap<String, String> {

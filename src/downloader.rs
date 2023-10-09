@@ -279,7 +279,10 @@ pub async fn process_playlist_download(
 
     while total_songs > offset {
         if offset > 0 {
-            song_details = spotify::get_playlist_songs(&spotify_client, &spotify_id, offset).await;
+            match spotify::get_playlist_songs(&spotify_client, &spotify_id, offset).await {
+                None => return Ok(()),
+                Some(v) => song_details = v,
+            };
         }
 
         if song_details.is_empty() {
