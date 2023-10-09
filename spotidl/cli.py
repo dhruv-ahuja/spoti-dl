@@ -45,14 +45,6 @@ def fetch_cli_args() -> argparse.Namespace:
         help="Maximum number of parallel song downloads. Limit: 1-100. Default: 5",
     )
 
-    # quiet is a 'stored' argument, defaults to True if passed else False
-    parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        help="Makes the downloader non-verbose/quiet",
-    )
-
     # returns the app version as in the poetry.toml file
     # this 'action' value helps fetch the latest version automatically; helpful for tests
     parser.add_argument(
