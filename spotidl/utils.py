@@ -4,8 +4,7 @@ import platform
 import pathlib
 import logging
 
-
-from spotidl import exceptions
+from spotidl.config import ENV_VARS_ERROR
 
 
 default_save_dir = os.getcwd() + "/dl"
@@ -45,14 +44,8 @@ def check_env_vars(env_vars: dict):
     are not blank.
     """
 
-    if not env_vars["id"]:
-        raise exceptions.EnvVariablesError("SPOTIPY_CLIENT_ID not configured!")
-
-    if not env_vars["secret"]:
-        raise exceptions.EnvVariablesError("SPOTIPY_CLIENT_SECRET not configured!")
-
-    if not env_vars["redirect_uri"]:
-        raise exceptions.EnvVariablesError("SPOTIPY_REDIRECT_URI not configured!")
+    if not all([env_vars.get("id"), env_vars.get("secret"), env_vars.get("redirect_uri")]):
+        print(ENV_VARS_ERROR)
 
 
 def check_ffmpeg_installed() -> bool:

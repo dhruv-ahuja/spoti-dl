@@ -3,7 +3,7 @@ import argparse
 import dotenv
 
 from . import __version__
-from spotidl import utils, config, spotify, exceptions
+from spotidl import utils, config, spotify
 from spotidl_rs import process_downloads
 
 

@@ -1,15 +1,15 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-from spotidl import exceptions
+from spotidl.config import ENV_VARS_ERROR
 
 
 def get_spotify_client() -> spotipy.Spotify:
     try:
         client = spotipy.Spotify(auth_manager=SpotifyOAuth())
 
-    except spotipy.oauth2.SpotifyOauthError as ex:
-        raise exceptions.EnvVariablesError(ex)
+    except spotipy.oauth2.SpotifyOauthError:
+        print(ENV_VARS_ERROR)
 
     return client
 
