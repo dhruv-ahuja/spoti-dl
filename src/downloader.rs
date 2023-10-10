@@ -32,7 +32,9 @@ pub async fn download_song(
     let file_output_format = format!("{}/{}.%(ext)s", parent_dir_display, song_name);
 
     if file_path.exists() {
-        println!("\n{} already exists, skipping download", song_name);
+        let path_exists_msg =
+            format!("\n{} already exists, skipping download", song_name).bright_yellow();
+        println!("{path_exists_msg}");
         return false;
     }
 
@@ -40,7 +42,8 @@ pub async fn download_song(
     let search_options = youtube_dl::SearchOptions::youtube(query);
 
     let mut yt_client = YoutubeDl::search_for(&search_options);
-    println!("\nStarting {} song download", song_name);
+    let download_start_msg = format!("\nStarting {} song download", song_name).green();
+    println!("{download_start_msg}");
 
     let codec = cli_args.codec.to_string();
     let bitrate = cli_args.bitrate.to_string();
@@ -61,7 +64,8 @@ pub async fn download_song(
         return false;
     }
 
-    println!("{} downloaded", song_name);
+    let download_completed_msg = format!("{} downloaded", song_name).green();
+    println!("{download_completed_msg}");
     true
 }
 
@@ -219,7 +223,8 @@ pub async fn process_album_download(
             error!("error downloading {}'s album art: {err}", album.name);
         };
     }
-    println!("\nstarting album {} download", album.name);
+    let download_start_msg = format!("\nstarting album {} download", album.name).green();
+    println!("{download_start_msg}");
 
     let parallel_tasks_count: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
         cli_args.parallel_downloads as usize
@@ -251,7 +256,9 @@ pub async fn process_album_download(
         handle.await?;
     }
 
-    println!("\nDownload for album {} completed, enjoy!", album_name);
+    let download_completed_msg =
+        format!("\nDownload for album {} completed, enjoy!", album_name).green();
+    println!("{download_completed_msg}");
     Ok(())
 }
 
@@ -263,7 +270,11 @@ pub async fn process_playlist_download(
 ) -> Result<(), Box<dyn Error>> {
     let total_songs = playlist.total_songs;
     if total_songs == 0 || playlist.songs.is_empty() {
-        println!("no songs to download in the playlist!");
+        let no_songs_msg = "no songs to download in the playlist!"
+            .to_string()
+            .bright_yellow();
+
+        println!("{no_songs_msg}");
         return Ok(());
     }
 
@@ -284,10 +295,12 @@ pub async fn process_playlist_download(
     let cli_args = Arc::new(cli_args);
     let mut song_details = playlist.songs;
 
-    println!(
+    let start_download_msg = format!(
         "\nstarting playlist {} download. Any podcast episodes in the playlist will be skipped!",
         playlist.name
-    );
+    )
+    .green();
+    println!("{start_download_msg}");
 
     while total_songs > offset {
         if offset > 0 {
@@ -301,7 +314,6 @@ pub async fn process_playlist_download(
         }
 
         if song_details.is_empty() {
-            println!("no more songs left to download");
             return Ok(());
         }
 
@@ -339,9 +351,11 @@ pub async fn process_playlist_download(
         offset += 100;
     }
 
-    println!(
+    let download_completed_msg = format!(
         "\nDownload for playlist {} completed, enjoy!",
         &playlist.name
-    );
+    )
+    .green();
+    println!("{download_completed_msg}");
     Ok(())
 }
