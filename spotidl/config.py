@@ -8,3 +8,7 @@ ENV_VARS_ERROR = "Environment variables not properly configured! Please configur
 LOG_FILE = "spotidl.log"
 LOG_DATETIME_FORMAT = "%m/%d/%Y %I:%M:%S %p"
 LOG_MESSAGE_FORMAT = "%(asctime)s | %(levelname)s: %(message)s"
+
+# * text color ANSI escape codes
+RED_COLOR_CODE = "\033[91m"
+RESET_COLOR_CODE = "\033[0m"

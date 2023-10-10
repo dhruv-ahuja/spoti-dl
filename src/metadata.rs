@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
+use colored::Colorize;
 use lofty::{Accessor, Picture, Tag, TagExt, TaggedFileExt};
 use log::error;
 
@@ -18,7 +19,7 @@ pub fn add_metadata<P, S>(
     P: AsRef<Path> + Debug,
     S: Into<String>,
 {
-    let error_msg = format!("Unable to write metadata for {} song!", simple_song.name);
+    let error_msg = format!("Unable to write metadata for {} song!", simple_song.name).red();
 
     let mut tagged_file = match lofty::Probe::open(&file_path) {
         Err(err) => {

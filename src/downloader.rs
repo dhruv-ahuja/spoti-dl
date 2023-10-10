@@ -7,6 +7,7 @@ use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+use colored::Colorize;
 use log::error;
 use rspotify::AuthCodeSpotify;
 use youtube_dl::YoutubeDl;
@@ -19,7 +20,7 @@ pub async fn download_song(
 ) -> bool {
     let parent_dir_display = match file_path.parent() {
         None => {
-            println!("{INTERNAL_ERROR_MSG}");
+            println!("{}", INTERNAL_ERROR_MSG.red());
             error!(
                 "no parent found for file path {:?} during download",
                 file_path.display()
@@ -54,7 +55,8 @@ pub async fn download_song(
         .download_to_async("./")
         .await
     {
-        println!("Unable to download {} song!", &song_name);
+        let error_msg = format!("Unable to download {} song!", &song_name).red();
+        println!("{error_msg}");
         error!("error {err} downloading {song_name} song");
         return false;
     }
@@ -119,7 +121,8 @@ async fn download_album_covers(
                 cover_dir.push(album_art_file);
 
                 if let Err(err) = download_album_art(cover_url.to_string(), &cover_dir).await {
-                    println!("Unable to download {album_name}'s album art!");
+                    let error_msg = format!("Unable to download {album_name}'s album art!").red();
+                    println!("{error_msg}");
                     error!("error downloading {album_name}'s album art: {err}");
                 };
                 cover_dir.pop();
@@ -184,7 +187,9 @@ pub async fn process_song_download(song: SpotifySong, cli_args: CliArgs) {
 
         if let Some(cover_url) = song.cover_url {
             if let Err(err) = download_album_art(cover_url, &album_art_dir).await {
-                println!("Unable to download {}'s album art!", song.album_name);
+                let error_msg =
+                    format!("Unable to download {}'s album art!", song.album_name).red();
+                println!("{error_msg}");
                 error!("error downloading {}'s album art: {err}", song.album_name);
             };
         }
@@ -209,7 +214,8 @@ pub async fn process_album_download(
 
     if let Some(cover_url) = album.cover_url {
         if let Err(err) = download_album_art(cover_url, &album_art_dir).await {
-            println!("Unable to download {}'s album art!", album.name);
+            let error_msg = format!("Unable to download {}'s album art!", album.name).red();
+            println!("{error_msg}");
             error!("error downloading {}'s album art: {err}", album.name);
         };
     }
@@ -287,7 +293,7 @@ pub async fn process_playlist_download(
         if offset > 0 {
             match spotify::get_playlist_songs(&spotify_client, &spotify_id, offset).await {
                 None => {
-                    println!("{INTERNAL_ERROR_MSG}");
+                    println!("{}", INTERNAL_ERROR_MSG.red());
                     return Ok(());
                 }
                 Some(v) => song_details = v,

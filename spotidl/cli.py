@@ -71,11 +71,13 @@ async def controller():
 
     env_vars = utils.load_env_vars()
     if not utils.check_env_vars(env_vars):
-        print(config.ENV_VARS_ERROR)
+        colorized_error = utils.colorize_message(config.ENV_VARS_ERROR, config.RED_COLOR_CODE)
+        print(colorized_error)
         return
 
     if not utils.check_ffmpeg_installed():
-        print("Please install ffmpeg before continuing!")
+        colorized_error = utils.colorize_message("Please install ffmpeg before continuing!", config.RED_COLOR_CODE)
+        print(colorized_error)
         return
 
     client = spotify.get_spotify_client()

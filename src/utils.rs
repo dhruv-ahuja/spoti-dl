@@ -5,6 +5,7 @@ use crate::utils;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
+use colored::Colorize;
 use log::error;
 use regex::Regex;
 
@@ -30,7 +31,8 @@ pub fn parse_cli_arguments(
 
     let codec = match codec_str.parse::<Codec>() {
         Err(_) => {
-            println!("Please pass a valid codec!");
+            let error_msg = "Please pass a valid codec!".red();
+            println!("{error_msg}");
             error!("invalid codec passed: {codec_str}");
             return None;
         }
@@ -39,7 +41,8 @@ pub fn parse_cli_arguments(
 
     let bitrate = match bitrate_str.parse::<Bitrate>() {
         Err(_) => {
-            println!("Please pass a valid bitrate!");
+            let error_msg = "Please pass a valid bitrate!".red();
+            println!("{error_msg}");
             error!("invalid codec passed: {bitrate_str}");
             return None;
         }
@@ -74,7 +77,8 @@ pub fn create_download_directories(download_dir: &Path) -> Option<PathBuf> {
 
     if !album_art_dir.exists() {
         if let Err(err) = std::fs::create_dir_all(&album_art_dir) {
-            println!("Unable to create the download directories, please check your input path and try again!");
+            let error_msg = "Unable to create the download directories, please check your input path and try again!".red();
+            println!("{error_msg}");
             error!(
                 "invalid download directory passed: {:?}; error: {:?}",
                 download_dir.display(),
@@ -94,11 +98,11 @@ pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
 
 /// Parses the link type and the Spotify item ID from the input Spotify link
 pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
-    let invalid_link_msg = "Invalid Spotify link type entered!";
+    let invalid_link_msg = "Invalid Spotify link type entered!".red();
 
     let re = match Regex::new(r"/(track|playlist|album)/([^?/]+)") {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
+            println!("{}", INTERNAL_ERROR_MSG.red());
             error!("error initializing spotify URL regex pattern: {err}");
             return None;
         }
@@ -106,7 +110,7 @@ pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
     };
 
     let Some(captures) = re.captures(link) else {
-        println!("{INTERNAL_ERROR_MSG}");
+        println!("{}", INTERNAL_ERROR_MSG.red());
         error!("invalid spotify link entered: {link}");
         return None
     };
@@ -116,7 +120,7 @@ pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
         (Some(link_type), Some(spotify_id)) => Some((
             match link_type.as_str().parse() {
                 Err(_) => {
-                    println!("{INTERNAL_ERROR_MSG}");
+                    println!("{}", INTERNAL_ERROR_MSG.red());
                     error!("error parsing {} link's type as LinkType value:", link);
                     return None;
                 }

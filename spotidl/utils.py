@@ -4,6 +4,8 @@ import platform
 import pathlib
 import logging
 
+from spotidl.config import RESET_COLOR_CODE
+
 
 default_save_dir = os.getcwd() + "/dl"
 
@@ -60,3 +62,11 @@ def check_ffmpeg_installed() -> bool:
 
     except Exception:
         return False
+
+
+def colorize_message(message: str, color_code: str) -> str:
+    """
+    Colorizes a message with the given ANSI color code.
+    """
+
+    return color_code + message + RESET_COLOR_CODE
