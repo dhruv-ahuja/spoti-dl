@@ -8,6 +8,8 @@ use log::error;
 use pyo3::prelude::*;
 use spotify::LinkType;
 
+use crate::types::INTERNAL_ERROR_MSG;
+
 /// A Python module implemented in Rust.
 #[pymodule]
 fn spotidl_rs(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -43,21 +45,24 @@ fn process_downloads(
         match link_type {
             LinkType::Track => {
                 let Some(song) = spotify::get_song_details(spotify_id, spotify_client).await else {
+                    println!("{INTERNAL_ERROR_MSG}");
                     return Ok(()); 
                 };
                 downloader::process_song_download(song, cli_args).await;
             }
             LinkType::Album => {
                 let Some(album) = spotify::get_album_details(spotify_id, spotify_client).await else {
+                    println!("{INTERNAL_ERROR_MSG}");
                     return Ok(());
                 };
                 if let Err(err) = downloader::process_album_download(album, cli_args).await {
-                    println!("{}", types::INTERNAL_ERROR_MSG);
+                    println!("{INTERNAL_ERROR_MSG}");
                     error!("error when downloading album: {err}");
                 };
             }
             LinkType::Playlist => {
                 let Some(playlist) = spotify::get_playlist_details(&spotify_client, &spotify_id).await else {
+                    println!("{INTERNAL_ERROR_MSG}");
                     return Ok(());
                 };
                 if let Err(err) = downloader::process_playlist_download(
@@ -68,7 +73,7 @@ fn process_downloads(
                 )
                 .await
                 {
-                    println!("{}", types::INTERNAL_ERROR_MSG);
+                    println!("{INTERNAL_ERROR_MSG}");
                     error!("error when downloading playlist: {err}");
                 };
             }

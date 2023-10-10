@@ -10,7 +10,6 @@ use rspotify::model::TrackId;
 use rspotify::prelude::*;
 use rspotify::AuthCodeSpotify;
 
-use crate::types::INTERNAL_ERROR_MSG;
 use crate::utils::remove_illegal_path_characters;
 
 #[derive(Debug, PartialEq)]
@@ -78,7 +77,6 @@ pub async fn get_song_details(
 ) -> Option<SpotifySong> {
     let track_id = match TrackId::from_id(&spotify_id) {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
             error!("error {err} extracting track id {spotify_id}");
             return None;
         }
@@ -86,7 +84,6 @@ pub async fn get_song_details(
     };
     let track = match spotify_client.track(track_id, None).await {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
             error!("error {err} fetching track details with id {spotify_id}");
             return None;
         }
@@ -120,7 +117,6 @@ pub async fn get_album_details(
 ) -> Option<SpotifyAlbum> {
     let album_id = match AlbumId::from_id(&spotify_id) {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
             error!("error {err} extracting album id {spotify_id}");
             return None;
         }
@@ -128,7 +124,6 @@ pub async fn get_album_details(
     };
     let album = match spotify_client.album(album_id, None).await {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
             error!("error {err} fetching album details with id {spotify_id}");
             return None;
         }
@@ -210,7 +205,6 @@ pub async fn get_playlist_details(
 ) -> Option<SpotifyPlaylist> {
     let playlist_id = match PlaylistId::from_id(spotify_id) {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
             error!("error {err} extracting playlist id {spotify_id}");
             return None;
         }
@@ -218,7 +212,6 @@ pub async fn get_playlist_details(
     };
     let playlist = match spotify_client.playlist(playlist_id, None, None).await {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
             error!("error {err} fetching playlist details with id {spotify_id}");
             return None;
         }
@@ -242,7 +235,6 @@ pub async fn get_playlist_songs(
 ) -> Option<Vec<SpotifySong>> {
     let playlist_id = match PlaylistId::from_id(spotify_id) {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
             error!("error {err} extracting playlist id {spotify_id}");
             return None;
         }
@@ -253,7 +245,6 @@ pub async fn get_playlist_songs(
         .await
     {
         Err(err) => {
-            println!("{INTERNAL_ERROR_MSG}");
             error!(
                 "error {err} fetching playlist items with id {spotify_id}\
                 \noffset {offset}"
