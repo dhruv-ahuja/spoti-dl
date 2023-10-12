@@ -4,9 +4,11 @@ version = "2.0.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# * configuring for setuptools-rs
 [lib]
 name = "spotidl_rs"
 crate-type = ["cdylib"]
+path = "src/lib.rs"
 
 [dependencies]
 pyo3 = { version = "0.19", features = ["extension-module"] }
