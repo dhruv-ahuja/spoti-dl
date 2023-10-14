@@ -23,6 +23,7 @@ repository = "https://github.com/dhruv-ahuja/spoti-dl/"
 
 [project.optional-dependencies]
 dev = ["black"]
+test = ["pytest"]
 
 # * rust configuration 
 [build-system]
