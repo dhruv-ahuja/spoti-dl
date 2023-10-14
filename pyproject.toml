@@ -2,7 +2,7 @@
 [project]
 name = "spoti-dl"
 version = "2.0.0"
-description = "spotidl: download songs, albums and playlists using Spotify links"
+description = "spoti-dl: download songs, albums and playlists using Spotify links"
 dependencies = ["spotipy", "python-dotenv"]
 requires-python = ">=3.8"
 license = { file = "LICENSE"}
@@ -32,3 +32,7 @@ build-backend = "maturin"
 [tool.maturin]
 features = ["pyo3/extension-module"]
 python-packages = ["spotidl"]
+
+# this is required to invoke the app as intended
+[project.scripts]
+spoti-dl = "spotidl.main:main"
