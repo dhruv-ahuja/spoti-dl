@@ -113,9 +113,9 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
-      - name: Install dependencies
-        run: |
-          sudo apt install -y perl cpanminus libssl-dev pkg-config librust-openssl-dev
+    #   - name: Install dependencies
+    #     run: |
+    #       sudo apt install -y perl cpanminus libssl-dev pkg-config librust-openssl-dev
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
