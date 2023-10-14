@@ -42,7 +42,7 @@ pub async fn download_song(
     let search_options = youtube_dl::SearchOptions::youtube(query);
 
     let mut yt_client = YoutubeDl::search_for(&search_options);
-    let download_start_msg = format!("Starting {} song download", song_name).green();
+    let download_start_msg = format!("Starting {} download", song_name).cyan();
     println!("{download_start_msg}");
 
     let codec = cli_args.codec.to_string();
@@ -223,7 +223,7 @@ pub async fn process_album_download(
             error!("error downloading {}'s album art: {err}", album.name);
         };
     }
-    let download_start_msg = format!("starting album {} download", album.name).green();
+    let download_start_msg = format!("starting album {} download", album.name).cyan();
     println!("{download_start_msg}");
 
     let parallel_tasks_count: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
@@ -299,7 +299,7 @@ pub async fn process_playlist_download(
         "starting playlist {} download. Any podcast episodes in the playlist will be skipped!",
         playlist.name
     )
-    .green();
+    .cyan();
     println!("{start_download_msg}");
 
     while total_songs > offset {
