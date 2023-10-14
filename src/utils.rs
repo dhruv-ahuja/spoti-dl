@@ -23,6 +23,9 @@ pub fn parse_cli_arguments(
         Err(_) => return None,
         Ok(v) => {
             if !(1..=50).contains(&v) {
+                let error_msg = "Please pass a valid parallel_downloads value!".red();
+                println!("{error_msg}");
+                error!("invalid parallel_downloads value passed: {parallel_downloads_str}");
                 return None;
             }
             v
@@ -43,7 +46,7 @@ pub fn parse_cli_arguments(
         Err(_) => {
             let error_msg = "Please pass a valid bitrate!".red();
             println!("{error_msg}");
-            error!("invalid codec passed: {bitrate_str}");
+            error!("invalid bitrate passed: {bitrate_str}");
             return None;
         }
         Ok(v) => v,
