@@ -42,7 +42,7 @@ def fetch_cli_args() -> argparse.Namespace:
         "-p",
         "--parallel-downloads",
         default="5",
-        help="Maximum number of parallel song downloads. Limit: 1-100. Default: 5",
+        help="Maximum number of parallel song downloads. Limit: 1-50. Default: 5",
     )
 
     # returns the app version as in the poetry.toml file
