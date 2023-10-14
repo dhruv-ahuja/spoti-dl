@@ -16,8 +16,8 @@ def fetch_cli_args() -> argparse.Namespace:
     """
 
     parser = argparse.ArgumentParser(
-        prog="spotidl",
-        description="spotidl: download songs, albums and playlists using Spotify links",
+        prog="spoti-dl",
+        description="spoti-dl: download songs, albums and playlists using Spotify links",
     )
     parser.add_argument("link", help="Spotify song/album/playlist link to download")
     parser.add_argument(
