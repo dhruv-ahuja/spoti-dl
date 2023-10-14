@@ -115,7 +115,7 @@ jobs:
           architecture: x64
       - name: Install dependencies
         run: |
-          sudo apt install -y libssl-dev pkg-config
+          sudo apt install -y perl cpanminus libssl-dev pkg-config
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
@@ -147,7 +147,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
         run: |
-            sudo apt install -y libssl-dev pkg-config          
+            sudo apt install -y perl cpanminus libssl-dev pkg-config          
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
