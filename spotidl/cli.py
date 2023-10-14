@@ -24,19 +24,19 @@ def fetch_cli_args() -> argparse.Namespace:
         "-d",
         "--dir",
         default=utils.default_save_dir,
-        help="Save directory (created if doesn't exist)",
+        help="Save directory (created if doesn't exist). Default: './dl'",
     )
     parser.add_argument(
         "-c",
         "--codec",
-        default="mp3",
-        help=f"Audio format to download file as. List of available formats: {config.audio_formats}",
+        default="opus",
+        help=f"Audio format to download file as. List of available formats: {config.audio_formats}. Default: opus",
     )
     parser.add_argument(
         "-b",
         "--bitrate",
-        default="320",
-        help=f"Audio quality of the file. List of available qualities: {config.audio_bitrates}",
+        default="best",
+        help=f"Audio quality of the file. List of available qualities: {config.audio_bitrates}. Default: best",
     )
     parser.add_argument(
         "-p",
