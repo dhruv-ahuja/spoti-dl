@@ -24,3 +24,4 @@ lazy_static = "1.4.0"
 pyo3-log = "*"
 log = "0.4.20"
 colored = "2"
+openssl = { version = "0.10", features = ["vendored"] }
