@@ -241,7 +241,7 @@ pub async fn get_playlist_songs(
         Err(err) => {
             error!(
                 "error {err} fetching playlist items with id {spotify_id}\
-                \noffset {offset}"
+                \nwith offset {offset}"
             );
             return None;
         }

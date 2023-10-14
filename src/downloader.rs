@@ -33,7 +33,7 @@ pub async fn download_song(
 
     if file_path.exists() {
         let path_exists_msg =
-            format!("\n{} already exists, skipping download", song_name).bright_yellow();
+            format!("{} already exists, skipping download", song_name).bright_yellow();
         println!("{path_exists_msg}");
         return false;
     }
@@ -42,7 +42,7 @@ pub async fn download_song(
     let search_options = youtube_dl::SearchOptions::youtube(query);
 
     let mut yt_client = YoutubeDl::search_for(&search_options);
-    let download_start_msg = format!("\nStarting {} song download", song_name).green();
+    let download_start_msg = format!("Starting {} song download", song_name).green();
     println!("{download_start_msg}");
 
     let codec = cli_args.codec.to_string();
@@ -223,7 +223,7 @@ pub async fn process_album_download(
             error!("error downloading {}'s album art: {err}", album.name);
         };
     }
-    let download_start_msg = format!("\nstarting album {} download", album.name).green();
+    let download_start_msg = format!("starting album {} download", album.name).green();
     println!("{download_start_msg}");
 
     let parallel_tasks_count: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
@@ -257,7 +257,7 @@ pub async fn process_album_download(
     }
 
     let download_completed_msg =
-        format!("\nDownload for album {} completed, enjoy!", album_name).green();
+        format!("Download for album {} completed, enjoy!", album_name).green();
     println!("{download_completed_msg}");
     Ok(())
 }
@@ -296,7 +296,7 @@ pub async fn process_playlist_download(
     let mut song_details = playlist.songs;
 
     let start_download_msg = format!(
-        "\nstarting playlist {} download. Any podcast episodes in the playlist will be skipped!",
+        "starting playlist {} download. Any podcast episodes in the playlist will be skipped!",
         playlist.name
     )
     .green();
@@ -351,11 +351,8 @@ pub async fn process_playlist_download(
         offset += 100;
     }
 
-    let download_completed_msg = format!(
-        "\nDownload for playlist {} completed, enjoy!",
-        &playlist.name
-    )
-    .green();
+    let download_completed_msg =
+        format!("Download for playlist {} completed, enjoy!", &playlist.name).green();
     println!("{download_completed_msg}");
     Ok(())
 }
