@@ -22,9 +22,8 @@ def parser() -> argparse.ArgumentParser:
     # since we're manually adding the command line args, we have to account for
     # the space added after each argument hence the extra space in each
     # 'default' parameter
-    argparser.add_argument("-q", "--quiet", action="store_true")
-    argparser.add_argument("-c", "--codec", default=" mp3")
-    argparser.add_argument("-b", "--bitrate", default=" 320")
+    argparser.add_argument("-c", "--codec", default=" opus")
+    argparser.add_argument("-b", "--bitrate", default=" best")
     argparser.add_argument("-d", "--dir", default=" /dl")
     argparser.add_argument("-v", "--version", action="version", version=__version__)
 
@@ -36,18 +35,16 @@ def parser() -> argparse.ArgumentParser:
     # a function argument and after
     yield argparser
 
-    del argparser
-
 
 def test_app_name():
     """
     Verifies the application name.
     """
 
-    name = "spotidl"
+    name = "spoti-dl"
     # cant use the test fixture here since app name isn't printed to output
     # when its invoked
-    namespace = argparse.Namespace(prog="spotidl")
+    namespace = argparse.Namespace(prog="spoti-dl")
 
     assert name == namespace.prog
 
@@ -71,29 +68,9 @@ def test_version(capsys, parser):
         assert captured.out == f"{current_version}\n"
 
 
-def test_defaults_with_quiet(parser):
+def test_defaults(parser):
     """
-    Tests the applications' default generated argument values, with the quiet
-    flag having been set to `True`.
-    """
-
-    # the Namespace class stores the attributes added to the CLI application,
-    # allowing us to mock the expected behaviour easily
-    expected_output = argparse.Namespace(quiet=True, codec=" mp3", bitrate=" 320", dir=" /dl")
-
-    try:
-        assert parser.parse_args(["-q", "-c mp3", "-b 320", "-d /dl"]) == expected_output
-    except SystemExit:
-        # adding a 'pass' here since the argparse module runs,
-        # parses all arguments and then calls `sys.exit()`.
-        # without an except block here, our tests will keep failing
-        pass
-
-
-def test_defaults_without_quiet(parser):
-    """
-    Tests the applications' default generated argument values, with the quiet
-    flag staying at its default `False`.
+    Tests the applications' default generated argument values.
     """
 
     # checking another variant where we don't modify the quiet param at all
@@ -128,8 +105,7 @@ def test_valid_link(parser):
 
     parser.add_argument("link")
 
-    song_link = "https://open.spotify.com/track/30AeH6saju8WPJo73cKZyH?\
-si=99a24d08f4e44faf"
+    song_link = "https://open.spotify.com/track/30AeH6saju8WPJo73cKZyH"
     expected_output = argparse.Namespace(link=song_link)
 
     try:
