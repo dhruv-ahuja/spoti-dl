@@ -1544,6 +1544,7 @@ dependencies = [
  "lofty",
  "log",
  "openssl",
+ "openssl-sys",
  "pyo3",
  "pyo3-asyncio",
  "pyo3-log",
