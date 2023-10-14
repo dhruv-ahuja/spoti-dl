@@ -32,6 +32,7 @@ build-backend = "maturin"
 [tool.maturin]
 features = ["pyo3/extension-module"]
 python-packages = ["spotidl"]
+module-name = "spotidl.spotidl_rs"
 
 # this is required to invoke the app as intended
 [project.scripts]

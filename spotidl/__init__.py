@@ -1,6 +1,8 @@
 from importlib import metadata
 
+from spotidl import spotidl_rs
+
 
 __version__ = metadata.version("spoti-dl")
 
-del metadata  # optional, to avoid polluting the results of dir(__package__)
+del metadata

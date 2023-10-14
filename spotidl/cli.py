@@ -3,9 +3,8 @@ import logging
 
 import dotenv
 
-from . import __version__
+from . import __version__, spotidl_rs
 from spotidl import utils, config, spotify
-from spotidl_rs import process_downloads
 
 
 dotenv.load_dotenv()
@@ -83,4 +82,4 @@ async def controller():
     client = spotify.get_spotify_client()
     token = spotify.get_spotify_token(client)
 
-    await process_downloads(token, args.link, args.dir, args.codec, args.bitrate, args.parallel_downloads)
+    await spotidl_rs.process_downloads(token, args.link, args.dir, args.codec, args.bitrate, args.parallel_downloads)
