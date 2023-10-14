@@ -4,9 +4,9 @@ mod spotify;
 mod types;
 mod utils;
 
+use colored::Colorize;
 use log::error;
 use pyo3::prelude::*;
-use colored::Colorize;
 use spotify::LinkType;
 
 use crate::types::{INTERNAL_ERROR_MSG, SPOTIFY_ERROR_MSG};
@@ -33,11 +33,16 @@ fn process_downloads(
     pyo3_asyncio::tokio::future_into_py(py, async move {
         pyo3_log::init();
 
-        let Some((link_type,spotify_id)) = utils::parse_link(&link) else {
-            return Ok(())
+        let Some((link_type, spotify_id)) = utils::parse_link(&link) else {
+            return Ok(());
         };
-        let Some(cli_args) = utils::parse_cli_arguments(download_dir_str, codec_str, bitrate_str, parallel_downloads_str) else {
-            return Ok(())
+        let Some(cli_args) = utils::parse_cli_arguments(
+            download_dir_str,
+            codec_str,
+            bitrate_str,
+            parallel_downloads_str,
+        ) else {
+            return Ok(());
         };
 
         let mut spotify_client = spotify::generate_client(token);
@@ -47,12 +52,13 @@ fn process_downloads(
             LinkType::Track => {
                 let Some(song) = spotify::get_song_details(spotify_id, spotify_client).await else {
                     println!("{}", SPOTIFY_ERROR_MSG.red());
-                    return Ok(()); 
+                    return Ok(());
                 };
                 downloader::process_song_download(song, cli_args).await;
             }
             LinkType::Album => {
-                let Some(album) = spotify::get_album_details(spotify_id, spotify_client).await else {
+                let Some(album) = spotify::get_album_details(spotify_id, spotify_client).await
+                else {
                     println!("{}", SPOTIFY_ERROR_MSG.red());
                     return Ok(());
                 };
@@ -62,7 +68,9 @@ fn process_downloads(
                 };
             }
             LinkType::Playlist => {
-                let Some(playlist) = spotify::get_playlist_details(&spotify_client, &spotify_id).await else {
+                let Some(playlist) =
+                    spotify::get_playlist_details(&spotify_client, &spotify_id).await
+                else {
                     println!("{}", SPOTIFY_ERROR_MSG.red());
                     return Ok(());
                 };

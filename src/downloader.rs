@@ -281,7 +281,7 @@ pub async fn process_playlist_download(
     let mut file_path = cli_args.download_dir.clone();
     file_path.push(&playlist.name);
 
-    let Some( album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
+    let Some(album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
         return Ok(());
     };
 

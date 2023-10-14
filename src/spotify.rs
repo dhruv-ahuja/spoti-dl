@@ -2,11 +2,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 use log::error;
-use rspotify::model::AlbumId;
-use rspotify::model::PlayableItem;
-use rspotify::model::PlaylistId;
-use rspotify::model::PlaylistItem;
-use rspotify::model::TrackId;
+use rspotify::model::{AlbumId, PlayableItem, PlaylistId, PlaylistItem, TrackId};
 use rspotify::prelude::*;
 use rspotify::AuthCodeSpotify;
 
@@ -157,9 +153,7 @@ pub async fn get_album_details(
 pub fn filter_playlist_items(items: Vec<PlaylistItem>) -> Vec<SpotifySong> {
     let mut songs = Vec::with_capacity(items.len());
     for item in items {
-        let Some(track) = item.track else {
-            continue
-        } ;
+        let Some(track) = item.track else { continue };
         let PlayableItem::Track(song_track) = track else {
             continue;
         };

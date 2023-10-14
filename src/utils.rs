@@ -112,7 +112,7 @@ pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
     let Some(captures) = re.captures(link) else {
         println!("{}", INTERNAL_ERROR_MSG.red());
         error!("invalid spotify link entered: {link}");
-        return None
+        return None;
     };
 
     // capture the link's first and second parts according to the matched pattern
