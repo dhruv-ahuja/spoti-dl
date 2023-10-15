@@ -23,11 +23,10 @@ pub const INTERNAL_ERROR_MSG: &str =
 spoti-dl Github repo (https://github.com/dhruv-ahuja/spoti-dl)";
 
 lazy_static! {
-    pub static ref ILLEGAL_PATH_CHARS: HashSet<char> =
-        ['\\', '?', '%', '*', ':', '|', '"', '<', '>', '.']
-            .iter()
-            .cloned()
-            .collect();
+    pub static ref ILLEGAL_PATH_CHARS: HashSet<char> = ['?', '%', '*', '|', '"', '<', '>', '.']
+        .iter()
+        .cloned()
+        .collect();
 }
 
 #[derive(Debug, PartialEq)]
