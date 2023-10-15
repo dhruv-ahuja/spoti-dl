@@ -4,21 +4,9 @@
 
 # Introduction
 
-spoti-dl(I had a better name but that was already taken on PyPi), is a song downloader app that accepts Spotify links, fetches songs and and their albums' information from Spotify, downloads the song from Youtube. The metadata is then written onto the downloaded song file, including the album art cover. 
+spoti-dl(I had a better name but that was already taken on PyPi), is a song downloader app that accepts Spotify links, fetches individual song—and basic album—metadata from Spotify, downloads the song from Youtube. The metadata is then written onto the downloaded song file using the trusty Mutagen library, this includes the album/song cover art as well. 
 
-It supports downloading songs, albums and playlists as podcast episodes cannot be reliably downloaded through Youtube. 
-
-
-## Version 2.0.0 Update
-The version 2.0.0 update introduces several improvements. I've shifted the app to be predominantly Rust-based, all core functionality is now written in Rust, which should result in about 20-25% performance imprvoement directly.
-
-Albums and playlists are now downloaded in parallel, with 5 songs being downloaded in parallel by default. This has allowed for massive speedups - a 19-song album that earlier took about 115 seconds to download now took me roughly 25 seconds, that's more than a 4.5x speedup. You can get downloade faster if you increase the number of parallel downloads, by setting the `-p` flag. 
-This fixes a big issue with the app which was the unreasonable download times for albums and playlists, which can easily have 500 or even 1000 songs. 
-
-I have also cleaned up the error messages, added error-logging to a file (`~/.spotidl.log`), color coded output messages and made several other minor improvmeents. All in all, the app should feel much better to use now :)
-
-The main reason to use FFI with Rust was mostly just to code in Rust, and also get some extra performance out of the application. I have been enjoying Rust a lot lately and Python has always been nice to work with too.
-
+The app currently supports downloading songs, albums and playlists. 
 
 # Setup
 
@@ -40,28 +28,25 @@ SPOTIPY_CLIENT_SECRET
 SPOTIPY_REDIRECT_URI
 ```
 
-Also note that the first time you run the app you might get a popup window in your browser asking to integrate your account to the app you just created in the Spotify app dashboard. Accept and close the window. The window will automatically close if you've already granted access to the app in the past. 
-
+Also note that the first time you run the app you might get a popup window in your browser asking to integrate your account to the app you just created in the Spotify app dashboard. Accept and close the window.
 
 # Usage
 
 ```
-spoti-dl <spotify link>
+spotidl <spotify link>
 ``` 
 
 as an example, running this would download Rick Astley's 'Never Gonna Give You Up'- 
 ```
-spoti-dl https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=06f5d7ab5bd240e7
+spotidl https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=06f5d7ab5bd240e7
 ```
 
 The following audio formats are supported:
 - mp3 
 - flac
-- m4a
-- opus (default)
 
 The following bitrates are supported:
-- best (default)
+- best 
 - 320kbps
 - 256kbps 
 - 192kbps (slightly better than Spotify's 'high' audio setting, this is the bare minimum in my opinion to have a good listening experience)
@@ -70,24 +55,19 @@ The following bitrates are supported:
 - worst
 
 Again, the following link types are supported:
-- song,
-- album, and
+- song links
+- album links
 - playlist links 
 
-**Note**: File names (audio files or folder names (eg., playlist's directory name) are changed to ensure compatibility with the operating systems since many characters like '?' or the '/' are illegal when making files/folders in certain systems and are removed during the downloads. 
-
+Note: File names (audio files or folder names (eg., playlist's directory name) are changed to ensure compatibility with the operating systems since many characters like '?' or the '/' are illegal when making files/folders.
 
 ## Flags
  
 | Flag  | Long Flag         | Usage                                                                   |
 | ----- | ----------------- | ----------------------------------------------------------------------- |
 | -h    | --help            | shows all the argument flags and their details                          |
-| -d    | --dir             | the save directory to use while downloading                             |                         |
+| -d    | --dir             | the save directory to use while downloading                             |
+| -q    | --quiet           | changes the verbosity level to be "quiet"                               |
 | -c    | --codec           | the codec to use for downloads                                          |
 | -b    | --bitrate         | set the bitrate to use for downloads                                    |
-| -p    | --parallel-downloads         | maximum number of parallel song downloads                                         |
 | -v    | --version         | displays the current app version                                        |
-
-
-# TODO
-- [ ] add tests 
