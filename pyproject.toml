@@ -1,7 +1,7 @@
 # * native python configuration
 [project]
 name = "spoti-dl"
-version = "2.0.0-b"
+version = "2.0.0"
 description = "spoti-dl: download songs, albums and playlists using Spotify links"
 dependencies = ["spotipy==2.23.0", "python-dotenv==1.0.0", "yt-dlp>=2023.10.13"]
 requires-python = ">=3.8"
