@@ -115,7 +115,8 @@ jobs:
           architecture: x64
       - name: Install dependencies
         run: |
-          sudo apt install -y perl cpanminus libssl-dev pkg-config librust-openssl-dev && sudo cpanm IPC::Cmd
+          sudo apt install -y perl cpanminus libssl-dev pkg-config librust-openssl-dev && sudo cpanm IPC::Cmd 
+          cargo install openssl --version 0.10 --features "vendored"
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
