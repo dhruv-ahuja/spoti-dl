@@ -10,6 +10,7 @@ pub struct CliArgs {
     pub download_dir: PathBuf,
     pub codec: Codec,
     pub bitrate: Bitrate,
+    pub add_track_number: bool,
     pub parallel_downloads: u32,
 }
 

@@ -39,6 +39,9 @@ def fetch_cli_args() -> argparse.Namespace:
         help=f"Audio quality of the file. List of available qualities: {config.audio_bitrates}. Default: best",
     )
     parser.add_argument(
+        "-t", "--track-numbers", action="store_true", help="Prepend song names with track order numbers."
+    )
+    parser.add_argument(
         "-p",
         "--parallel-downloads",
         default="5",
@@ -82,4 +85,6 @@ async def controller():
     client = spotify.get_spotify_client()
     token = spotify.get_spotify_token(client)
 
-    await spotidl_rs.process_downloads(token, args.link, args.dir, args.codec, args.bitrate, args.parallel_downloads)
+    await spotidl_rs.process_downloads(
+        token, args.link, args.dir, args.codec, args.bitrate, args.track_numbers, args.parallel_downloads
+    )

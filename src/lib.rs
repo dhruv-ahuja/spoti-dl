@@ -28,6 +28,7 @@ fn process_downloads(
     download_dir_str: String,
     codec_str: String,
     bitrate_str: String,
+    add_track_number: bool,
     parallel_downloads_str: String,
 ) -> PyResult<&PyAny> {
     pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -40,6 +41,7 @@ fn process_downloads(
             download_dir_str,
             codec_str,
             bitrate_str,
+            add_track_number,
             parallel_downloads_str,
         ) else {
             return Ok(());

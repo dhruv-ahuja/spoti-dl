@@ -14,6 +14,7 @@ pub fn parse_cli_arguments(
     download_dir_str: String,
     codec_str: String,
     bitrate_str: String,
+    add_track_number: bool,
     parallel_downloads_str: String,
 ) -> Option<CliArgs> {
     let corrected_download_dir = utils::correct_path_names(&download_dir_str, false);
@@ -56,6 +57,7 @@ pub fn parse_cli_arguments(
         download_dir,
         codec,
         bitrate,
+        add_track_number,
         parallel_downloads,
     })
 }

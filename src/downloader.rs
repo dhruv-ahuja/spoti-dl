@@ -16,6 +16,7 @@ pub async fn download_song(
     file_path: &Path,
     song_name: &str,
     artists: &[String],
+    track_number: Option<u32>,
     cli_args: &CliArgs,
 ) -> bool {
     let parent_dir_display = match file_path.parent() {
@@ -29,7 +30,16 @@ pub async fn download_song(
         }
         Some(v) => v.display(),
     };
-    let file_output_format = format!("{}/{}.%(ext)s", parent_dir_display, song_name);
+    let file_output_format = if cli_args.add_track_number {
+        format!(
+            "{}/{} {}.%(ext)s",
+            parent_dir_display,
+            track_number.unwrap(),
+            song_name
+        )
+    } else {
+        format!("{}/{}.%(ext)s", parent_dir_display, song_name)
+    };
 
     if file_path.exists() {
         let path_exists_msg =
@@ -82,7 +92,25 @@ async fn download_album_songs(
         let file_name = format!("{}.{}", corrected_song_name, cli_args.codec);
         file_path.push(&file_name);
 
-        if download_song(&file_path, &corrected_song_name, &song.artists, &cli_args).await {
+        let track_number = if cli_args.add_track_number {
+            Some(song.track_number)
+        } else {
+            None
+        };
+
+        if download_song(
+            &file_path,
+            &corrected_song_name,
+            &song.artists,
+            track_number,
+            &cli_args,
+        )
+        .await
+        {
+            if cli_args.add_track_number {
+                file_path.pop();
+                file_path.push(format!("{} {}", song.track_number, file_name));
+            }
             tokio::task::block_in_place(|| {
                 let album_art_dir = album_art_dir.clone();
                 metadata::add_metadata(
@@ -156,7 +184,25 @@ async fn download_playlist_songs(
         let mut cover_dir = album_art_dir.clone();
         cover_dir.push(album_art_file);
 
-        if download_song(&file_path, &song_name, &item.simple_song.artists, &cli_args).await {
+        let track_number = if cli_args.add_track_number {
+            Some(item.simple_song.track_number)
+        } else {
+            None
+        };
+
+        if download_song(
+            &file_path,
+            &song_name,
+            &item.simple_song.artists,
+            track_number,
+            &cli_args,
+        )
+        .await
+        {
+            if cli_args.add_track_number {
+                file_path.pop();
+                file_path.push(format!("{} {}", item.simple_song.track_number, file_name));
+            }
             tokio::task::block_in_place(|| {
                 metadata::add_metadata(
                     file_path.clone(),
@@ -185,7 +231,25 @@ pub async fn process_song_download(song: SpotifySong, cli_args: CliArgs) {
     file_path.push(&file_name);
     let artists = &song.simple_song.artists;
 
-    if download_song(&file_path, &corrected_song_name, artists, &cli_args).await {
+    let track_number = if cli_args.add_track_number {
+        Some(song.simple_song.track_number)
+    } else {
+        None
+    };
+
+    if download_song(
+        &file_path,
+        &corrected_song_name,
+        artists,
+        track_number,
+        &cli_args,
+    )
+    .await
+    {
+        if cli_args.add_track_number {
+            file_path.pop();
+            file_path.push(format!("{} {}", song.simple_song.track_number, file_name));
+        }
         let album_art_file = format!("{}.jpeg", &corrected_album_name);
         album_art_dir.push(album_art_file);
 
