@@ -1,8 +1,12 @@
-from importlib import metadata
+import tomli
 
 from spotidl import spotidl_rs
 
 
-__version__ = metadata.version("spoti-dl")
+with open("pyproject.toml", "rb") as toml_file:
+    toml_data = tomli.load(toml_file)
 
-del metadata
+project_data = toml_data.get("project", {})
+__version__ = project_data.get("version")
+
+del toml_data, project_data
