@@ -6,7 +6,7 @@ ENV_VARS_ERROR = "Environment variables not properly configured! Please configur
 
 # * logger default config
 LOG_FILE = "spotidl.log"
-LOG_DATETIME_FORMAT = "%m/%d/%Y %I:%M:%S %p"
+LOG_DATETIME_FORMAT = "%d/%m/%Y %I:%M:%S %p"
 LOG_MESSAGE_FORMAT = "%(asctime)s | %(levelname)s: %(message)s"
 
 # * text color ANSI escape codes
