@@ -3,7 +3,7 @@ name: Build & Test Release
 on:
   push:
     branches:
-      - home
+      - main
     paths:
       - src/*
       - Cargo.toml
