@@ -6,7 +6,7 @@ use rspotify::model::{AlbumId, PlayableItem, PlaylistId, PlaylistItem, TrackId};
 use rspotify::prelude::*;
 use rspotify::AuthCodeSpotify;
 
-use crate::utils::remove_illegal_path_characters;
+use crate::utils::correct_path_names;
 
 #[derive(Debug, PartialEq)]
 pub enum LinkType {
@@ -163,8 +163,8 @@ pub fn filter_playlist_items(items: Vec<PlaylistItem>) -> Vec<SpotifySong> {
             }
         }
 
-        let corrected_song_name = remove_illegal_path_characters(&song_track.name, true);
-        let corrected_album_name = remove_illegal_path_characters(&song_track.album.name, true);
+        let corrected_song_name = correct_path_names(&song_track.name, true);
+        let corrected_album_name = correct_path_names(&song_track.album.name, true);
 
         let simple_song = SimpleSong {
             name: corrected_song_name,
@@ -259,7 +259,7 @@ pub fn get_unique_cover_urls(songs: &Vec<SpotifySong>) -> HashMap<String, String
             continue;
         };
 
-        let album_name = remove_illegal_path_characters(&song.album_name, true);
+        let album_name = correct_path_names(&song.album_name, true);
         let cover_url = match song.cover_url.clone() {
             None => continue,
             Some(v) => v,

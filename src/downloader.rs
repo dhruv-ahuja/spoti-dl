@@ -1,6 +1,6 @@
 use crate::spotify::{SimpleSong, SpotifyAlbum, SpotifyPlaylist, SpotifySong};
 use crate::types::{CliArgs, INTERNAL_ERROR_MSG};
-use crate::utils::{self, download_album_art, remove_illegal_path_characters};
+use crate::utils::{self, correct_path_names, download_album_art};
 use crate::{metadata, spotify};
 
 use std::error::Error;
@@ -77,7 +77,7 @@ async fn download_album_songs(
     songs: Vec<SimpleSong>,
 ) {
     for song in songs {
-        let corrected_song_name = remove_illegal_path_characters(&song.name, true);
+        let corrected_song_name = correct_path_names(&song.name, true);
 
         let file_name = format!("{}.{}", corrected_song_name, cli_args.codec);
         file_path.push(&file_name);
@@ -172,8 +172,8 @@ async fn download_playlist_songs(
 }
 
 pub async fn process_song_download(song: SpotifySong, cli_args: CliArgs) {
-    let corrected_song_name = remove_illegal_path_characters(&song.simple_song.name, true);
-    let corrected_album_name = remove_illegal_path_characters(&song.album_name, true);
+    let corrected_song_name = correct_path_names(&song.simple_song.name, true);
+    let corrected_album_name = correct_path_names(&song.album_name, true);
 
     let Some(mut album_art_dir) = utils::create_download_directories(&cli_args.download_dir) else {
         return;
@@ -205,7 +205,7 @@ pub async fn process_album_download(
     album: SpotifyAlbum,
     cli_args: CliArgs,
 ) -> Result<(), Box<dyn Error>> {
-    let corrected_album_name = remove_illegal_path_characters(&album.name, true);
+    let corrected_album_name = correct_path_names(&album.name, true);
     let mut file_path = cli_args.download_dir.clone();
     file_path.push(&album.name);
 

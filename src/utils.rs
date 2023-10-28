@@ -16,7 +16,7 @@ pub fn parse_cli_arguments(
     bitrate_str: String,
     parallel_downloads_str: String,
 ) -> Option<CliArgs> {
-    let corrected_download_dir = utils::remove_illegal_path_characters(&download_dir_str, false);
+    let corrected_download_dir = utils::correct_path_names(&download_dir_str, false);
     let download_dir = Path::new(&corrected_download_dir).to_owned();
 
     let parallel_downloads = match parallel_downloads_str.parse() {
@@ -60,8 +60,9 @@ pub fn parse_cli_arguments(
     })
 }
 
-/// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given path is a file
-pub fn remove_illegal_path_characters(name: &str, is_file: bool) -> String {
+/// Corrects a given file or directory path by replacing illegal characters with '#'; replaces `/` if the given name
+/// is a file as files cannot contain the `/` directory indicators
+pub fn correct_path_names(name: &str, is_file: bool) -> String {
     name.chars()
         .filter(|c| {
             if is_file {
