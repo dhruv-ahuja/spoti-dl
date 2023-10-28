@@ -116,7 +116,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install -y perl cpanminus libssl-dev pkg-config librust-openssl-dev && sudo cpanm IPC::Cmd 
-          cargo install openssl --version 0.10 --features "vendored"
+          cargo install openssl 
+          cargo install openssl-probe
+          cargo install openssl-sys
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
