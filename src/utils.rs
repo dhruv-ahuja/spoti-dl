@@ -105,8 +105,13 @@ pub fn generate_youtube_query(song_name: &str, artists: &[String]) -> String {
 /// Parses the link type and the Spotify item ID from the input Spotify link
 pub fn parse_link(link: &str) -> Option<(LinkType, String)> {
     let invalid_link_msg = "Invalid Spotify link type entered!".red();
+    let pattern = if link.starts_with("spotify:") {
+        r":(track|playlist|album):([^?/]+)"
+    } else {
+        r"/(track|playlist|album)/([^?/]+)"
+    };
 
-    let re = match Regex::new(r"/(track|playlist|album)/([^?/]+)") {
+    let re = match Regex::new(pattern) {
         Err(err) => {
             println!("{}", INTERNAL_ERROR_MSG.red());
             error!("error initializing spotify URL regex pattern: {err}");
