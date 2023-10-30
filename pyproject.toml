@@ -3,7 +3,7 @@
 name = "spoti-dl"
 version = "2.1.1"
 description = "spoti-dl: download songs, albums and playlists using Spotify links"
-dependencies = ["spotipy==2.23.0", "python-dotenv==1.0.0", "yt-dlp>=2023.10.13", "tomli==2.0.1"]
+dependencies = ["spotipy==2.23.0", "python-dotenv==1.0.0", "yt-dlp>=2023.10.13"]
 requires-python = ">=3.8"
 license = { file = "LICENSE"}
 readme = "README.md"
