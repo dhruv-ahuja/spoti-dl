@@ -46,14 +46,20 @@ Also note that the first time you run the app you might get a popup window in yo
 
 ## Usage
 
+**Note**: Please try updating `yt-dlp` through `pip` if encountering random download failures.
+
 ```bash
-spoti-dl <spotify link>
+spoti-dl <spotify URL or URI> 
 ```
 
-as an example, running this would download Rick Astley's 'Never Gonna Give You Up':
+as an example, running either of the commands would download Rick Astley's 'Never Gonna Give You Up':
 
 ```bash
-spoti-dl https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=06f5d7ab5bd240e7
+spoti-dl https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8
+```
+
+```bash
+spoti-dl spotify:track:4PTG3Z6ehGkBFwjybzWkR8
 ```
 
 The following audio formats are supported:
@@ -79,18 +85,19 @@ Again, the following link types are supported:
 - album, and
 - playlist links
 
-**Note**: File names (audio files or folder names (eg., playlist's directory name) are changed to ensure compatibility with the operating systems since many characters like '?' or the '/' are illegal when making files/folders in certain systems and are removed during the downloads.
+**Note**: File names (audio files or folder names (eg., playlist's directory name)) are changed to ensure compatibility with the operating systems since many characters like '?' or the '/' are illegal when making files/folders in certain systems and are removed during the downloads.
 
 ## Flags
 
-| Flag | Long Flag            | Usage                                          |
-| ---- | -------------------- | ---------------------------------------------- |
-| -h   | --help               | shows all the argument flags and their details |
-| -d   | --dir                | the save directory to use while downloading    |
-| -c   | --codec              | the codec to use for downloads                 |
-| -b   | --bitrate            | set the bitrate to use for downloads           |
-| -p   | --parallel-downloads | maximum number of parallel song downloads      |
-| -v   | --version            | displays the current app version               |
+| Flag | Long Flag            | Usage                                                       |
+| ---- | -------------------- | ----------------------------------------------------------- |
+| -h   | --help               | shows all the argument flags and their details              |
+| -d   | --dir                | the save directory to use while downloading                 |
+| -c   | --codec              | the codec to use for downloads                              |
+| -b   | --bitrate            | set the bitrate to use for downloads                        |
+| -t   | --track-number       | prepend downloaded song names with their track order number |
+| -p   | --parallel-downloads | maximum number of parallel song downloads                   |
+| -v   | --version            | displays the current app version                            |
 
 ## TODO
 
