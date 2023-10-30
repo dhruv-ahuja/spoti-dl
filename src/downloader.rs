@@ -290,31 +290,40 @@ pub async fn process_album_download(
     let download_start_msg = format!("starting album {} download", album.name).cyan();
     println!("{download_start_msg}");
 
-    let parallel_tasks_count: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
+    let parallel_tasks: usize = if album.songs.len() >= cli_args.parallel_downloads as usize {
         cli_args.parallel_downloads as usize
     } else {
         album.songs.len()
     };
 
-    let songs_per_task = (album.songs.len() + parallel_tasks_count - 1) / parallel_tasks_count;
+    let songs_per_task = album.songs.len() / parallel_tasks;
+    let remaining_songs = album.songs.len() % parallel_tasks;
 
     let cli_args = Arc::new(cli_args);
     let album_art_dir = Arc::new(album_art_dir);
     let album_name = Arc::new(album.name);
 
-    let handles = album
-        .songs
-        .chunks(songs_per_task)
-        .map(|chunk| {
-            tokio::spawn(download_album_songs(
-                file_path.clone(),
-                cli_args.clone(),
-                album_art_dir.clone(),
-                album_name.clone(),
-                chunk.to_vec(),
-            ))
-        })
-        .collect::<Vec<_>>();
+    let mut handles = Vec::with_capacity(parallel_tasks);
+    let mut start = 0;
+
+    for i in 0..parallel_tasks {
+        let mut end = start + songs_per_task;
+        if i < remaining_songs {
+            end += 1
+        }
+
+        let songs_chunk = &album.songs[start..end];
+        let handle = tokio::spawn(download_album_songs(
+            file_path.clone(),
+            cli_args.clone(),
+            album_art_dir.clone(),
+            album_name.clone(),
+            songs_chunk.to_vec(),
+        ));
+
+        start = end;
+        handles.push(handle)
+    }
 
     for handle in handles {
         handle.await?;
@@ -323,6 +332,7 @@ pub async fn process_album_download(
     let download_completed_msg =
         format!("Download for album {} completed, enjoy!", album_name).green();
     println!("{download_completed_msg}");
+
     Ok(())
 }
 
