@@ -11,7 +11,7 @@ It supports downloading songs, albums and playlists as podcast episodes cannot b
 
 ## Version 2.0.0 Update
 
-The version 2.0.0 update introduces several improvements. I've shifted the app to be predominantly Rust-based, all core functionality is now written in Rust, which should result in about 20-25% performance improvement directly.
+The version 2.0.0 update introduces several improvements. I've shifted the app to be predominantly Rust-based, all core functionality is now written in Rust, which should result in about 20-25% performance improvement directly. [I have written a blog post on the same.](https://dhruv-ahuja.github.io/posts/writing-rust-bindings/).
 
 Albums and playlists are now downloaded in parallel, with 5 songs being downloaded in parallel by default. This has allowed for massive speedups - a 19-song album that earlier took about 115 seconds to download now took me roughly 25 seconds, that's more than a 4.5x speedup. You can download faster if you increase the number of parallel downloads, by setting the `-p` flag.
 This fixes a big issue with the app which was the unreasonable download times for albums and playlists, which can easily have 500 or even 1000 songs.
